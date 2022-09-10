@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using C1.Win.Chart;
-using ImageFormat = System.Drawing.Imaging.ImageFormat;
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
+using OxyPlot.WindowsForms;
 
 namespace Lab1
 {
@@ -71,14 +67,7 @@ namespace Lab1
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
             Algorithms.RGBToHLS(targetMemory);
 
-
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(_filePath);
-            Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
-            Algorithms.ByteToBmp(resultBmp, targetMemory);
-
-            resultBmp.Save(fileInfo.DirectoryName + "/fromRGBtoHLS.png", ImageFormat.Png);
-            outputPictureBox.Image = resultBmp;
+            SaveImageCopy(targetMemory, "fromRGBtoHLS");
 
             _curModel = "HLS";
             radioButton1.Text = "H (тон)";
@@ -103,14 +92,7 @@ namespace Lab1
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
             Algorithms.HLStoRGB(targetMemory);
 
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(_filePath);
-            Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
-
-            Algorithms.ByteToBmp(resultBmp, targetMemory);
-
-            resultBmp.Save(fileInfo.DirectoryName + "/fromHLStoRGB.png", ImageFormat.Png);
-            outputPictureBox.Image = resultBmp;
+            SaveImageCopy(targetMemory, "fromHLStoRGB");
 
             _curModel = "RGB";
             radioButton1.Text = "R (красный)";
@@ -128,43 +110,14 @@ namespace Lab1
             _coefC = contrastTrackBar.Value / 10;
         }
 
-        FlexChart CreateChart((uint[] R, uint[] G, uint[] B) hist)
-        {
-            var chart = new FlexChart()
-            {
-                ChartType = C1.Chart.ChartType.LineSymbols,
-                Dock = DockStyle.Fill
-            };
-
-            chart.Series.Add(new Series()
-            {
-                Name = "Red",
-                Style = {StrokeColor = Color.Red},
-                DataSource = hist.R
-            });
-            chart.Series.Add(new Series()
-            {
-                Name = "Blue",
-                Style = {StrokeColor = Color.Blue},
-                DataSource = hist.B
-            });
-            chart.Series.Add(new Series
-            {
-                Name = "Green",
-                Style = {StrokeColor = Color.Green},
-                DataSource = hist.B
-            });
-
-            return chart;
-        }
-
 
         private void onImageVisualize(object sender, EventArgs e)
         {
             var source = (Bitmap) inputPictureBox.Image;
             var hist = Algorithms.Histogram(source);
 
-            FlexChart chart = CreateChart(hist);
+            // TODO: HLS тоже?
+            var chart = CreateChart(hist, ("Red", "Green", "Blue"));
             var popup = new Form()
             {
                 Width = 400,
@@ -173,38 +126,6 @@ namespace Lab1
             popup.Controls.Add(chart);
             popup.Show(this);
 
-            // if (radioButton1.Checked)
-            // {
-            //     for (int i = 0; i < 256; i++)
-            //     {
-            //         chart1.Series[0].Points.AddXY(i, hist[i].R);
-            //     }
-            //
-            //     chart1.Series[0].LegendText = radioButton1.Text;
-            //     chart1.Series[0].Color = Color.Red;
-            // }
-            // else if (radioButton2.Checked)
-            // {
-            //     for (int i = 0; i < 256; i++)
-            //     {
-            //         chart1.Series[0].Points.AddXY(i, hist[i].G);
-            //     }
-            //
-            //     chart1.Series[0].LegendText = radioButton2.Text;
-            //     chart1.Series[0].Color = Color.Green;
-            // }
-            // else if (radioButton3.Checked)
-            // {
-            //     for (int i = 0; i < 256; i++)
-            //     {
-            //         chart1.Series[0].Points.AddXY(i, hist[i].B);
-            //     }
-            //
-            //     chart1.Series[0].LegendText = radioButton3.Text;
-            //     chart1.Series[0].Color = Color.Blue;
-            // }
-
-
             Bitmap result = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
 
             //перерисовать картинку
@@ -212,24 +133,22 @@ namespace Lab1
             {
                 for (int j = 0; j < source.Height; j++)
                 {
+                    byte r = 0, g = 0, b = 0;
                     //получить цвет пикселя
                     Color pix = source.GetPixel(i, j);
+
                     if (radioButton1.Checked)
-                        result.SetPixel(i, j, Color.FromArgb(255, pix.R, 0, 0));
-                    else if (radioButton2.Checked)
-                        result.SetPixel(i, j, Color.FromArgb(255, 0, pix.G, 0));
-                    else if (radioButton3.Checked)
-                        result.SetPixel(i, j, Color.FromArgb(255, 0, 0, pix.B));
+                        r = pix.R;
+                    if (radioButton2.Checked)
+                        g = pix.G;
+                    if (radioButton3.Checked)
+                        b = pix.B;
+
+                    result.SetPixel(i, j, Color.FromArgb(255, r, g, b));
                 }
             }
 
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(_filePath);
-            //Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
-            //FromByteToBmp(resultBmp, buffer);
-            result.Save(fileInfo.DirectoryName + "/vizColor" + _fileNameCounter + ".png", ImageFormat.Png);
             outputPictureBox.Image = result;
-            _fileNameCounter++;
         }
 
         private void onTransformImage(object sender, EventArgs e)
@@ -281,13 +200,7 @@ namespace Lab1
 
             string elapsedTime = String.Format("{0:00}:{1:00}", ts.Seconds, ts.Milliseconds / 10);
             MessageBox.Show("Яркость/контрастность " + elapsedTime);
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(_filePath);
-            Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
-            Algorithms.ByteToBmp(resultBmp, targetMemory);
-            resultBmp.Save(fileInfo.DirectoryName + "/change" + _fileNameCounter + ".png", ImageFormat.Png);
-            outputPictureBox.Image = resultBmp;
-            _fileNameCounter++;
+            SaveImageCopy(targetMemory);
         }
 
         /// <code>
@@ -363,13 +276,16 @@ namespace Lab1
             });
         }
 
-        private void SaveImageCopy(ArraySegment<byte> imageBuffer)
+        private void SaveImageCopy(ArraySegment<byte> imageBuffer) =>
+            SaveImageCopy(imageBuffer, "change" + _fileNameCounter);
+
+        private void SaveImageCopy(ArraySegment<byte> imageBuffer, string fileName)
         {
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(_filePath);
-            Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
+            FileInfo fileInfo = new(_filePath);
+            Bitmap resultBmp = new(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
+
             Algorithms.ByteToBmp(resultBmp, imageBuffer);
-            resultBmp.Save(fileInfo.DirectoryName + "/change" + _fileNameCounter + ".png", ImageFormat.Png);
+            resultBmp.Save(fileInfo.DirectoryName + "/" + fileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
             outputPictureBox.Image = resultBmp;
             _fileNameCounter++;
         }
@@ -393,6 +309,33 @@ namespace Lab1
 
             sourceMemory.CopyTo(targetMemory);
             return targetMemory;
+        }
+
+        PlotView CreateChart((uint[] R, uint[] G, uint[] B) hist, (string, string, string) Titles)
+        {
+            var first = new LineSeries() {Title = Titles.Item1, Color = OxyColor.FromRgb(255, 0, 0)};
+            first.Points.AddRange(hist.R.Select((p, i) => new DataPoint(i, p)));
+
+            var second = new LineSeries() {Title = Titles.Item2, Color = OxyColor.FromRgb(10, 255, 0)};
+            second.Points.AddRange(hist.G.Select((p, i) => new DataPoint(i, p)));
+
+            var third = new LineSeries() {Title = Titles.Item3, Color = OxyColor.FromRgb(0, 10, 255)};
+            third.Points.AddRange(hist.B.Select((p, i) => new DataPoint(i, p)));
+
+            var model = new PlotModel()
+            {
+                Series = {first, second, third},
+                Axes =
+                {
+                    new LinearAxis() {Position = AxisPosition.Bottom, Minimum = 0, Maximum = 255},
+                    new LinearAxis() {Position = AxisPosition.Left, Minimum = 0},
+                }
+            };
+            return new PlotView()
+            {
+                Model = model,
+                Dock = DockStyle.Fill,
+            };
         }
     }
 }

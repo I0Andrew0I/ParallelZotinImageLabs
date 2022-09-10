@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="C1.Win.FlexChart" Version="6.0.20222.566" />
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.1.0" />
     <PackageReference Include="Magick.NET.Core" Version="12.1.0" />
+    <PackageReference Include="OxyPlot.WindowsForms" Version="2.1.0" />
   </ItemGroup>
 
 </Project>
