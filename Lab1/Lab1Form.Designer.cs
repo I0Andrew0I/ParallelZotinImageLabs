@@ -200,7 +200,7 @@ namespace Lab1
 			this.buttonHR.TabIndex = 6;
 			this.buttonHR.Text = "HLS -> RGB";
 			this.buttonHR.UseVisualStyleBackColor = true;
-			this.buttonHR.Click += new System.EventHandler(this.buttonHR_Click);
+			this.buttonHR.Click += new System.EventHandler(this.OnHLStoRGB);
 			// 
 			// buttonRH
 			// 
@@ -211,7 +211,7 @@ namespace Lab1
 			this.buttonRH.TabIndex = 0;
 			this.buttonRH.Text = "RGB -> HLS";
 			this.buttonRH.UseVisualStyleBackColor = true;
-			this.buttonRH.Click += new System.EventHandler(this.buttonRH_Click);
+			this.buttonRH.Click += new System.EventHandler(this.OnRGBtoHLS);
 			// 
 			// openFileDialog
 			// 

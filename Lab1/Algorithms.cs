@@ -56,30 +56,6 @@ namespace Lab1
             }
         }
 
-        public static ArraySegment<byte> BmpToByte(Bitmap source)
-        {
-            BitmapData sourceData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            int size = sourceData.Stride * sourceData.Height;
-            byte[] rent = ArrayPool<byte>.Shared.Rent(size);
-            Marshal.Copy(sourceData.Scan0, rent, 0, size);
-            source.UnlockBits(sourceData);
-            return new ArraySegment<byte>(rent, 0, size);
-        }
-
-        public static void ByteToBmp(Bitmap bmp, ArraySegment<byte> bytes)
-        {
-            BitmapData resultData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            Marshal.Copy(bytes.Array, 0, resultData.Scan0, bytes.Count);
-            bmp.UnlockBits(resultData);
-        }
-
-        public static Image ReadImage(string filePath)
-        {
-            using FileStream fs = new(filePath, FileMode.Open);
-            Image img = Image.FromStream(fs);
-            return img;
-        }
-
         public static void HLStoRGB(ArraySegment<byte> buffer)
         {
             for (int i = 0; i < buffer.Count; i += 4)
@@ -135,46 +111,73 @@ namespace Lab1
             }
         }
 
+        public static ArraySegment<byte> BmpToByte(Bitmap source)
+        {
+            BitmapData sourceData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int size = sourceData.Stride * sourceData.Height;
+            byte[] rent = ArrayPool<byte>.Shared.Rent(size);
+            Marshal.Copy(sourceData.Scan0, rent, 0, size);
+            source.UnlockBits(sourceData);
+            return new ArraySegment<byte>(rent, 0, size);
+        }
+
+        public static void ByteToBmp(Bitmap bmp, ArraySegment<byte> bytes)
+        {
+            BitmapData resultData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(bytes.Array, 0, resultData.Scan0, bytes.Count);
+            bmp.UnlockBits(resultData);
+        }
+
+        public static Image ReadImage(string filePath)
+        {
+            using FileStream fs = new(filePath, FileMode.Open);
+            Image img = Image.FromStream(fs);
+            return img;
+        }
+
         public static void TransformImage(ArraySegment<byte> imageBuffer, int brightness, int contrast)
         {
             int exclusive = imageBuffer.Count / 4;
-            Parallel.For(0, exclusive, new ParallelOptions {MaxDegreeOfParallelism = 4}, i =>
+            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
+            Parallel.For(0, exclusive, po, i =>
             {
-                int pix_i = i * 4;
+                int iter = i * 4;
 
-                var pixel = new ARGB(imageBuffer.AsSpan(pix_i, 4)).ToYUV();
-                // нормализует значения красного, зеленого, синего
-                // double r = (double) imageBuffer[pix_i + 2];
-                // double g = (double) imageBuffer[pix_i + 1];
-                // double b = (double) imageBuffer[pix_i];
+                var argb = new ARGB(imageBuffer.AsSpan(iter, 4));
+                var yuv = argb.ToYUV();
 
+                yuv.Y += brightness;
+                yuv.Y = contrast * (yuv.Y - 127.5) + 127.5;
 
-                // double y = 0.299 * r + 0.587 * g + 0.114 * b;
-                // double u = -0.14713 * r - 0.28886 * g + 0.436 * b;
-                // double v = 0.615 * r - 0.51499 * g - 0.10001 * b;
+                var argb1 = yuv.ToARGB();
 
-                // BUG: яркость от -127 до 127 ?
-                // y += brightness;
-                pixel.Y += brightness;
-                pixel.Y = contrast * (pixel.Y - 127.5) + 127.5;
-                // double new_y = contrast * (y - 127.5) + 127.5;
+                imageBuffer[iter + 2] = argb1.R;
+                imageBuffer[iter + 1] = argb1.G;
+                imageBuffer[iter] = argb1.B;
+                imageBuffer[iter + 3] = argb1.A;
+            });
+        }
 
-                // int rr = (int) (Math.Round(new_y + 1.14 * v));
-                // if (rr > 255) rr = 255;
-                // else if (rr < 0) rr = 0;
-                // int gg = (int) (Math.Round(new_y - 0.395 * u - 0.581 * v));
-                // if (gg > 255) gg = 255;
-                // else if (gg < 0) gg = 0;
-                // int bb = (int) (Math.Round(new_y + 2.032 * u));
-                // if (bb > 255) bb = 255;
-                // else if (bb < 0) bb = 0;
+        public static void ColorCorrection(ArraySegment<byte> buffer, double[] curve, bool curveCorrection)
+        {
+            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
+            Parallel.For(0, buffer.Count / 4, po, i =>
+            {
+                int iter = i * 4;
 
-                var rgb = pixel.ToRGB();
+                var argb = new ARGB(buffer.AsSpan(iter, 4));
+                var yuv = argb.ToYUV();
 
-                imageBuffer[pix_i + 2] = rgb.R;
-                imageBuffer[pix_i + 1] = rgb.G;
-                imageBuffer[pix_i] = rgb.B;
-                imageBuffer[pix_i + 3] = 255;
+                yuv.Y = curveCorrection
+                    ? curve[(int) Math.Round(yuv.Y)]
+                    : Algorithms.EquationSystem(yuv.Y);
+
+                var argb1 = yuv.ToARGB();
+
+                buffer[iter + 3] = argb1.A;
+                buffer[iter + 2] = argb1.R;
+                buffer[iter + 1] = argb1.G;
+                buffer[iter] = argb1.B;
             });
         }
 
@@ -195,6 +198,30 @@ namespace Lab1
 
             return (histR, histG, histB);
         }
+
+        /// <code>
+        /// y = (9+y)^2
+        /// y = 5y + 8
+        /// y = 3y
+        /// y = sin(y)
+        /// y = y^2
+        /// </code>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static double EquationSystem(double y)
+        {
+            double Ynew = y switch
+            {
+                >= 0 and <= 50 => Math.Pow(9.0 + y, 2),
+                > 50 and <= 100 => 5 * y + 8,
+                > 100 and <= 150 => 3 * y,
+                > 150 and <= 200 => Math.Sin(y),
+                > 200 and <= 255 => Math.Pow(y, 2),
+                _ => 0
+            };
+
+            return Ynew;
+        }
     }
 
     public record struct YUV
@@ -210,7 +237,7 @@ namespace Lab1
             this.V = V;
         }
 
-        public ARGB ToRGB()
+        public ARGB ToARGB()
         {
             byte r = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), Byte.MinValue, Byte.MaxValue);
             byte g = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), Byte.MinValue, Byte.MaxValue);
