@@ -50,7 +50,7 @@ namespace Lab1
             }
         }
 
-        private void buttonRH_Click(object sender, EventArgs e)
+        private void OnRGBtoHLS(object sender, EventArgs e)
         {
             if (_sourceBuffer == null)
             {
@@ -75,7 +75,7 @@ namespace Lab1
             radioButton3.Text = "S (насыщенность)";
         }
 
-        private void buttonHR_Click(object sender, EventArgs e)
+        private void OnHLStoRGB(object sender, EventArgs e)
         {
             if (_sourceBuffer == null)
             {
@@ -162,13 +162,12 @@ namespace Lab1
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
 
 
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
+            var stopWatch = Stopwatch.StartNew();
             Algorithms.TransformImage(targetMemory, _coefY, _coefC);
             stopWatch.Stop();
 
             TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+            string elapsedTime = String.Format("{0:00}.{1:00}", ts.TotalSeconds, ts.Milliseconds / 10);
             MessageBox.Show("Яркость/контрастность " + elapsedTime);
 
             SaveImageCopy(_targetBuffer.Value);
@@ -183,18 +182,19 @@ namespace Lab1
             }
 
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
+
+            double[] correctionCurve = Array.Empty<double>();
             if (radioButton6.Checked)
             {
                 Points getPoints = new Points();
                 if (getPoints.ShowDialog() == DialogResult.OK)
-                {
-                    _correctionCurve = getPoints.Y;
-                }
+                    correctionCurve = getPoints.Y;
+                else
+                    return;
             }
 
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            ColorCorrection(_correctionCurve);
+            var stopWatch = Stopwatch.StartNew();
+            Algorithms.ColorCorrection(targetMemory, correctionCurve, radioButton6.Checked);
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
 
@@ -203,78 +203,6 @@ namespace Lab1
             SaveImageCopy(targetMemory);
         }
 
-        /// <code>
-        /// y = (9+y)^2
-        /// y = 5y + 8
-        /// y = 3y
-        /// y = sin(y)
-        /// y = y^2
-        /// </code>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        double EquationSystem(double y)
-        {
-            double Ynew = y switch
-            {
-                >= 0 and <= 50 => Math.Pow(9.0 + y, 2),
-                > 50 and <= 100 => 5 * y + 8,
-                > 100 and <= 150 => 3 * y,
-                > 150 and <= 200 => Math.Sin(y),
-                > 200 and <= 255 => Math.Pow(y, 2),
-                _ => 0
-            };
-
-            return Ynew;
-        }
-
-
-        private void ColorCorrection(double[] curve)
-        {
-            if (_targetBuffer is not { } buffer) return;
-            ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = 4};
-
-            Parallel.For(0, buffer.Count / 4, po, i =>
-            {
-                int pix_i = i * 4;
-                double new_y = 0;
-
-                //перевод в YUV
-                // нормализует значения красного, зеленого, синего
-                double r = (double) buffer[pix_i + 2];
-                double g = (double) buffer[pix_i + 1];
-                double b = (double) buffer[pix_i];
-
-                double y = 0.299 * r + 0.587 * g + 0.114 * b;
-                double u = -0.14713 * r - 0.28886 * g + 0.436 * b;
-                double v = 0.615 * r - 0.51499 * g - 0.10001 * b;
-
-                // коррекция системой уравнений
-                if (radioButton5.Checked)
-                {
-                    new_y = EquationSystem(y);
-                }
-                // коррекция по кривой
-                else if (radioButton6.Checked)
-                {
-                    new_y = curve[(int) Math.Round(y)];
-                }
-
-                int rr = (int) Math.Round(new_y + 1.14 * v);
-                if (rr > 255) rr = 255;
-                else if (rr < 0) rr = 0;
-                int gg = (int) (Math.Round(new_y - 0.395 * u - 0.581 * v));
-                if (gg > 255) gg = 255;
-                else if (gg < 0) gg = 0;
-                int bb = (int) (Math.Round(new_y + 2.032 * u));
-                if (bb > 255) bb = 255;
-                else if (bb < 0) bb = 0;
-
-                buffer[pix_i + 2] = (byte) rr;
-                buffer[pix_i + 1] = (byte) gg;
-                buffer[pix_i] = (byte) bb;
-                buffer[pix_i + 3] = 255;
-            });
-        }
 
         private void SaveImageCopy(ArraySegment<byte> imageBuffer) =>
             SaveImageCopy(imageBuffer, "change" + _fileNameCounter);
