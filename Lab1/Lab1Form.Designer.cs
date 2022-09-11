@@ -1,4 +1,6 @@
 ﻿
+using System.Windows.Forms;
+
 namespace Lab1
 {
     partial class Lab1Form
@@ -35,6 +37,7 @@ namespace Lab1
 			this.inputLabel = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label5 = new System.Windows.Forms.Label();
 			this.buttonYUV = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
@@ -57,6 +60,11 @@ namespace Lab1
 			this.buttonMod = new System.Windows.Forms.Button();
 			this.radioButton5 = new System.Windows.Forms.RadioButton();
 			this.radioButton6 = new System.Windows.Forms.RadioButton();
+			this.label6 = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label8 = new System.Windows.Forms.Label();
+			this.label9 = new System.Windows.Forms.Label();
+			this.histogramPanel = new System.Windows.Forms.Panel();
 			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			this.groupBox1.SuspendLayout();
@@ -111,6 +119,11 @@ namespace Lab1
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.label9);
+			this.groupBox1.Controls.Add(this.label8);
+			this.groupBox1.Controls.Add(this.label7);
+			this.groupBox1.Controls.Add(this.label6);
+			this.groupBox1.Controls.Add(this.label5);
 			this.groupBox1.Controls.Add(this.buttonYUV);
 			this.groupBox1.Controls.Add(this.label3);
 			this.groupBox1.Controls.Add(this.label2);
@@ -120,14 +133,23 @@ namespace Lab1
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox1.Size = new System.Drawing.Size(588, 103);
+			this.groupBox1.Size = new System.Drawing.Size(535, 103);
 			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Изменение яркости/контраста";
 			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(7, 72);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(30, 15);
+			this.label5.TabIndex = 10;
+			this.label5.Text = "-255";
+			// 
 			// buttonYUV
 			// 
-			this.buttonYUV.Location = new System.Drawing.Point(484, 50);
+			this.buttonYUV.Location = new System.Drawing.Point(435, 50);
 			this.buttonYUV.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonYUV.Name = "buttonYUV";
 			this.buttonYUV.Size = new System.Drawing.Size(88, 27);
@@ -139,7 +161,7 @@ namespace Lab1
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(284, 33);
+			this.label3.Location = new System.Drawing.Point(230, 30);
 			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(57, 15);
@@ -158,18 +180,18 @@ namespace Lab1
 			// 
 			// contrastTrackBar
 			// 
-			this.contrastTrackBar.Location = new System.Drawing.Point(275, 52);
+			this.contrastTrackBar.Location = new System.Drawing.Point(221, 52);
 			this.contrastTrackBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.contrastTrackBar.Maximum = 50;
 			this.contrastTrackBar.Name = "contrastTrackBar";
 			this.contrastTrackBar.Size = new System.Drawing.Size(202, 45);
 			this.contrastTrackBar.TabIndex = 6;
-			this.contrastTrackBar.Value = 5;
+			this.contrastTrackBar.Value = 10;
 			this.contrastTrackBar.Scroll += new System.EventHandler(this.trackBar2_Scroll);
 			// 
 			// brightnessTrackBar
 			// 
-			this.brightnessTrackBar.Location = new System.Drawing.Point(29, 52);
+			this.brightnessTrackBar.Location = new System.Drawing.Point(8, 50);
 			this.brightnessTrackBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.brightnessTrackBar.Maximum = 255;
 			this.brightnessTrackBar.Minimum = -255;
@@ -220,7 +242,7 @@ namespace Lab1
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(765, 405);
+			this.label4.Location = new System.Drawing.Point(4, 546);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(80, 15);
@@ -229,7 +251,7 @@ namespace Lab1
 			// 
 			// textBox1
 			// 
-			this.textBox1.Location = new System.Drawing.Point(765, 423);
+			this.textBox1.Location = new System.Drawing.Point(4, 564);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.textBox1.Name = "textBox1";
 			this.textBox1.Size = new System.Drawing.Size(224, 23);
@@ -237,7 +259,7 @@ namespace Lab1
 			// 
 			// buttonSearch
 			// 
-			this.buttonSearch.Location = new System.Drawing.Point(997, 420);
+			this.buttonSearch.Location = new System.Drawing.Point(236, 561);
 			this.buttonSearch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.Size = new System.Drawing.Size(88, 27);
@@ -357,11 +379,55 @@ namespace Lab1
 			this.radioButton6.Text = "кусочно-линейная";
 			this.radioButton6.UseVisualStyleBackColor = true;
 			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(185, 72);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(25, 15);
+			this.label6.TabIndex = 11;
+			this.label6.Text = "255";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(225, 68);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(13, 15);
+			this.label7.TabIndex = 12;
+			this.label7.Text = "0";
+			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(410, 68);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(13, 15);
+			this.label8.TabIndex = 13;
+			this.label8.Text = "5";
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(263, 75);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(13, 15);
+			this.label9.TabIndex = 14;
+			this.label9.Text = "1";
+			// 
+			// histogramPanel
+			// 
+			this.histogramPanel.Location = new System.Drawing.Point(885, 395);
+			this.histogramPanel.Name = "histogramPanel";
+			this.histogramPanel.Size = new System.Drawing.Size(307, 192);
+			this.histogramPanel.TabIndex = 14;
+			// 
 			// Lab1Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1204, 599);
+			this.Controls.Add(this.histogramPanel);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.buttonSearch);
@@ -422,6 +488,12 @@ namespace Lab1
         private System.Windows.Forms.Button buttonMod;
         private System.Windows.Forms.RadioButton radioButton5;
         private System.Windows.Forms.RadioButton radioButton6;
-    }
+		private Label label5;
+		private Label label9;
+		private Label label8;
+		private Label label7;
+		private Label label6;
+		private Panel histogramPanel;
+	}
 }
 
