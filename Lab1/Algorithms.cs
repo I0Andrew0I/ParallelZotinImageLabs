@@ -5,12 +5,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Labs.Core;
 
 namespace Lab1
 {
     public class Algorithms
     {
-        public static void RGBToHLS(ArraySegment<byte> buffer)
+        public static void RGBToHLSInplace(ArraySegment<byte> buffer)
         {
             Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
             for (int i = 0; i < pixels.Length; i++)
@@ -25,7 +26,23 @@ namespace Lab1
             }
         }
 
-        public static void HLStoRGB(ArraySegment<byte> buffer)
+        public static ArraySegment<HLSA> RGBToHLS(ArraySegment<byte> buffer)
+        {
+            Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
+            var rent = ArrayPool<HLSA>.Shared.Rent(pixels.Length);
+            var result = new ArraySegment<HLSA>(rent, 0, pixels.Length);
+
+            HLSA hlsa = default(HLSA);
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i].ToHLSA(ref hlsa);
+                result[i] = hlsa;
+            }
+
+            return result;
+        }
+
+        public static void HLStoRGBInplace(ArraySegment<byte> buffer)
         {
             Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
             for (int i = 0; i < pixels.Length; i++)
@@ -37,6 +54,18 @@ namespace Lab1
 
                 var hlsa = new HLSA(h, l, s, a);
                 pixels[i] = hlsa.ToARGB();
+            }
+        }
+
+        public static void HLStoRGB(ArraySegment<HLSA> pixels, ref ArraySegment<byte> output)
+        {
+            Span<ARGB> result = output.Cast<ARGB>();
+            ARGB value = default(ARGB);
+
+            for (int i = 0; i < pixels.Count; i++)
+            {
+                value = pixels[i].ToARGB();
+                result[i] = value;
             }
         }
 
@@ -85,6 +114,40 @@ namespace Lab1
                     yuv.ToARGB(ref pixels[i]);
                 }
             });
+        }
+
+        public static (uint[] R, uint[] G, uint[] B) Histogram(Span<ARGB> pixels)
+        {
+            uint[] histR = new uint[256];
+            uint[] histG = new uint[256];
+            uint[] histB = new uint[256];
+
+            foreach (ARGB pix in pixels)
+            {
+                histR[pix.R]++;
+                histG[pix.G]++;
+                histB[pix.B]++;
+            }
+
+            return (histR, histG, histB);
+        }
+
+        public static (uint[] H, uint[] L, uint[] S) Histogram(Span<HLSA> pixels)
+        {
+            uint[] H = new uint[361];
+            uint[] L = new uint[361];
+            uint[] S = new uint[361];
+
+            foreach (HLSA pix in pixels)
+            {
+                var l = (int) Math.Round(pix.L * 360);
+                var s = (int) Math.Round(pix.S * 360);
+                H[(int) pix.H]++;
+                L[l]++;
+                S[s]++;
+            }
+
+            return (H, L, S);
         }
 
         public static (uint[] R, uint[] G, uint[] B) Histogram(Bitmap image)

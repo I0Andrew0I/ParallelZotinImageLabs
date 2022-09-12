@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Labs.Core;
 using OxyPlot;
@@ -16,9 +17,8 @@ namespace Lab1
     public partial class Lab1Form : Form
     {
         private string _filePath;
-        private string _curModel;
-        private int _coefY;
-        private int _coefC;
+        private int _brightness;
+        private int _contrast;
         private int _fileNameCounter = 0;
         private double[] _correctionCurve;
         private bool IsRGB = false;
@@ -27,6 +27,7 @@ namespace Lab1
 
         private ArraySegment<byte>? _targetBuffer;
         private ArraySegment<byte>? _sourceBuffer;
+        private ArraySegment<HLSA>? _hlsaPixels;
 
         public Lab1Form()
         {
@@ -58,7 +59,7 @@ namespace Lab1
 
                 _sourceBuffer = image.CopyBytes();
 
-                UpdateHistogram(IsRGB);
+                UpdateHistogram(_sourceBuffer.Value.Cast<ARGB>());
             }
         }
 
@@ -70,19 +71,19 @@ namespace Lab1
                 return;
             }
 
-            if (_curModel == "HLS")
+            if (IsRGB == false)
             {
-                MessageBox.Show("Изображение уже представлено в цветовой модели " + _curModel);
+                MessageBox.Show("Изображение уже представлено в этой цветовой модели");
                 return;
             }
 
+            IsRGB = false;
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
-            Algorithms.RGBToHLS(targetMemory);
-            
-            SaveImageCopy(targetMemory, "fromRGBtoHLS");
-            UpdateHistogram(false);
+            _hlsaPixels = Algorithms.RGBToHLS(targetMemory);
 
-            _curModel = "HLS";
+            ShowResult(targetMemory);
+            UpdateHistogram(_hlsaPixels.Value.AsSpan());
+
             radioButton1.Text = "H (тон)";
             radioButton2.Text = "L (яркость)";
             radioButton3.Text = "S (насыщенность)";
@@ -96,20 +97,20 @@ namespace Lab1
                 return;
             }
 
-            if (_curModel == "RGB")
+            if (IsRGB == true)
             {
-                MessageBox.Show("Изображение уже представлено в цветовой модели " + _curModel);
+                MessageBox.Show("Изображение уже представлено в этой цветовой модели");
                 return;
             }
 
+            IsRGB = true;
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
-            Algorithms.HLStoRGB(targetMemory);
-            
-            SaveImageCopy(targetMemory, "fromHLStoRGB");
-            
-            UpdateHistogram(true);
+            Algorithms.HLStoRGB(_hlsaPixels.Value, ref targetMemory);
 
-            _curModel = "RGB";
+            SaveImageCopy(targetMemory, "fromHLStoRGB");
+
+            UpdateHistogram(targetMemory.Cast<ARGB>());
+
             radioButton1.Text = "R (красный)";
             radioButton2.Text = "G (зелёный)";
             radioButton3.Text = "B (синий)";
@@ -117,31 +118,78 @@ namespace Lab1
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            _coefY = brightnessTrackBar.Value;
+            _brightness = brightnessTrackBar.Value;
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            _coefC = contrastTrackBar.Value / 10;
+            _contrast = contrastTrackBar.Value / 10;
         }
 
 
-        private void onImageVisualize(object sender, EventArgs e)
+        private void onFilterChannels(object sender, EventArgs e)
         {
-            if (_sourceBuffer is not { } sourceMemory)
-                return;
-
             var image = (Bitmap) outputPictureBox.Image;
             Span<byte> bytes = image.LockImage(out var locked);
-
-            Span<ARGB> inputPixel = sourceMemory.Cast<ARGB>();
             Span<ARGB> outputPixel = bytes.Cast<ARGB>();
 
-            for (int i = 0; i < outputPixel.Length; i++)
+            if (IsRGB)
+            {
+                if (_sourceBuffer is not { } sourceMemory)
+                    return;
+
+                _targetBuffer ??= CopyFromSource(sourceMemory);
+                Span<ARGB> inputPixel = _targetBuffer.Value.Cast<ARGB>();
+                FilterRGBChannel(inputPixel, outputPixel);
+            }
+            else
+            {
+                if (_hlsaPixels is not { } hlsaArray)
+                    return;
+
+                FilterHLSChannel(hlsaArray.AsSpan(), outputPixel);
+            }
+
+            image.UnlockBits(locked);
+            outputPictureBox.Image = image;
+        }
+
+        private void FilterHLSChannel(Span<HLSA> input, Span<ARGB> output)
+        {
+            ARGB value = default(ARGB);
+            for (int i = 0; i < output.Length; i++)
+            {
+                HLSA pixel = input[i];
+                if (radioButton1.Checked)
+                {
+                    pixel.L = 0.5;
+                    pixel.S = 1;
+                    value = pixel.ToARGB();
+                }
+
+                if (radioButton2.Checked)
+                {
+                    var v = (byte) Math.Round(pixel.L * 255.0);
+                    value = new ARGB(v, v, v, 255);
+                }
+
+                if (radioButton3.Checked)
+                {
+                    var v = (byte) Math.Round(pixel.S * 255.0);
+                    value = new ARGB(v, v, v, 255);
+                }
+
+                output[i] = value;
+            }
+        }
+
+        private void FilterRGBChannel(Span<ARGB> input, Span<ARGB> output)
+        {
+            for (int i = 0; i < output.Length; i++)
             {
                 byte r = 0, g = 0, b = 0;
                 //получить цвет пикселя
-                var pix = inputPixel[i];
+                var pix = input[i];
 
                 if (radioButton1.Checked)
                     r = pix.R;
@@ -150,15 +198,11 @@ namespace Lab1
                 if (radioButton3.Checked)
                     b = pix.B;
 
-                outputPixel[i].R = r;
-                outputPixel[i].G = g;
-                outputPixel[i].B = b;
-                outputPixel[i].A = 255;
+                output[i].R = r;
+                output[i].G = g;
+                output[i].B = b;
+                output[i].A = 255;
             }
-
-            image.UnlockBits(locked);
-
-            outputPictureBox.Image = image;
         }
 
         private void onTransformImage(object sender, EventArgs e)
@@ -171,9 +215,8 @@ namespace Lab1
 
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
 
-
             var stopWatch = Stopwatch.StartNew();
-            Algorithms.TransformImage(targetMemory, _coefY, _coefC);
+            Algorithms.TransformImage(targetMemory, _brightness, _contrast);
             stopWatch.Stop();
 
             TimeSpan ts = stopWatch.Elapsed;
@@ -213,11 +256,16 @@ namespace Lab1
             SaveImageCopy(targetMemory);
         }
 
-        private void UpdateHistogram(bool isRgb)
+        private void UpdateHistogram(Span<ARGB> pixels)
         {
-            var target = (Bitmap) outputPictureBox.Image;
-            var hist = Algorithms.Histogram(target);
-            var labels = isRgb ? ("Red", "Green", "Blue") : ("Hue", "Lightness", "Saturation");
+            var hist = Algorithms.Histogram(pixels);
+            DrawChart(_histogram, hist, ("Red", "Green", "Blue"));
+        }
+
+        private void UpdateHistogram(Span<HLSA> pixels)
+        {
+            var hist = Algorithms.Histogram(pixels);
+            var labels = ("Hue", "Lightness", "Saturation");
             DrawChart(_histogram, hist, labels);
         }
 
@@ -228,12 +276,29 @@ namespace Lab1
         private void SaveImageCopy(ArraySegment<byte> imageBuffer, string fileName)
         {
             FileInfo fileInfo = new(_filePath);
-            Bitmap resultBmp = new(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
+            Bitmap resultBmp = ShowResult(imageBuffer);
+
+            resultBmp.Save(fileInfo.DirectoryName + "/" + fileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            _fileNameCounter++;
+        }
+
+        private Bitmap ShowResult(ArraySegment<byte> imageBuffer)
+        {
+            Bitmap resultBmp;
+            if (outputPictureBox.Image == null
+                || outputPictureBox.Image.Width != inputPictureBox.Image.Width
+                || outputPictureBox.Image.Height != inputPictureBox.Image.Height)
+            {
+                resultBmp = new(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
+            }
+            else
+            {
+                resultBmp = (Bitmap) outputPictureBox.Image;
+            }
 
             resultBmp.CopyFrom(imageBuffer);
-            resultBmp.Save(fileInfo.DirectoryName + "/" + fileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
             outputPictureBox.Image = resultBmp;
-            _fileNameCounter++;
+            return resultBmp;
         }
 
         private ArraySegment<byte> CopyFromSource(ArraySegment<byte> sourceMemory)

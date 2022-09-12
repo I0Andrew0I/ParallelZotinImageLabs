@@ -292,7 +292,7 @@ namespace Lab1
 			this.buttonViz.TabIndex = 3;
 			this.buttonViz.Text = "Show";
 			this.buttonViz.UseVisualStyleBackColor = true;
-			this.buttonViz.Click += new System.EventHandler(this.onImageVisualize);
+			this.buttonViz.Click += new System.EventHandler(this.onFilterChannels);
 			// 
 			// radioButton3
 			// 
