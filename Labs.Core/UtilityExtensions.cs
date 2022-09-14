@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -60,5 +62,19 @@ namespace Labs.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Span<TValue> Cast<TValue>(this ArraySegment<byte> source) where TValue : struct =>
             source.AsSpan().Cast<TValue>();
+
+        public static TimeSpan CalculateTime(List<TimeSpan> tests)
+        {
+            var ticks = tests.Select(t => t.Ticks).ToArray();
+            double mean = ticks.Sum() / (double) ticks.Length;
+            double disp = ticks.Sum(t => Math.Abs(mean - t)) / ticks.Length;
+
+            double l = mean - disp * 2;
+            double r = mean + disp * 2;
+            ticks = ticks.Where(t => t >= l && t <= r).ToArray();
+            long meanTime = (long) Math.Round(ticks.Sum() / (double) ticks.Length);
+
+            return new TimeSpan(meanTime);
+        }
     }
 }

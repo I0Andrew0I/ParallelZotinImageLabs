@@ -69,9 +69,9 @@ namespace Lab1
             }
         }
 
-        public static void TransformImage(ArraySegment<byte> imageBuffer, int brightness, int contrast)
+        public static void TransformImage(ArraySegment<byte> imageBuffer, int brightness, double contrast, int threads)
         {
-            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
+            ParallelOptions po = new() {MaxDegreeOfParallelism = threads};
             int step = imageBuffer.Count / 16;
 
             Parallel.For(0, 16, po, iter =>
@@ -92,9 +92,9 @@ namespace Lab1
             });
         }
 
-        public static void ColorCorrection(ArraySegment<byte> imageBuffer, double[] curve, bool curveCorrection)
+        public static void ColorCorrection(ArraySegment<byte> imageBuffer, double[] curve, bool curveCorrection, int threads)
         {
-            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
+            ParallelOptions po = new() {MaxDegreeOfParallelism = threads};
             int step = imageBuffer.Count / 16;
 
             Parallel.For(0, 16, po, iter =>

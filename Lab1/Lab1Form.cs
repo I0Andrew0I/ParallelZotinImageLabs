@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -18,7 +19,7 @@ namespace Lab1
     {
         private string _filePath;
         private int _brightness;
-        private int _contrast;
+        private double _contrast;
         private int _fileNameCounter = 0;
         private double[] _correctionCurve;
         private bool IsRGB = false;
@@ -37,6 +38,7 @@ namespace Lab1
 
             inputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             outputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            _contrast = contrastTrackBar.Value / 10.0;
         }
 
         private void buttonSearch_Click(object sender, EventArgs e)
@@ -107,7 +109,7 @@ namespace Lab1
             ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
             Algorithms.HLStoRGB(_hlsaPixels.Value, ref targetMemory);
 
-            SaveImageCopy(targetMemory, "fromHLStoRGB");
+            ShowResult(targetMemory);
 
             UpdateHistogram(targetMemory.Cast<ARGB>());
 
@@ -123,7 +125,7 @@ namespace Lab1
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            _contrast = contrastTrackBar.Value / 10;
+            _contrast = contrastTrackBar.Value / 10.0;
         }
 
 
@@ -213,17 +215,30 @@ namespace Lab1
                 return;
             }
 
-            ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
 
-            var stopWatch = Stopwatch.StartNew();
-            Algorithms.TransformImage(targetMemory, _brightness, _contrast);
-            stopWatch.Stop();
+            List<TimeSpan> tests = new();
+            for (int count = 0; count < _testCountBox.Value; count++)
+            {
+                ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
 
-            TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}.{1:00}", ts.TotalSeconds, ts.Milliseconds / 10);
+                var stopWatch = Stopwatch.StartNew();
+                Algorithms.TransformImage(targetMemory, _brightness, _contrast, (int) _threadCountBox.Value);
+                stopWatch.Stop();
+
+                TimeSpan ts = stopWatch.Elapsed;
+                tests.Add(ts);
+                _targetBuffer = targetMemory;
+            }
+
+            var time = UtilityExtensions.CalculateTime(tests);
+
+            string elapsedTime = String.Format("{0:00}.{1:00}", time.TotalSeconds, time.Milliseconds / 10);
             MessageBox.Show("Яркость/контрастность " + elapsedTime);
 
-            SaveImageCopy(_targetBuffer.Value);
+            if (_saveResultsBox.Checked)
+                SaveImageCopy(_targetBuffer.Value);
+            else
+                ShowResult(_targetBuffer.Value);
         }
 
         private void onModification(object sender, EventArgs e)
@@ -234,7 +249,6 @@ namespace Lab1
                 return;
             }
 
-            ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
 
             double[] correctionCurve = Array.Empty<double>();
             if (radioButton6.Checked)
@@ -246,14 +260,26 @@ namespace Lab1
                     return;
             }
 
-            var stopWatch = Stopwatch.StartNew();
-            Algorithms.ColorCorrection(targetMemory, correctionCurve, radioButton6.Checked);
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
+            List<TimeSpan> tests = new();
+            for (int count = 0; count < _testCountBox.Value; count++)
+            {
+                ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
+                var stopWatch = Stopwatch.StartNew();
+                Algorithms.ColorCorrection(targetMemory, correctionCurve, radioButton6.Checked, (int) _threadCountBox.Value);
+                stopWatch.Stop();
+                tests.Add(stopWatch.Elapsed);
+                _targetBuffer = targetMemory;
+            }
 
-            string elapsedTime = String.Format("{0:00}:{1:00}", ts.Seconds, ts.Milliseconds / 10);
+            TimeSpan time = UtilityExtensions.CalculateTime(tests);
+
+            string elapsedTime = String.Format("{0:00}:{1:00}", time.TotalSeconds, time.Milliseconds / 10);
             MessageBox.Show("Яркость/контрастность " + elapsedTime);
-            SaveImageCopy(targetMemory);
+
+            if (_saveResultsBox.Checked)
+                SaveImageCopy(_targetBuffer.Value);
+            else
+                ShowResult(_targetBuffer.Value);
         }
 
         private void UpdateHistogram(Span<ARGB> pixels)

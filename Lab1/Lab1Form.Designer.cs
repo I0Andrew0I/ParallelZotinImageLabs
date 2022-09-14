@@ -37,6 +37,10 @@ namespace Lab1
 			this.inputLabel = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label9 = new System.Windows.Forms.Label();
+			this.label8 = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
 			this.buttonYUV = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
@@ -60,11 +64,12 @@ namespace Lab1
 			this.buttonMod = new System.Windows.Forms.Button();
 			this.radioButton5 = new System.Windows.Forms.RadioButton();
 			this.radioButton6 = new System.Windows.Forms.RadioButton();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label7 = new System.Windows.Forms.Label();
-			this.label8 = new System.Windows.Forms.Label();
-			this.label9 = new System.Windows.Forms.Label();
 			this.histogramPanel = new System.Windows.Forms.Panel();
+			this._threadCountBox = new System.Windows.Forms.NumericUpDown();
+			this.label10 = new System.Windows.Forms.Label();
+			this.label11 = new System.Windows.Forms.Label();
+			this._testCountBox = new System.Windows.Forms.NumericUpDown();
+			this._saveResultsBox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			this.groupBox1.SuspendLayout();
@@ -73,6 +78,8 @@ namespace Lab1
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this._testCountBox)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// inputPictureBox
@@ -129,7 +136,7 @@ namespace Lab1
 			this.groupBox1.Controls.Add(this.label2);
 			this.groupBox1.Controls.Add(this.contrastTrackBar);
 			this.groupBox1.Controls.Add(this.brightnessTrackBar);
-			this.groupBox1.Location = new System.Drawing.Point(330, 482);
+			this.groupBox1.Location = new System.Drawing.Point(330, 506);
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -137,6 +144,42 @@ namespace Lab1
 			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Изменение яркости/контраста";
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(263, 75);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(13, 15);
+			this.label9.TabIndex = 14;
+			this.label9.Text = "1";
+			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(410, 68);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(13, 15);
+			this.label8.TabIndex = 13;
+			this.label8.Text = "5";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(225, 68);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(13, 15);
+			this.label7.TabIndex = 12;
+			this.label7.Text = "0";
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(185, 72);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(25, 15);
+			this.label6.TabIndex = 11;
+			this.label6.Text = "255";
 			// 
 			// label5
 			// 
@@ -204,11 +247,11 @@ namespace Lab1
 			// 
 			this.groupBox2.Controls.Add(this.buttonHR);
 			this.groupBox2.Controls.Add(this.buttonRH);
-			this.groupBox2.Location = new System.Drawing.Point(330, 408);
+			this.groupBox2.Location = new System.Drawing.Point(330, 395);
 			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(412, 68);
+			this.groupBox2.Size = new System.Drawing.Size(412, 81);
 			this.groupBox2.TabIndex = 5;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Смена цветовой модели";
@@ -242,7 +285,7 @@ namespace Lab1
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(4, 546);
+			this.label4.Location = new System.Drawing.Point(4, 558);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(80, 15);
@@ -251,7 +294,7 @@ namespace Lab1
 			// 
 			// textBox1
 			// 
-			this.textBox1.Location = new System.Drawing.Point(4, 564);
+			this.textBox1.Location = new System.Drawing.Point(4, 576);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.textBox1.Name = "textBox1";
 			this.textBox1.Size = new System.Drawing.Size(224, 23);
@@ -259,7 +302,7 @@ namespace Lab1
 			// 
 			// buttonSearch
 			// 
-			this.buttonSearch.Location = new System.Drawing.Point(236, 561);
+			this.buttonSearch.Location = new System.Drawing.Point(236, 573);
 			this.buttonSearch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.Size = new System.Drawing.Size(88, 27);
@@ -379,42 +422,6 @@ namespace Lab1
 			this.radioButton6.Text = "кусочно-линейная";
 			this.radioButton6.UseVisualStyleBackColor = true;
 			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(185, 72);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(25, 15);
-			this.label6.TabIndex = 11;
-			this.label6.Text = "255";
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(225, 68);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(13, 15);
-			this.label7.TabIndex = 12;
-			this.label7.Text = "0";
-			// 
-			// label8
-			// 
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(410, 68);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(13, 15);
-			this.label8.TabIndex = 13;
-			this.label8.Text = "5";
-			// 
-			// label9
-			// 
-			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(263, 75);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(13, 15);
-			this.label9.TabIndex = 14;
-			this.label9.Text = "1";
-			// 
 			// histogramPanel
 			// 
 			this.histogramPanel.Location = new System.Drawing.Point(885, 395);
@@ -422,11 +429,88 @@ namespace Lab1
 			this.histogramPanel.Size = new System.Drawing.Size(307, 192);
 			this.histogramPanel.TabIndex = 14;
 			// 
+			// _threadCountBox
+			// 
+			this._threadCountBox.Location = new System.Drawing.Point(816, 417);
+			this._threadCountBox.Maximum = new decimal(new int[] {
+            6,
+            0,
+            0,
+            0});
+			this._threadCountBox.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this._threadCountBox.Name = "_threadCountBox";
+			this._threadCountBox.Size = new System.Drawing.Size(49, 23);
+			this._threadCountBox.TabIndex = 15;
+			this._threadCountBox.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Location = new System.Drawing.Point(749, 395);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(120, 15);
+			this.label10.TabIndex = 16;
+			this.label10.Text = "Количество потоков";
+			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.Location = new System.Drawing.Point(746, 442);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(123, 15);
+			this.label11.TabIndex = 17;
+			this.label11.Text = "Количество попыток";
+			// 
+			// _testCountBox
+			// 
+			this._testCountBox.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			this._testCountBox.Location = new System.Drawing.Point(816, 460);
+			this._testCountBox.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this._testCountBox.Name = "_testCountBox";
+			this._testCountBox.Size = new System.Drawing.Size(49, 23);
+			this._testCountBox.TabIndex = 18;
+			this._testCountBox.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			// 
+			// _saveResultsBox
+			// 
+			this._saveResultsBox.AutoSize = true;
+			this._saveResultsBox.Location = new System.Drawing.Point(729, 489);
+			this._saveResultsBox.Name = "_saveResultsBox";
+			this._saveResultsBox.Size = new System.Drawing.Size(140, 19);
+			this._saveResultsBox.TabIndex = 19;
+			this._saveResultsBox.Text = "Сохранять результат";
+			this._saveResultsBox.UseVisualStyleBackColor = true;
+			// 
 			// Lab1Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1204, 599);
+			this.ClientSize = new System.Drawing.Size(1204, 611);
+			this.Controls.Add(this._saveResultsBox);
+			this.Controls.Add(this._testCountBox);
+			this.Controls.Add(this.label11);
+			this.Controls.Add(this.label10);
+			this.Controls.Add(this._threadCountBox);
 			this.Controls.Add(this.histogramPanel);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
@@ -454,6 +538,8 @@ namespace Lab1
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._testCountBox)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -494,6 +580,11 @@ namespace Lab1
 		private Label label7;
 		private Label label6;
 		private Panel histogramPanel;
+		private NumericUpDown _threadCountBox;
+		private Label label10;
+		private Label label11;
+		private NumericUpDown _testCountBox;
+		private CheckBox _saveResultsBox;
 	}
 }
 
