@@ -1,6 +1,7 @@
 ﻿using System;
+using Labs.Core.Scheme;
 
-namespace Labs.Core
+namespace Labs.Core.Filtering
 {
     public delegate TPixel FrameReducer<TPixel>(TPixel[] source, Frame frame);
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Labs.Core
+namespace Labs.Core.Filtering
 {
     public static class Filters
     {

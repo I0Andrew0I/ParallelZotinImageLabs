@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Labs.Core;
+using Labs.Core.Scheme;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
