@@ -5,180 +5,149 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Labs.Core;
 
 namespace Lab1
 {
     public class Algorithms
     {
-        public static void RGBToHLS(ArraySegment<byte> buffer)
+        public static void RGBToHLSInplace(ArraySegment<byte> buffer)
         {
-            for (int i = 0; i < buffer.Count; i += 4)
+            Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
+            for (int i = 0; i < pixels.Length; i++)
             {
-                double h = 0;
-                double l = 0;
-                double s = 0;
+                ARGB rgba = pixels[i];
+                HLSA hlsa = rgba.ToHLSA();
 
-                // нормализовать значения красного, зеленого, синего
-                double r = (double) buffer[i + 2] / 255.0;
-                double g = (double) buffer[i + 1] / 255.0;
-                double b = (double) buffer[i] / 255.0;
-
-                double max = Math.Max(r, Math.Max(g, b));
-                double min = Math.Min(r, Math.Min(g, b));
-
-                // тон
-                if (max == min)
-                    h = 0; // неопределённый
-                else if (max == r && g >= b)
-                    h = 60.0 * (g - b) / (max - min);
-                else if (max == r && g < b)
-                    h = 60.0 * (g - b) / (max - min) + 360.0;
-                else if (max == g)
-                    h = 60.0 * (b - r) / (max - min) + 120.0;
-                else if (max == b)
-                    h = 60.0 * (r - g) / (max - min) + 240.0;
-
-                // яркость
-                l = (max + min) / 2.0;
-
-                // насыщенность
-                if (l == 0 || max == min)
-                    s = 0;
-                else if (0 < l && l <= 0.5)
-                    s = (max - min) / (max + min);
-                else if (l > 0.5)
-                    s = (max - min) / (2 - (max + min)); //(max-min > 0)?
-
-                buffer[i + 2] = (byte) Math.Round(h / 360.0 * 255.0);
-                buffer[i + 1] = (byte) Math.Round(l * 255.0);
-                buffer[i] = (byte) Math.Round(s * 255.0);
-                buffer[i + 3] = 255;
+                pixels[i].A = (byte) (hlsa.A * 255);
+                pixels[i].R = (byte) Math.Round(hlsa.H * (255.0 / 360.0));
+                pixels[i].G = (byte) Math.Round(hlsa.L * 255.0);
+                pixels[i].B = (byte) Math.Round(hlsa.S * 255.0);
             }
         }
 
-        public static void HLStoRGB(ArraySegment<byte> buffer)
+        public static ArraySegment<HLSA> RGBToHLS(ArraySegment<byte> buffer)
         {
-            for (int i = 0; i < buffer.Count; i += 4)
+            Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
+            var rent = ArrayPool<HLSA>.Shared.Rent(pixels.Length);
+            var result = new ArraySegment<HLSA>(rent, 0, pixels.Length);
+
+            HLSA hlsa = default(HLSA);
+            for (int i = 0; i < pixels.Length; i++)
             {
-                double h = buffer[i + 2] / 255.0 * 360;
-                double l = buffer[i + 1] / 255.0;
-                double s = buffer[i] / 255.0;
+                pixels[i].ToHLSA(ref hlsa);
+                result[i] = hlsa;
+            }
 
-                if (s == 0)
-                {
-                    // ахроматический цвет (шкала серого)
-                    buffer[i + 2] = (byte) Math.Round(l * 255.0);
-                    buffer[i + 1] = (byte) Math.Round(l * 255.0);
-                    buffer[i] = (byte) Math.Round(l * 255.0);
-                    buffer[i + 3] = 255;
-                }
-                else
-                {
-                    double q = (l < 0.5) ? (l * (1.0 + s)) : (l + s - (l * s));
-                    double p = (2.0 * l) - q;
+            return result;
+        }
 
-                    double Hk = h / 360.0;
-                    double[] T = new double[3];
-                    T[0] = Hk + (1.0 / 3.0); // Tr
-                    T[1] = Hk; // Tb
-                    T[2] = Hk - (1.0 / 3.0); // Tg
+        public static void HLStoRGBInplace(ArraySegment<byte> buffer)
+        {
+            Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                double a = pixels[i].A / 255.0;
+                double h = pixels[i].R * (360 / 255.0);
+                double l = pixels[i].G / 255.0;
+                double s = pixels[i].B / 255.0;
 
-                    for (int a = 0; a < 3; a++)
-                    {
-                        if (T[a] < 0) T[a] += 1.0;
-                        if (T[a] > 1) T[a] -= 1.0;
-
-                        if ((T[a] * 6) < 1)
-                        {
-                            T[a] = p + ((q - p) * 6.0 * T[a]);
-                        }
-                        else if ((T[a] * 2.0) < 1) //(1.0/6.0)<=T[a] && T[a]<0.5
-                        {
-                            T[a] = q;
-                        }
-                        else if ((T[a] * 3.0) < 2) // 0.5<=T[a] && T[a]<(2.0/3.0)
-                        {
-                            T[a] = p + (q - p) * ((2.0 / 3.0) - T[a]) * 6.0;
-                        }
-                        else T[a] = p;
-                    }
-
-                    buffer[i + 2] = (byte) Math.Round(T[0] * 255.0);
-                    buffer[i + 1] = (byte) Math.Round(T[1] * 255.0);
-                    buffer[i] = (byte) Math.Round(T[2] * 255.0);
-                    buffer[i + 3] = 255;
-                }
+                var hlsa = new HLSA(h, l, s, a);
+                pixels[i] = hlsa.ToARGB();
             }
         }
 
-        public static ArraySegment<byte> BmpToByte(Bitmap source)
+        public static void HLStoRGB(ArraySegment<HLSA> pixels, ref ArraySegment<byte> output)
         {
-            BitmapData sourceData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            int size = sourceData.Stride * sourceData.Height;
-            byte[] rent = ArrayPool<byte>.Shared.Rent(size);
-            Marshal.Copy(sourceData.Scan0, rent, 0, size);
-            source.UnlockBits(sourceData);
-            return new ArraySegment<byte>(rent, 0, size);
-        }
+            Span<ARGB> result = output.Cast<ARGB>();
+            ARGB value = default(ARGB);
 
-        public static void ByteToBmp(Bitmap bmp, ArraySegment<byte> bytes)
-        {
-            BitmapData resultData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            Marshal.Copy(bytes.Array, 0, resultData.Scan0, bytes.Count);
-            bmp.UnlockBits(resultData);
-        }
-
-        public static Image ReadImage(string filePath)
-        {
-            using FileStream fs = new(filePath, FileMode.Open);
-            Image img = Image.FromStream(fs);
-            return img;
-        }
-
-        public static void TransformImage(ArraySegment<byte> imageBuffer, int brightness, int contrast)
-        {
-            int exclusive = imageBuffer.Count / 4;
-            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
-            Parallel.For(0, exclusive, po, i =>
+            for (int i = 0; i < pixels.Count; i++)
             {
-                int iter = i * 4;
+                value = pixels[i].ToARGB();
+                result[i] = value;
+            }
+        }
 
-                var argb = new ARGB(imageBuffer.AsSpan(iter, 4));
-                var yuv = argb.ToYUV();
+        public static void TransformImage(ArraySegment<byte> imageBuffer, int brightness, double contrast, int threads)
+        {
+            ParallelOptions po = new() {MaxDegreeOfParallelism = threads};
+            int step = imageBuffer.Count / 16;
 
-                yuv.Y += brightness;
-                yuv.Y = contrast * (yuv.Y - 127.5) + 127.5;
+            Parallel.For(0, 16, po, iter =>
+            {
+                Span<byte> portion = imageBuffer.AsSpan(iter * step, step);
+                Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(portion);
 
-                var argb1 = yuv.ToARGB();
+                var yuv = default(YUV);
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    pixels[i].ToYUV(ref yuv);
 
-                imageBuffer[iter + 2] = argb1.R;
-                imageBuffer[iter + 1] = argb1.G;
-                imageBuffer[iter] = argb1.B;
-                imageBuffer[iter + 3] = argb1.A;
+                    yuv.Y += brightness;
+                    yuv.Y = contrast * (yuv.Y - 127.5) + 127.5;
+
+                    yuv.ToARGB(ref pixels[i]);
+                }
             });
         }
 
-        public static void ColorCorrection(ArraySegment<byte> buffer, double[] curve, bool curveCorrection)
+        public static void ColorCorrection(ArraySegment<byte> imageBuffer, double[] curve, bool curveCorrection, int threads)
         {
-            ParallelOptions po = new() {MaxDegreeOfParallelism = 4};
-            Parallel.For(0, buffer.Count / 4, po, i =>
+            ParallelOptions po = new() {MaxDegreeOfParallelism = threads};
+            int step = imageBuffer.Count / 16;
+
+            Parallel.For(0, 16, po, iter =>
             {
-                int iter = i * 4;
+                Span<byte> portion = imageBuffer.AsSpan(iter * step, step);
+                Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(portion);
 
-                var argb = new ARGB(buffer.AsSpan(iter, 4));
-                var yuv = argb.ToYUV();
+                var yuv = default(YUV);
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    pixels[i].ToYUV(ref yuv);
 
-                yuv.Y = curveCorrection
-                    ? curve[(int) Math.Round(yuv.Y)]
-                    : Algorithms.EquationSystem(yuv.Y);
+                    yuv.Y = curveCorrection
+                        ? curve[(int) Math.Round(yuv.Y)]
+                        : EquationSystem(yuv.Y);
 
-                var argb1 = yuv.ToARGB();
-
-                buffer[iter + 3] = argb1.A;
-                buffer[iter + 2] = argb1.R;
-                buffer[iter + 1] = argb1.G;
-                buffer[iter] = argb1.B;
+                    yuv.ToARGB(ref pixels[i]);
+                }
             });
+        }
+
+        public static (uint[] R, uint[] G, uint[] B) Histogram(Span<ARGB> pixels)
+        {
+            uint[] histR = new uint[256];
+            uint[] histG = new uint[256];
+            uint[] histB = new uint[256];
+
+            foreach (ARGB pix in pixels)
+            {
+                histR[pix.R]++;
+                histG[pix.G]++;
+                histB[pix.B]++;
+            }
+
+            return (histR, histG, histB);
+        }
+
+        public static (uint[] H, uint[] L, uint[] S) Histogram(Span<HLSA> pixels)
+        {
+            uint[] H = new uint[361];
+            uint[] L = new uint[361];
+            uint[] S = new uint[361];
+
+            foreach (HLSA pix in pixels)
+            {
+                var l = (int) Math.Round(pix.L * 360);
+                var s = (int) Math.Round(pix.S * 360);
+                H[(int) pix.H]++;
+                L[l]++;
+                S[s]++;
+            }
+
+            return (H, L, S);
         }
 
         public static (uint[] R, uint[] G, uint[] B) Histogram(Bitmap image)
@@ -200,11 +169,11 @@ namespace Lab1
         }
 
         /// <code>
-        /// y = (9+y)^2
-        /// y = 5y + 8
-        /// y = 3y
+        /// y = (12+y)^2
+        /// y = tan(y)
         /// y = sin(y)
-        /// y = y^2
+        /// y = 5y
+        /// y = y^(1/3)
         /// </code>
         /// <param name="y"></param>
         /// <returns></returns>
@@ -212,11 +181,11 @@ namespace Lab1
         {
             double Ynew = y switch
             {
-                >= 0 and <= 50 => Math.Pow(9.0 + y, 2),
-                > 50 and <= 100 => 5 * y + 8,
-                > 100 and <= 150 => 3 * y,
-                > 150 and <= 200 => Math.Sin(y),
-                > 200 and <= 255 => Math.Pow(y, 2),
+                >= 0 and <= 50 => Math.Pow(12 + y, 2),
+                > 50 and <= 100 => Math.Tan(y),
+                > 100 and <= 150 => Math.Sin(y),
+                > 150 and <= 200 => 5 * y,
+                > 200 and <= 255 => Math.Pow(y, 1 / 3.0),
                 _ => 0
             };
 
@@ -237,24 +206,29 @@ namespace Lab1
             this.V = V;
         }
 
+        public void ToARGB(ref ARGB value)
+        {
+            value.R = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), Byte.MinValue, Byte.MaxValue);
+            value.G = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), Byte.MinValue, Byte.MaxValue);
+            value.B = (byte) Math.Clamp((int) Math.Round(Y + 2.032 * U), Byte.MinValue, Byte.MaxValue);
+            value.A = 255;
+        }
+
         public ARGB ToARGB()
         {
-            byte r = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), Byte.MinValue, Byte.MaxValue);
-            byte g = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), Byte.MinValue, Byte.MaxValue);
-            byte b = (byte) Math.Clamp((int) Math.Round(Y + 2.032 * U), Byte.MinValue, Byte.MaxValue);
-
-            return new ARGB(r, g, b);
+            var argb = default(ARGB);
+            ToARGB(ref argb);
+            return argb;
         }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public record struct ARGB
     {
-        public byte B { get; set; }
-        public byte G { get; set; }
-        public byte R { get; set; }
-
-        public byte A { get; set; }
+        public byte B;
+        public byte G;
+        public byte R;
+        public byte A;
 
         public ARGB(Span<byte> memory)
         {
@@ -277,10 +251,141 @@ namespace Lab1
 
         public YUV ToYUV()
         {
-            double y = 0.299 * R + 0.587 * G + 0.114 * B;
-            double u = -0.14713 * R - 0.28886 * G + 0.436 * B;
-            double v = 0.615 * R - 0.51499 * G - 0.10001 * B;
-            return new YUV(y, u, v);
+            var value = default(YUV);
+            ToYUV(ref value);
+            return value;
+        }
+
+        public void ToYUV(ref YUV value)
+        {
+            value.Y = 0.299 * R + 0.587 * G + 0.114 * B;
+            value.U = -0.14713 * R - 0.28886 * G + 0.436 * B;
+            value.V = 0.615 * R - 0.51499 * G - 0.10001 * B;
+        }
+
+        public HLSA ToHLSA()
+        {
+            var value = default(HLSA);
+            ToHLSA(ref value);
+            return value;
+        }
+
+        public void ToHLSA(ref HLSA value)
+        {
+            double h = 0;
+            double l = 0;
+            double s = 0;
+
+            // нормализовать значения красного, зеленого, синего
+            double r = R / 255.0;
+            double g = G / 255.0;
+            double b = B / 255.0;
+
+            double max = Math.Max(r, Math.Max(g, b));
+            double min = Math.Min(r, Math.Min(g, b));
+
+            // тон
+            if (max == min)
+                h = 0; // неопределённый
+            else if (max == r && g >= b)
+                h = 60.0 * (g - b) / (max - min);
+            else if (max == r && g < b)
+                h = 60.0 * (g - b) / (max - min) + 360.0;
+            else if (max == g)
+                h = 60.0 * (b - r) / (max - min) + 120.0;
+            else if (max == b)
+                h = 60.0 * (r - g) / (max - min) + 240.0;
+
+            // яркость
+            l = (max + min) / 2.0;
+
+            // насыщенность
+            if (l == 0 || max == min)
+                s = 0;
+            else if (0 < l && l <= 0.5)
+                s = (max - min) / (max + min);
+            else if (l > 0.5)
+                s = (max - min) / (2 - (max + min)); //(max-min > 0)?
+
+            value.H = h;
+            value.L = l;
+            value.S = s;
+            value.A = A / 255.0;
+        }
+    }
+
+    public record struct HLSA
+    {
+        /// <summary>
+        /// Hue (0, 360)
+        /// </summary>
+        public double H;
+
+        /// <summary>
+        /// Lightness (0, 1)
+        /// </summary>
+        public double L;
+
+        /// <summary>
+        /// Saturation (0, 1)
+        /// </summary>
+        public double S;
+
+        /// <summary>
+        /// Alpha (0, 1)
+        /// </summary>
+        public double A;
+
+        public HLSA(double h, double l, double s, double a = 1)
+        {
+            H = h;
+            L = l;
+            S = s;
+            A = a;
+        }
+
+        public ARGB ToARGB()
+        {
+            if (S == 0)
+            {
+                // ахроматический цвет (шкала серого)
+                var v = (byte) Math.Round(L * 255.0);
+                return new ARGB(v, v, v, (byte) (A * 255));
+            }
+
+            double q = (L < 0.5) ? (L * (1.0 + S)) : (L + S - (L * S));
+            double p = (2.0 * L) - q;
+
+            double Hk = H / 360.0;
+            double[] T = new double[3];
+            T[0] = Hk + (1.0 / 3.0); // Tr
+            T[1] = Hk; // Tb
+            T[2] = Hk - (1.0 / 3.0); // Tg
+
+            for (int a = 0; a < 3; a++)
+            {
+                if (T[a] < 0) T[a] += 1.0;
+                if (T[a] > 1) T[a] -= 1.0;
+
+                if ((T[a] * 6) < 1)
+                {
+                    T[a] = p + ((q - p) * 6.0 * T[a]);
+                }
+                else if ((T[a] * 2.0) < 1) //(1.0/6.0)<=T[a] && T[a]<0.5
+                {
+                    T[a] = q;
+                }
+                else if ((T[a] * 3.0) < 2) // 0.5<=T[a] && T[a]<(2.0/3.0)
+                {
+                    T[a] = p + (q - p) * ((2.0 / 3.0) - T[a]) * 6.0;
+                }
+                else T[a] = p;
+            }
+
+            var r = (byte) Math.Round(T[0] * 255.0);
+            var g = (byte) Math.Round(T[1] * 255.0);
+            var b = (byte) Math.Round(T[2] * 255.0);
+            return new ARGB(r, g, b, (byte) (A * 255));
         }
     }
 }

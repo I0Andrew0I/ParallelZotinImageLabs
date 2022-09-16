@@ -14,4 +14,8 @@
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Labs.Core\Labs.Core.csproj" />
+  </ItemGroup>
+
 </Project>
