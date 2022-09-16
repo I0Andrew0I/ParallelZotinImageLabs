@@ -193,10 +193,34 @@ namespace Lab1
         }
     }
 
+    /// <summary>
+    /// YUV [PAL]
+    /// </summary>
     public record struct YUV
     {
+        [Flags]
+        public enum Channel
+        {
+            Undefined = 0,
+            Y = 1,
+            U = 2,
+            V = 4,
+            All = 7
+        }
+
+        /// <summary>
+        /// Luminance (0, 255)
+        /// </summary>
         public double Y { get; set; }
+
+        /// <summary>
+        /// Blue projection (-112, 112)
+        /// </summary>
         public double U { get; set; }
+
+        /// <summary>
+        /// Red projection (-157, 157)
+        /// </summary>
         public double V { get; set; }
 
         public YUV(double Y, double U, double V)
@@ -225,6 +249,18 @@ namespace Lab1
     [StructLayout(LayoutKind.Sequential)]
     public record struct ARGB
     {
+        [Flags]
+        public enum Channel
+        {
+            Undefined = 0,
+            Alpha = 1,
+            Red = 2,
+            Green = 4,
+            Blue = 8,
+            RGB = 14,
+            All = 15
+        }
+
         public byte B;
         public byte G;
         public byte R;
@@ -247,6 +283,21 @@ namespace Lab1
             this.G = G;
             this.B = B;
             this.A = A;
+        }
+
+        public void Extract(Channel channel, ref ARGB value)
+        {
+            if (channel.HasFlag(ARGB.Channel.Red))
+                value.R = R;
+
+            if (channel.HasFlag(ARGB.Channel.Green))
+                value.G = G;
+
+            if (channel.HasFlag(ARGB.Channel.Blue))
+                value.B = B;
+
+            if (channel.HasFlag(ARGB.Channel.Alpha))
+                value.A = A;
         }
 
         public YUV ToYUV()
@@ -316,6 +367,17 @@ namespace Lab1
 
     public record struct HLSA
     {
+        public enum Channel
+        {
+            Undefined = 0,
+            Alpha = 1,
+            Hue = 2,
+            Lightness = 4,
+            Saturation = 8,
+            HLS = 14,
+            All = 15
+        }
+
         /// <summary>
         /// Hue (0, 360)
         /// </summary>
