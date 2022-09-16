@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Buffers;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Labs.Core;
 
-namespace Lab1
+namespace Labs.Core
 {
     public class Algorithms
     {
