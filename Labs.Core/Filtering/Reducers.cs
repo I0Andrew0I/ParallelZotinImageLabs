@@ -3,10 +3,40 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public delegate TPixel FrameReducer<TPixel>(TPixel[] source, Frame frame);
+    public delegate TPixel FrameReducer<TPixel>(Span<TPixel> source, Frame frame);
 
     public static class Reducers
     {
+        public static FrameReducer<ARGB> ARGBLaplacianReducer(ARGB.Channel channel, double[,] laplacian, double sharpness) => (pixels, f) =>
+        {
+            ARGB pixel = pixels[pixels.Length / 2];
+            ARGB result = default;
+            PixelTransformer<ARGB> transformer = Transformers.ARGBSummator(channel);
+
+            foreach (int y in f.IterateY(f.X))
+            {
+                foreach (int x in f.IterateX(y))
+                {
+                    int pixelId = y * f.Height + x;
+                    int matrixY = y + f.Height - f.Y;
+                    int matrixX = x + f.Width - f.X;
+
+                    result = transformer(pixels[pixelId], laplacian[matrixY, matrixX], result);
+                }
+            }
+
+            result.R = (byte) (result.R * sharpness);
+            result.G = (byte) (result.G * sharpness);
+            result.B = (byte) (result.B * sharpness);
+
+            result = transformer(pixel, 1, result);
+
+            return result;
+        };
+
+        
+        
+        
         public static FrameReducer<ARGB> ARGBMinMaxReducer(ARGB.Channel channel) => (pixels, _) =>
         {
             ARGB pixel = pixels[pixels.Length / 2];
@@ -68,13 +98,48 @@ namespace Labs.Core.Filtering
             }
 
             return new HLSA(
-                h: (min.H + max.H) / 2,
-                l: (min.L + max.L) / 2,
-                s: (min.S + max.S) / 2
+                h: (min.H + max.H) / 2.0,
+                l: (min.L + max.L) / 2.0,
+                s: (min.S + max.S) / 2.0
             );
         };
 
+        public static FrameReducer<YUV> YUVMinMaxReducer(YUV.Channel channel) => (pixels, _) =>
+        {
+            YUV pixel = pixels[pixels.Length / 2];
+            YUV min = pixel;
+            YUV max = pixel;
 
+            foreach (YUV p in pixels)
+            {
+                if (channel.HasFlag(YUV.Channel.Y))
+                {
+                    min.Y = Math.Min(min.Y, p.Y);
+                    max.Y = Math.Max(max.Y, p.Y);
+                }
+
+                if (channel.HasFlag(YUV.Channel.U))
+                {
+                    min.U = Math.Min(min.U, p.U);
+                    max.U = Math.Max(max.U, p.U);
+                }
+
+                if (channel.HasFlag(YUV.Channel.V))
+                {
+                    min.V = Math.Min(min.V, p.V);
+                    max.V = Math.Max(max.V, p.V);
+                }
+            }
+
+            return new YUV(
+                Y: (min.Y + max.Y) / 2.0,
+                U: (min.U + max.U) / 2.0,
+                V: (min.V + max.V) / 2.0);
+        };
+        
+        
+        
+        
         public static FrameReducer<ARGB> ARGBMedianReducer(ARGB.Channel channel) => (pixels, _) =>
         {
             ARGB pixel = pixels[pixels.Length / 2];
@@ -107,6 +172,78 @@ namespace Labs.Core.Filtering
                 pixel.G = green[pixels.Length / 2];
             if (BLUE)
                 pixel.B = blue[pixels.Length / 2];
+
+            return pixel;
+        };
+
+        public static FrameReducer<HLSA> HLSAMedianReducer(HLSA.Channel channel) => (pixels, _) =>
+        {
+            HLSA pixel = pixels[pixels.Length / 2];
+
+            bool HUE = channel.HasFlag(HLSA.Channel.Hue);
+            bool LIG = channel.HasFlag(HLSA.Channel.Lightness);
+            bool SAT = channel.HasFlag(HLSA.Channel.Saturation);
+
+            double[] hue = HUE ? new double[pixels.Length] : Array.Empty<double>();
+            double[] lightness = LIG ? new double[pixels.Length] : Array.Empty<double>();
+            double[] saturation = SAT ? new double[pixels.Length] : Array.Empty<double>();
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                if (HUE)
+                    hue[i] = pixels[i].H;
+                if (LIG)
+                    lightness[i] = pixels[i].L;
+                if (SAT)
+                    saturation[i] = pixels[i].S;
+            }
+
+            Array.Sort(hue);
+            Array.Sort(lightness);
+            Array.Sort(saturation);
+
+            if (HUE)
+                pixel.H = hue[pixels.Length / 2];
+            if (LIG)
+                pixel.L = lightness[pixels.Length / 2];
+            if (SAT)
+                pixel.S = saturation[pixels.Length / 2];
+
+            return pixel;
+        };
+
+        public static FrameReducer<YUV> YUVMedianReducer(YUV.Channel channel) => (pixels, _) =>
+        {
+            YUV pixel = pixels[pixels.Length / 2];
+
+            bool Y = channel.HasFlag(YUV.Channel.Y);
+            bool U = channel.HasFlag(YUV.Channel.U);
+            bool V = channel.HasFlag(YUV.Channel.V);
+
+            double[] ys = Y ? new double[pixels.Length] : Array.Empty<double>();
+            double[] us = U ? new double[pixels.Length] : Array.Empty<double>();
+            double[] vs = V ? new double[pixels.Length] : Array.Empty<double>();
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                if (Y)
+                    ys[i] = pixels[i].Y;
+                if (U)
+                    us[i] = pixels[i].U;
+                if (V)
+                    vs[i] = pixels[i].V;
+            }
+
+            Array.Sort(ys);
+            Array.Sort(us);
+            Array.Sort(vs);
+
+            if (Y)
+                pixel.Y = ys[pixels.Length / 2];
+            if (V)
+                pixel.V = vs[pixels.Length / 2];
+            if (U)
+                pixel.U = us[pixels.Length / 2];
 
             return pixel;
         };

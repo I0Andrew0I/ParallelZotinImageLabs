@@ -13,4 +13,8 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.1.0" />
+    </ItemGroup>
+
 </Project>

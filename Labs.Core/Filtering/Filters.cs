@@ -5,181 +5,113 @@ namespace Labs.Core.Filtering
 {
     public static class Filters
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="RH">frame height</param>
-        /// <param name="RW">frame width</param>
-        /// <param name="py">image y</param>
-        /// <param name="px">image x</param>
-        /// <param name="imageHeight"></param>
-        /// <param name="imageWidth"></param>
-        /// <param name="buffer">image buffer</param>
-        /// <param name="matrix">filtration matrix</param>
-        /// <param name="channel">output channel</param>
-        /// <returns></returns>
-        [Obsolete]
-        public static double LinearFilterFrame(int RH, int RW, int py, int px, int imageHeight, int imageWidth, byte[] buffer, double[,] matrix, string channel)
-        {
-            double res = 0;
-            for (int dy = -RH; dy <= RH; dy++)
-            {
-                int y = dy + py;
-                if (y < 0) y = 0;
-                if (y > imageHeight - 1) y = imageHeight - 1;
-                for (int dx = -RW; dx <= RW; dx++)
-                {
-                    int x = px + dx;
-                    if (x < 0) x = 0;
-                    if (x > imageWidth - 1) x = imageWidth - 1;
-
-                    switch (channel)
-                    {
-                        case "r":
-                            res += buffer[y + x + 2] * matrix[dy + RH, dx + RW]; //R
-                            break;
-                        case "g":
-                            res += buffer[y + x + 1] * matrix[dy + RH, dx + RW]; //G
-                            break;
-                        case "b":
-                            res += buffer[y + x] * matrix[dy + RH, dx + RW]; //B
-                            break;
-                        case "all":
-                            //???
-                            break;
-                    }
-                }
-            }
-
-            if (res < 0) res = 0;
-            if (res > 255) res = 255;
-            return res;
-        }
-
-        [Obsolete]
-        public static byte[] LinearFiltering(int frameSize, byte[] imageBuffer, string channel, int imageWidth, int imageHeight, double[,] matrix)
-        {
-            int rh, rw;
-            rw = (frameSize - 1) / 2;
-            rh = (frameSize - 1) / 2;
-            var result = new byte[imageBuffer.Length];
-
-            //for (int y = 0; y < height; y++)
-            ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = 1};
-            Parallel.For(0, imageHeight, po, y =>
-            {
-                for (int x = 0; x < imageWidth; x++)
-                {
-                    double linFValue = LinearFilterFrame(rh, rw, (int) y, x, imageHeight, imageWidth, imageBuffer, matrix, channel);
-                    int xx = x * 4;
-                    int yy = y * imageWidth * 4;
-                    switch (channel)
-                    {
-                        case "r":
-                            result[xx + yy + 2] = (byte) linFValue; //R
-                            result[xx + yy + 1] = imageBuffer[xx + yy + 1];
-                            result[xx + yy + 0] = imageBuffer[xx + yy + 0];
-                            result[xx + yy + 3] = imageBuffer[xx + yy + 3];
-                            break;
-                        case "g":
-                            result[xx + yy + 1] = (byte) linFValue; //G
-                            result[xx + yy + 2] = imageBuffer[xx + yy + 2];
-                            result[xx + yy + 0] = imageBuffer[xx + yy + 0];
-                            result[xx + yy + 3] = imageBuffer[xx + yy + 3];
-                            break;
-                        case "b":
-                            result[xx + yy] = (byte) linFValue; //B
-                            result[xx + yy + 1] = imageBuffer[xx + yy + 1];
-                            result[xx + yy + 2] = imageBuffer[xx + yy + 2];
-                            result[xx + yy + 3] = imageBuffer[xx + yy + 3];
-                            break;
-                        case "all":
-                            //???
-                            break;
-                    }
-                }
-            });
-            return result;
-        }
-
-
-        // minmax, Median 
-        public static void Convolution<TPixel>(ImageBuffer<TPixel> image, Frame size, ImageBuffer<TPixel> result, FrameReducer<TPixel> reducer, int threads = 1) where TPixel : struct
+        // minmax [круговой и прямоугольный], Median, Laplacian?
+        // TODO: fix trash output
+        public static void Convolution<TPixel>(ImageBuffer<TPixel> image, Frame size, ImageBuffer<TPixel> result, FrameReducer<TPixel> reducer, bool round = false, int threads = 1) where TPixel : struct
         {
             ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
-            Parallel.For(0, image.Height, po, (int y) =>
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
+
+            int mHeight = size.Height;
+            int mWidth = size.Width;
+            int frameSize = mHeight * mWidth;
+            int step = (int) Math.Truncate(imageHeight / 16.0);
+
+            Parallel.For(0, 16, po, (int iter) =>
             {
-                TPixel[] pixels = new TPixel[size.Heigth * size.Width];
-                for (int x = 0; x < image.Width; x++)
+                int from = iter * step;
+                int to = iter == 15 ? imageHeight : (iter + 1) * step;
+
+                var frameBuffer = new TPixel[frameSize].AsSpan();
+                var output = result.Pixels.AsSpan();
+                Frame frame = round ? new EllipsoidsFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
+
+                for (int y = from; y < to; y++)
                 {
-                    var frame = new Frame(x, y, size.Width, size.Heigth);
-                    CopyPixels(image, frame, pixels);
-                    result.Pixels[x + y * image.Width] = reducer(pixels, frame);
+                    for (int x = 0; x < imageWidth; x++)
+                    {
+                        int pixelId = x + y * imageWidth;
+                        frame.X = x;
+                        frame.Y = y;
+
+                        CopyPixels(image, frame, frameBuffer);
+                        TPixel pixel = reducer(frameBuffer, frame);
+                        output[pixelId] = pixel;
+                    }
                 }
             });
         }
 
         // Linear, Mean, Laplacian
-        public static void KernelFiltering<TPixel>(ImageBuffer<TPixel> image, double[,] kernel, PixelTransformer<TPixel> transformer, ImageBuffer<TPixel> result, int threads = 1) where TPixel : struct
+        public static void KernelFiltering<TPixel>(ImageBuffer<TPixel> image, double[,] kernel, PixelTransformer<TPixel> transformer, ImageBuffer<TPixel> result, bool round = false, int threads = 1) where TPixel : struct
         {
+            ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
             int mWidth = kernel.GetLength(1);
             int mHeight = kernel.GetLength(0);
+            int step = (int) Math.Truncate(imageHeight / 16.0);
 
-            ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
-            Parallel.For(0, image.Height, po, (int y) =>
+            Parallel.For(0, 16, po, (int iter) =>
             {
-                for (int x = 0; x < image.Width; x++)
+                int from = iter * step;
+                int to = iter == 15 ? imageHeight : (iter + 1) * step;
+                var output = result.Pixels.AsSpan();
+                Frame frame = round ? new EllipsoidsFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
+
+                for (int y = from; y < to; y++)
                 {
-                    var frame = new Frame(x, y, mWidth, mHeight);
-                    result.Pixels[x + y * image.Width] = ApplyKernel(image.Pixels, image.Height, image.Width, frame, kernel, transformer);
+                    for (int x = 0; x < imageWidth; x++)
+                    {
+                        int pixelId = x + y * imageWidth;
+                        frame.X = x;
+                        frame.Y = y;
+
+                        TPixel pixel = ApplyKernel(image.Pixels, imageHeight, imageWidth, frame, kernel, transformer);
+                        output[pixelId] = pixel;
+                    }
                 }
             });
         }
 
-        private static TPixel ApplyKernel<TPixel>(ArraySegment<TPixel> image, int imageHeight, int imageWidth, Frame f, double[,] kernel, PixelTransformer<TPixel> transformer) where TPixel : struct
+        private static TPixel ApplyKernel<TPixel>(in ArraySegment<TPixel> image, in int imageHeight, in int imageWidth, Frame f, in double[,] kernel, in PixelTransformer<TPixel> transformer) where TPixel : struct
         {
             TPixel result = default;
-
-            for (int dy = -f.Heigth; dy <= f.Heigth; dy++)
+            foreach (int y0 in f.IterateY(f.X))
             {
-                int y = dy + f.Y;
-                if (y < 0) y = 0;
-                if (y > imageHeight - 1) y = imageHeight - 1;
+                int y = Math.Clamp(y0, 0, imageHeight - 1);
 
-                for (int dx = -f.Width; dx <= f.Width; dx++)
+                foreach (int x0 in f.IterateX(y))
                 {
-                    int x = f.X + dx;
-                    if (x < 0) x = 0;
-                    if (x > imageWidth - 1) x = imageWidth - 1;
+                    int x = Math.Clamp(x0, 0, imageWidth - 1);
 
-                    int pixelId = y * imageHeight + x;
-                    int matrixY = dy + f.Heigth;
-                    int matrixX = dx + f.Width;
+                    int pixelId = y * imageWidth + x;
+                    int matrixY = y0 + f.RH - f.Y;
+                    int matrixX = x0 + f.RW - f.X;
 
-                    result = transformer(image[pixelId], kernel[matrixY, matrixX], result);
+                    TPixel pixel = transformer(image[pixelId], kernel[matrixY, matrixX], result);
+                    result = pixel;
                 }
             }
 
             return result;
         }
 
-        private static void CopyPixels<TPixel>(ImageBuffer<TPixel> image, Frame frame, TPixel[] result) where TPixel : struct
+        private static void CopyPixels<TPixel>(in ImageBuffer<TPixel> image, in Frame frame, Span<TPixel> result) where TPixel : struct
         {
             int i = 0;
-            for (int dy = -frame.Heigth; dy <= frame.Heigth; dy++)
+            var source = image.Pixels.AsSpan();
+            foreach (int y0 in frame.IterateY(frame.X))
             {
-                int y = dy + frame.Y;
-                if (y < 0) y = 0;
-                if (y > image.Height - 1) y = image.Height - 1;
+                int y = Math.Clamp(y0, 0, image.Height - 1);
 
-                for (int dx = -frame.Width; dx <= frame.Width; dx++)
+                foreach (int x0 in frame.IterateX(y))
                 {
-                    int x = frame.X + dx;
-                    if (x < 0) x = 0;
-                    if (x > image.Width - 1) x = image.Width - 1;
+                    int x = Math.Clamp(x0, 0, image.Width - 1);
 
-                    int pixelId = y * image.Height + x;
-                    result[i] = image.Pixels[pixelId];
+                    int pixelId = x + y * image.Width;
+                    result[i] = source[pixelId];
                     i++;
                 }
             }
@@ -200,15 +132,14 @@ namespace Labs.Core.Filtering
 
         public static double[,] CalculateMean(Frame size)
         {
-            var matrix = new double[size.Heigth, size.Width];
-            double value = 1.0 / size.Heigth * size.Width;
-            
-            for (int i = 0; i < size.Heigth; i++)
+            var matrix = new double[size.Height, size.Width];
+            double value = 1.0 / size.Height / size.Width;
+
+            for (int i = 0; i < size.Height; i++)
             for (int j = 0; j < size.Width; j++)
                 matrix[i, j] = value;
 
             return matrix;
         }
-        
     }
 }

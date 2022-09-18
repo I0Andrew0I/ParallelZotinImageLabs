@@ -45,11 +45,18 @@ namespace Labs.Core.Scheme
 
         public ARGB ToARGB()
         {
+            ARGB value = default;
+            ToARGB(ref value);
+            return value;
+        }
+
+        public void ToARGB(ref ARGB value)
+        {
             if (S == 0)
             {
                 // ахроматический цвет (шкала серого)
                 var v = (byte) Math.Round(L * 255.0);
-                return new ARGB(v, v, v, (byte) (A * 255));
+                value = new ARGB(v, v, v, (byte) (A * 255));
             }
 
             double q = (L < 0.5) ? (L * (1.0 + S)) : (L + S - (L * S));
@@ -81,10 +88,10 @@ namespace Labs.Core.Scheme
                 else T[a] = p;
             }
 
-            var r = (byte) Math.Round(T[0] * 255.0);
-            var g = (byte) Math.Round(T[1] * 255.0);
-            var b = (byte) Math.Round(T[2] * 255.0);
-            return new ARGB(r, g, b, (byte) (A * 255));
+            value.R = (byte) Math.Round(T[0] * 255.0);
+            value.G = (byte) Math.Round(T[1] * 255.0);
+            value.B = (byte) Math.Round(T[2] * 255.0);
+            value.A = (byte) Math.Round(A * 255);
         }
     }
 }

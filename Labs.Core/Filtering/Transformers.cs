@@ -16,6 +16,7 @@ namespace Labs.Core.Filtering
             if (channel.HasFlag(ARGB.Channel.Blue))
                 result.B = (byte) Math.Clamp(result.B + pixel.B * K, 0, 255);
 
+            result.A = 255;
             return result;
         };
 
@@ -28,6 +29,7 @@ namespace Labs.Core.Filtering
             if (channel.HasFlag(HLSA.Channel.Saturation))
                 result.S = Math.Clamp(result.S + pixel.S * K, 0, 1);
 
+            result.A = 1;
             return result;
         };
 

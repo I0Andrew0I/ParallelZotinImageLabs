@@ -9,6 +9,51 @@ namespace Labs.Core
 {
     public class Algorithms
     {
+        public static void RGBToHLS(in ArraySegment<ARGB> argb, ref ArraySegment<HLSA> result)
+        {
+            if (result.Count != argb.Count)
+                result = UtilityExtensions.Pool(argb.Count, result);
+
+            var hlsa = result.AsSpan();
+
+            for (int i = 0; i < argb.Count; i++)
+                argb[i].ToHLSA(ref hlsa[i]);
+        }
+
+        public static void RGBToYUV(ArraySegment<ARGB> argb, ref ArraySegment<YUV> result)
+        {
+            if (result.Count != argb.Count)
+                result = UtilityExtensions.Pool(argb.Count, result);
+
+            var yuv = result.AsSpan();
+
+            for (int i = 0; i < argb.Count; i++)
+                argb[i].ToYUV(ref yuv[i]);
+        }
+
+        public static void HLSToRGB(in ArraySegment<HLSA> hlsa, ref ArraySegment<ARGB> result)
+        {
+            if (result.Count != hlsa.Count)
+                result = UtilityExtensions.Pool(hlsa.Count, result);
+
+            var argb = result.AsSpan();
+
+            for (int i = 0; i < hlsa.Count; i++)
+                hlsa[i].ToARGB(ref argb[i]);
+        }
+
+        public static void YUVToRGB(in ArraySegment<YUV> yuv, ref ArraySegment<ARGB> result)
+        {
+            if (result.Count != yuv.Count)
+                result = UtilityExtensions.Pool(yuv.Count, result);
+
+            var argb = result.AsSpan();
+
+            for (int i = 0; i < yuv.Count; i++)
+                yuv[i].ToARGB(ref argb[i]);
+        }
+
+        [Obsolete]
         public static void RGBToHLSInplace(ArraySegment<byte> buffer)
         {
             Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
@@ -40,6 +85,7 @@ namespace Labs.Core
             return result;
         }
 
+        [Obsolete]
         public static void HLStoRGBInplace(ArraySegment<byte> buffer)
         {
             Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(buffer);
@@ -148,6 +194,7 @@ namespace Labs.Core
             return (H, L, S);
         }
 
+        [Obsolete]
         public static (uint[] R, uint[] G, uint[] B) Histogram(Bitmap image)
         {
             uint[] histR = new uint[256];
