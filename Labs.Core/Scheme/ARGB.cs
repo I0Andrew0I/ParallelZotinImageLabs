@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Labs.Core.Scheme
 {
     [StructLayout(LayoutKind.Sequential)]
-    public record struct ARGB
+    public record struct ARGB : IColor<ARGB, ARGB.Channel>
     {
         [Flags]
         public enum Channel
@@ -42,18 +42,45 @@ namespace Labs.Core.Scheme
             this.A = A;
         }
 
+        public ARGB Add(ARGB other)
+        {
+            ARGB value = this;
+            value.R = (byte) Math.Clamp(value.R + other.R, 0, 255);
+            value.G = (byte) Math.Clamp(value.G + other.G, 0, 255);
+            value.B = (byte) Math.Clamp(value.B + other.B, 0, 255);
+            return value;
+        }
+
+        public ARGB Mul(double num)
+        {
+            ARGB value = this;
+            value.R = (byte) Math.Clamp(value.R * num, 0, 255);
+            value.G = (byte) Math.Clamp(value.G * num, 0, 255);
+            value.B = (byte) Math.Clamp(value.B * num, 0, 255);
+            return value;
+        }
+
+        public ARGB Div(double num)
+        {
+            ARGB value = this;
+            value.R = (byte) Math.Clamp(value.R / num, 0, 255);
+            value.G = (byte) Math.Clamp(value.G / num, 0, 255);
+            value.B = (byte) Math.Clamp(value.B / num, 0, 255);
+            return value;
+        }
+
         public void Extract(Channel channel, ref ARGB value)
         {
-            if (channel.HasFlag(ARGB.Channel.Red))
+            if (channel.HasFlag(Channel.Red))
                 value.R = R;
 
-            if (channel.HasFlag(ARGB.Channel.Green))
+            if (channel.HasFlag(Channel.Green))
                 value.G = G;
 
-            if (channel.HasFlag(ARGB.Channel.Blue))
+            if (channel.HasFlag(Channel.Blue))
                 value.B = B;
 
-            if (channel.HasFlag(ARGB.Channel.Alpha))
+            if (channel.HasFlag(Channel.Alpha))
                 value.A = A;
         }
 

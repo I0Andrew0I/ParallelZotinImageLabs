@@ -2,7 +2,7 @@
 
 namespace Labs.Core.Scheme
 {
-    public record struct HLSA
+    public record struct HLSA : IColor<HLSA, HLSA.Channel>
     {
         public enum Channel
         {
@@ -92,6 +92,48 @@ namespace Labs.Core.Scheme
             value.G = (byte) Math.Round(T[1] * 255.0);
             value.B = (byte) Math.Round(T[2] * 255.0);
             value.A = (byte) Math.Round(A * 255);
+        }
+
+        public HLSA Add(HLSA other)
+        {
+            HLSA value = this;
+            value.H += other.H;
+            value.L += other.L;
+            value.S += other.S;
+            return value;
+        }
+
+        public HLSA Mul(double num)
+        {
+            HLSA value = this;
+            value.H *= num;
+            value.L *= num;
+            value.S *= num;
+            return value;
+        }
+
+        public HLSA Div(double num)
+        {
+            HLSA value = this;
+            value.H /= num;
+            value.L /= num;
+            value.S /= num;
+            return value;
+        }
+
+        public void Extract(Channel channels, ref HLSA value)
+        {
+            if (channels.HasFlag(Channel.Hue))
+                value.H = H;
+
+            if (channels.HasFlag(Channel.Lightness))
+                value.L = L;
+
+            if (channels.HasFlag(Channel.Saturation))
+                value.S = S;
+
+            if (channels.HasFlag(Channel.Alpha))
+                value.A = A;
         }
     }
 }

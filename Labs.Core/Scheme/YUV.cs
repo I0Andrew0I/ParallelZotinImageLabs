@@ -5,7 +5,7 @@ namespace Labs.Core.Scheme
     /// <summary>
     /// YUV [PAL]
     /// </summary>
-    public record struct YUV
+    public record struct YUV : IColor<YUV, YUV.Channel>
     {
         [Flags]
         public enum Channel
@@ -38,6 +38,46 @@ namespace Labs.Core.Scheme
             this.U = U;
             this.V = V;
         }
+
+        public YUV Add(YUV other)
+        {
+            YUV value = this;
+            value.Y += other.Y;
+            value.U += other.U;
+            value.V += other.V;
+            return value;
+        }
+
+        public YUV Mul(double num)
+        {
+            YUV value = this;
+            value.Y *= num;
+            value.U *= num;
+            value.V *= num;
+            return value;
+        }
+
+        public YUV Div(double num)
+        {
+            YUV value = this;
+            value.Y /= num;
+            value.U /= num;
+            value.V /= num;
+            return value;
+        }
+
+        public void Extract(Channel channels, ref YUV value)
+        {
+            if (channels.HasFlag(Channel.Y))
+                value.Y = Y;
+
+            if (channels.HasFlag(Channel.U))
+                value.U = U;
+
+            if (channels.HasFlag(Channel.V))
+                value.V = V;
+        }
+
 
         public void ToARGB(ref ARGB value)
         {

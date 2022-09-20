@@ -338,7 +338,7 @@ namespace Lab2
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer,
                     method,
                     new(tests, threads),
-                    FilterModule.ARGB(channels, _kernelMatrix, _sharpness)
+                    FilterModule.ARGB(channels, _sharpness)
                 );
 
                 return (time, argb);
@@ -350,7 +350,7 @@ namespace Lab2
                 (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer,
                     method,
                     new(tests, threads),
-                    FilterModule.HLSA(channels, _kernelMatrix, _sharpness)
+                    FilterModule.HLSA(channels, _sharpness)
                 );
 
                 Trace.WriteLine("Converting result...");
@@ -364,7 +364,7 @@ namespace Lab2
                 (TimeSpan time, ImageBuffer<YUV> yuv) = RunTests(imageBuffer,
                     method,
                     new(tests, threads),
-                    FilterModule.YUV(channels, _kernelMatrix, _sharpness));
+                    FilterModule.YUV(channels, _sharpness));
 
                 Trace.WriteLine("Converting result...");
                 Algorithms.YUVToRGB(yuv.Pixels, ref result);
@@ -372,8 +372,8 @@ namespace Lab2
             };
         };
 
-        private (TimeSpan time, ImageBuffer<TPixel> result) RunTests<TPixel>(ImageBuffer<TPixel> source,
-            MethodParameters method, TestProperties test, ChannelModule<TPixel> module) where TPixel : struct
+        private (TimeSpan time, ImageBuffer<TPixel> result) RunTests<TPixel, TChannel>(ImageBuffer<TPixel> source,
+            MethodParameters method, TestProperties test, ChannelModule<TPixel, TChannel> module) where TPixel : struct, IColor<TPixel, TChannel>
         {
             (var kernel, Filter filter, var frame) = method;
             (int numTests, int numThreads) = test;
@@ -404,8 +404,7 @@ namespace Lab2
                         Filters.KernelFiltering(source, kernel, module.Summator, result, roundFrame, numThreads);
                         break;
                     case Filter.Laplacian:
-                        // Filters.KernelFiltering(source, kernel, module.Summator, result, false, numThreads);
-                        Filters.Convolution(source, frame, result, module.LaplacianReducer);
+                        Filters.KernelFiltering(source, kernel, module.LaplacianSharpness, result, false, numThreads);
                         break;
                     case Filter.Mean:
                         Filters.KernelFiltering(source, kernel, module.Summator, result, roundFrame, numThreads);

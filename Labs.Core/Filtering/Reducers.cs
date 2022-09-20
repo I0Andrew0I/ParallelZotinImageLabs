@@ -3,41 +3,12 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public delegate TPixel FrameReducer<TPixel>(Span<TPixel> source, Frame frame);
+    public delegate TPixel FrameReducer<TPixel, TChannel>(Span<TPixel> source, Frame frame)
+        where TPixel : struct, IColor<TPixel, TChannel>;
 
     public static class Reducers
     {
-        public static FrameReducer<ARGB> ARGBLaplacianReducer(ARGB.Channel channel, double[,] laplacian, double sharpness) => (pixels, f) =>
-        {
-            ARGB pixel = pixels[pixels.Length / 2];
-            ARGB result = default;
-            PixelTransformer<ARGB> transformer = Transformers.ARGBSummator(channel);
-
-            foreach (int y in f.IterateY(f.X))
-            {
-                foreach (int x in f.IterateX(y))
-                {
-                    int pixelId = y * f.Height + x;
-                    int matrixY = y + f.Height - f.Y;
-                    int matrixX = x + f.Width - f.X;
-
-                    result = transformer(pixels[pixelId], laplacian[matrixY, matrixX], result);
-                }
-            }
-
-            result.R = (byte) (result.R * sharpness);
-            result.G = (byte) (result.G * sharpness);
-            result.B = (byte) (result.B * sharpness);
-
-            result = transformer(pixel, 1, result);
-
-            return result;
-        };
-
-        
-        
-        
-        public static FrameReducer<ARGB> ARGBMinMaxReducer(ARGB.Channel channel) => (pixels, _) =>
+        public static FrameReducer<ARGB, ARGB.Channel> ARGBMinMaxReducer(ARGB.Channel channel) => (pixels, _) =>
         {
             ARGB pixel = pixels[pixels.Length / 2];
             ARGB min = pixel;
@@ -70,7 +41,7 @@ namespace Labs.Core.Filtering
                 B: mean(min.B, max.B));
         };
 
-        public static FrameReducer<HLSA> HLSAMinMaxReducer(HLSA.Channel channel) => (pixels, _) =>
+        public static FrameReducer<HLSA, HLSA.Channel> HLSAMinMaxReducer(HLSA.Channel channel) => (pixels, _) =>
         {
             HLSA pixel = pixels[pixels.Length / 2];
             HLSA min = pixel;
@@ -104,7 +75,7 @@ namespace Labs.Core.Filtering
             );
         };
 
-        public static FrameReducer<YUV> YUVMinMaxReducer(YUV.Channel channel) => (pixels, _) =>
+        public static FrameReducer<YUV, YUV.Channel> YUVMinMaxReducer(YUV.Channel channel) => (pixels, _) =>
         {
             YUV pixel = pixels[pixels.Length / 2];
             YUV min = pixel;
@@ -136,11 +107,9 @@ namespace Labs.Core.Filtering
                 U: (min.U + max.U) / 2.0,
                 V: (min.V + max.V) / 2.0);
         };
-        
-        
-        
-        
-        public static FrameReducer<ARGB> ARGBMedianReducer(ARGB.Channel channel) => (pixels, _) =>
+
+
+        public static FrameReducer<ARGB, ARGB.Channel> ARGBMedianReducer(ARGB.Channel channel) => (pixels, _) =>
         {
             ARGB pixel = pixels[pixels.Length / 2];
 
@@ -176,7 +145,7 @@ namespace Labs.Core.Filtering
             return pixel;
         };
 
-        public static FrameReducer<HLSA> HLSAMedianReducer(HLSA.Channel channel) => (pixels, _) =>
+        public static FrameReducer<HLSA, HLSA.Channel> HLSAMedianReducer(HLSA.Channel channel) => (pixels, _) =>
         {
             HLSA pixel = pixels[pixels.Length / 2];
 
@@ -212,7 +181,7 @@ namespace Labs.Core.Filtering
             return pixel;
         };
 
-        public static FrameReducer<YUV> YUVMedianReducer(YUV.Channel channel) => (pixels, _) =>
+        public static FrameReducer<YUV, YUV.Channel> YUVMedianReducer(YUV.Channel channel) => (pixels, _) =>
         {
             YUV pixel = pixels[pixels.Length / 2];
 

@@ -4,26 +4,26 @@ namespace Labs.Core.Filtering
 {
     public static class FilterModule
     {
-        public static ChannelModule<ARGB> ARGB(ARGB.Channel channel, double[,] laplacian, double sharpness) => new()
+        public static ChannelModule<ARGB, ARGB.Channel> ARGB(ARGB.Channel channel, double sharpness) => new()
         {
-            Summator = Transformers.ARGBSummator(channel),
-            LaplacianReducer = Reducers.ARGBLaplacianReducer(channel, laplacian, sharpness),
+            Summator = Transformers.Summator<ARGB, ARGB.Channel>(channel),
+            LaplacianSharpness = Transformers.ARGBLaplacianSummator(channel, sharpness),
             MedianReducer = Reducers.ARGBMedianReducer(channel),
             MinMaxReducer = Reducers.ARGBMinMaxReducer(channel)
         };
 
-        public static ChannelModule<HLSA> HLSA(HLSA.Channel channel, double[,] laplacian, double sharpness) => new()
+        public static ChannelModule<HLSA, HLSA.Channel> HLSA(HLSA.Channel channel, double sharpness) => new()
         {
             Summator = Transformers.HLSASummator(channel),
-            LaplacianReducer = null, //Reducers.HLSA(channel, laplacian, sharpness),
+            LaplacianSharpness = null, //Reducers.HLSA(channel, laplacian, sharpness),
             MedianReducer = Reducers.HLSAMedianReducer(channel),
             MinMaxReducer = Reducers.HLSAMinMaxReducer(channel)
         };
-        
-        public static ChannelModule<YUV> YUV(YUV.Channel channel, double[,] laplacian, double sharpness) => new()
+
+        public static ChannelModule<YUV, YUV.Channel> YUV(YUV.Channel channel, double sharpness) => new()
         {
             Summator = Transformers.YUVSummator(channel),
-            LaplacianReducer = null, //Reducers.HLSA(channel, laplacian, sharpness),
+            LaplacianSharpness = null, //Reducers.HLSA(channel, laplacian, sharpness),
             MedianReducer = Reducers.YUVMedianReducer(channel),
             MinMaxReducer = Reducers.YUVMinMaxReducer(channel)
         };

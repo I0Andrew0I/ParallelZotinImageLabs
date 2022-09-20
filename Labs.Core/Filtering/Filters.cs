@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
     public static class Filters
     {
-        // minmax [круговой и прямоугольный], Median, Laplacian?
-        // TODO: fix trash output
-        public static void Convolution<TPixel>(ImageBuffer<TPixel> image, Frame size, ImageBuffer<TPixel> result, FrameReducer<TPixel> reducer, bool round = false, int threads = 1) where TPixel : struct
+        // minmax [круговой и прямоугольный], Median
+        public static void Convolution<TPixel, TChannel>(ImageBuffer<TPixel> image, Frame size, ImageBuffer<TPixel> result, FrameReducer<TPixel, TChannel> reducer, bool round = false, int threads = 1)
+            where TPixel : struct, IColor<TPixel, TChannel>
         {
             ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
             int imageWidth = image.Width;
@@ -43,8 +44,8 @@ namespace Labs.Core.Filtering
             });
         }
 
-        // Linear, Mean, Laplacian
-        public static void KernelFiltering<TPixel>(ImageBuffer<TPixel> image, double[,] kernel, PixelTransformer<TPixel> transformer, ImageBuffer<TPixel> result, bool round = false, int threads = 1) where TPixel : struct
+        public static void RecursiveKernelFiltering<TPixel, TChannel>(ImageBuffer<TPixel> image, double[,] kernel, PixelTransformer<TPixel, TChannel> transformer, ImageBuffer<TPixel> result, bool round = false, int threads = 1)
+            where TPixel : struct, IColor<TPixel, TChannel>
         {
             ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
             int imageWidth = image.Width;
@@ -68,34 +69,44 @@ namespace Labs.Core.Filtering
                         frame.X = x;
                         frame.Y = y;
 
-                        TPixel pixel = ApplyKernel(image.Pixels, imageHeight, imageWidth, frame, kernel, transformer);
+                        TPixel pixel = transformer(image, frame, kernel);
                         output[pixelId] = pixel;
                     }
                 }
             });
         }
 
-        private static TPixel ApplyKernel<TPixel>(in ArraySegment<TPixel> image, in int imageHeight, in int imageWidth, Frame f, in double[,] kernel, in PixelTransformer<TPixel> transformer) where TPixel : struct
+        // Linear, Mean, Laplacian
+        public static void KernelFiltering<TPixel, TChannel>(ImageBuffer<TPixel> image, double[,] kernel, PixelTransformer<TPixel, TChannel> transformer, ImageBuffer<TPixel> result, bool round = false, int threads = 1)
+            where TPixel : struct, IColor<TPixel, TChannel>
         {
-            TPixel result = default;
-            foreach (int y0 in f.IterateY(f.X))
+            ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = threads};
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
+            int mWidth = kernel.GetLength(1);
+            int mHeight = kernel.GetLength(0);
+            int step = (int) Math.Truncate(imageHeight / 16.0);
+
+            Parallel.For(0, 16, po, (int iter) =>
             {
-                int y = Math.Clamp(y0, 0, imageHeight - 1);
+                int from = iter * step;
+                int to = iter == 15 ? imageHeight : (iter + 1) * step;
+                var output = result.Pixels.AsSpan();
+                Frame frame = round ? new EllipsoidsFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
 
-                foreach (int x0 in f.IterateX(y))
+                for (int y = from; y < to; y++)
                 {
-                    int x = Math.Clamp(x0, 0, imageWidth - 1);
+                    for (int x = 0; x < imageWidth; x++)
+                    {
+                        int pixelId = x + y * imageWidth;
+                        frame.X = x;
+                        frame.Y = y;
 
-                    int pixelId = y * imageWidth + x;
-                    int matrixY = y0 + f.RH - f.Y;
-                    int matrixX = x0 + f.RW - f.X;
-
-                    TPixel pixel = transformer(image[pixelId], kernel[matrixY, matrixX], result);
-                    result = pixel;
+                        TPixel pixel = transformer(image, frame, kernel);
+                        output[pixelId] = pixel;
+                    }
                 }
-            }
-
-            return result;
+            });
         }
 
         private static void CopyPixels<TPixel>(in ImageBuffer<TPixel> image, in Frame frame, Span<TPixel> result) where TPixel : struct
