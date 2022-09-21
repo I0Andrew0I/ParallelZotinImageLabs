@@ -48,6 +48,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public YUV Subtract(YUV other)
+        {
+            YUV value = this;
+            value.Y -= other.Y;
+            value.U -= other.U;
+            value.V -= other.V;
+            return value;
+        }
+
         public YUV Mul(double num)
         {
             YUV value = this;

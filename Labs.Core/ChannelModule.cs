@@ -10,4 +10,13 @@ namespace Labs.Core
         public FrameReducer<TPixel, TChannel> MedianReducer { get; set; }
         public PixelTransformer<TPixel, TChannel> LaplacianSharpness { get; set; }
     }
+
+    public class ConvolutionModule<TPixel, TChannel> where TPixel : struct, IColor<TPixel, TChannel>
+    {
+        public ConvolutionMethod<TPixel, TChannel> Linear;
+        public ConvolutionMethod<TPixel, TChannel> MinMax;
+        public ConvolutionMethod<TPixel, TChannel> Laplacian;
+        public ConvolutionMethod<TPixel, TChannel> MeanRecursive;
+        public ConvolutionMethod<TPixel, TChannel> Median;
+    }
 }

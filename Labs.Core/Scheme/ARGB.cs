@@ -51,6 +51,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public ARGB Subtract(ARGB other)
+        {
+            ARGB value = this;
+            value.R = (byte) Math.Clamp(value.R - other.R, 0, 255);
+            value.G = (byte) Math.Clamp(value.G - other.G, 0, 255);
+            value.B = (byte) Math.Clamp(value.B - other.B, 0, 255);
+            return value;
+        }
+
         public ARGB Mul(double num)
         {
             ARGB value = this;

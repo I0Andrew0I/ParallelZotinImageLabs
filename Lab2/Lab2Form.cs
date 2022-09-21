@@ -289,7 +289,9 @@ namespace Lab2
 
 
             // run number of tests
-            (TimeSpan methodTime, ImageBuffer<ARGB> result) = await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
+            (TimeSpan methodTime, ImageBuffer<ARGB> result) =
+                testRunner((int) testsBox.Value, (int) threadsBox.Value);
+            // await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
 
             string elapsedTime = String.Format("{0:00}:{1:0000}", methodTime.TotalSeconds, methodTime.Milliseconds);
 
@@ -335,10 +337,9 @@ namespace Lab2
             TestRunner RunTestsRGB(ARGB.Channel channels) => (tests, threads) =>
             {
                 var imageBuffer = new ImageBuffer<ARGB>(_sourceARGB, _width, _height);
-                (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer,
-                    method,
+                (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    FilterModule.ARGB(channels, _sharpness)
+                    ConvolutionMethods.ARGB(imageBuffer, channels, _kernelMatrix, _sharpness)
                 );
 
                 return (time, argb);
@@ -347,10 +348,9 @@ namespace Lab2
             TestRunner RunTestsHLSA(HLSA.Channel channels) => (tests, threads) =>
             {
                 var imageBuffer = new ImageBuffer<HLSA>(_sourceHLSA, _width, _height);
-                (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer,
-                    method,
+                (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    FilterModule.HLSA(channels, _sharpness)
+                    ConvolutionMethods.HLSA(imageBuffer, channels, _kernelMatrix, _sharpness)
                 );
 
                 Trace.WriteLine("Converting result...");
@@ -361,10 +361,10 @@ namespace Lab2
             TestRunner RunTestsYUV(YUV.Channel channels) => (tests, threads) =>
             {
                 var imageBuffer = new ImageBuffer<YUV>(_sourceYUV, _width, _height);
-                (TimeSpan time, ImageBuffer<YUV> yuv) = RunTests(imageBuffer,
-                    method,
+                (TimeSpan time, ImageBuffer<YUV> yuv) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    FilterModule.YUV(channels, _sharpness));
+                    ConvolutionMethods.YUV(imageBuffer, channels, _kernelMatrix, _sharpness)
+                );
 
                 Trace.WriteLine("Converting result...");
                 Algorithms.YUVToRGB(yuv.Pixels, ref result);
@@ -372,12 +372,15 @@ namespace Lab2
             };
         };
 
-        private (TimeSpan time, ImageBuffer<TPixel> result) RunTests<TPixel, TChannel>(ImageBuffer<TPixel> source,
-            MethodParameters method, TestProperties test, ChannelModule<TPixel, TChannel> module) where TPixel : struct, IColor<TPixel, TChannel>
+        private (TimeSpan time, ImageBuffer<TPixel> result) RunTests<TPixel, TChannel>(
+            ImageBuffer<TPixel> source,
+            Filter filter,
+            Frame frame,
+            TestProperties test,
+            ConvolutionModule<TPixel, TChannel> module)
+            where TPixel : struct, IColor<TPixel, TChannel>
         {
-            (var kernel, Filter filter, var frame) = method;
             (int numTests, int numThreads) = test;
-            bool roundFrame = frame is EllipsoidsFrame;
 
             ImageBuffer<TPixel> result = null;
             ArraySegment<TPixel> targetBuffer = ArraySegment<TPixel>.Empty;
@@ -397,30 +400,21 @@ namespace Lab2
                 targetBuffer = UtilityExtensions.PoolCopy(source.Pixels, targetBuffer);
                 result = new(targetBuffer, source.Width, source.Height);
 
-                var watch = Stopwatch.StartNew();
-                switch (filter)
+                ConvolutionMethod<TPixel, TChannel> testFunction = filter switch
                 {
-                    case Filter.Linear:
-                        Filters.KernelFiltering(source, kernel, module.Summator, result, roundFrame, numThreads);
-                        break;
-                    case Filter.Laplacian:
-                        Filters.KernelFiltering(source, kernel, module.LaplacianSharpness, result, false, numThreads);
-                        break;
-                    case Filter.Mean:
-                        Filters.KernelFiltering(source, kernel, module.Summator, result, roundFrame, numThreads);
-                        break;
-                    case Filter.Median:
-                        Filters.Convolution(source, frame, result, module.MedianReducer, roundFrame, numThreads);
-                        break;
-                    case Filter.MinMax:
-                        Filters.Convolution(source, frame, result, module.MinMaxReducer, roundFrame, numThreads);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    Filter.Linear => module.Linear,
+                    Filter.Laplacian => module.Laplacian,
+                    Filter.Median => module.Median,
+                    Filter.Mean => module.MeanRecursive,
+                    Filter.MinMax => module.MinMax,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
 
+                var watch = Stopwatch.StartNew();
+                testFunction.Apply(frame, result, numThreads);
                 watch.Stop();
                 tests.Add(watch.Elapsed);
+
                 Trace.WriteLine($"Test {count} finished...");
                 filteringProgress.Invoke(() => filteringProgress.PerformStep());
             }
@@ -431,6 +425,7 @@ namespace Lab2
             return (time, result!);
         }
 
+        
         private Bitmap ShowResult(ArraySegment<ARGB> result)
         {
             Bitmap image = (Bitmap) outputPictureBox.Image;

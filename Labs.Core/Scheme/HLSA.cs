@@ -103,6 +103,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public HLSA Subtract(HLSA other)
+        {
+            HLSA value = this;
+            value.H -= other.H;
+            value.L -= other.L;
+            value.S -= other.S;
+            return value;
+        }
+
         public HLSA Mul(double num)
         {
             HLSA value = this;
