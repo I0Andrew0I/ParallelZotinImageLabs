@@ -274,11 +274,11 @@ namespace Lab2
                     return;
                 }
 
-                _kernelMatrix = Filters.CalculateMean(_frameSize);
+                _kernelMatrix = Kernel.CalculateMean(_frameSize);
             }
             else if (SelectedFilter == Filter.Laplacian)
             {
-                _kernelMatrix = Filters.CalculateLaplacian();
+                _kernelMatrix = Kernel.CalculateLaplacian();
             }
 
             filteringGroup.Enabled = false;
