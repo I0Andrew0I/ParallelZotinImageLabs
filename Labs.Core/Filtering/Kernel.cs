@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Labs.Core.Scheme;
-
-namespace Labs.Core.Filtering
+﻿namespace Labs.Core.Filtering
 {
     public static class Kernel
     {
