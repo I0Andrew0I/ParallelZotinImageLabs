@@ -103,12 +103,46 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public HLSA Add(HLSA other, out HLSA overflow)
+        {
+            HLSA value = this;
+            overflow = default;
+
+            double h = value.H + other.H;
+            double l = value.L + other.L;
+            double s = value.S + other.S;
+            overflow.H = Math.Clamp(h - 360, 0, 360);
+            overflow.L = Math.Clamp(l - 1, 0, 1);
+            overflow.S = Math.Clamp(s - 1, 0, 1);
+            value.H = Math.Clamp(h, 0, 360);
+            value.L = Math.Clamp(l, 0, 1);
+            value.S = Math.Clamp(l, 0, 1);
+            return value;
+        }
+
         public HLSA Subtract(HLSA other)
         {
             HLSA value = this;
             value.H -= other.H;
             value.L -= other.L;
             value.S -= other.S;
+            return value;
+        }
+
+        public HLSA Subtract(HLSA other, out HLSA overflow)
+        {
+            HLSA value = this;
+            overflow = default;
+
+            double h = value.H - other.H;
+            double l = value.L - other.L;
+            double s = value.S - other.S;
+            overflow.H = h < 0 ? -h : 0;
+            overflow.L = l < 0 ? -l : 0;
+            overflow.S = s < 0 ? -s : 0;
+            value.H = Math.Clamp(h, 0, 360);
+            value.L = Math.Clamp(l, 0, 1);
+            value.S = Math.Clamp(l, 0, 1);
             return value;
         }
 
@@ -143,6 +177,15 @@ namespace Labs.Core.Scheme
 
             if (channels.HasFlag(Channel.Alpha))
                 value.A = A;
+        }
+
+        public int CompareTo(HLSA other)
+        {
+            int hComparison = H.CompareTo(other.H);
+            if (hComparison != 0) return hComparison;
+            int lComparison = L.CompareTo(other.L);
+            if (lComparison != 0) return lComparison;
+            return S.CompareTo(other.S);
         }
     }
 }

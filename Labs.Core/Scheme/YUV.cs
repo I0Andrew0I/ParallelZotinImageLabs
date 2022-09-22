@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Labs.Core.Scheme
 {
@@ -48,12 +49,48 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public YUV Add(YUV other, out YUV overflow)
+        {
+            YUV value = this;
+            overflow = default;
+
+            double y = value.Y + other.Y;
+            double u = value.U + other.U;
+            double v = value.V + other.V;
+            overflow.Y = Math.Clamp(y - 255, 0, 255);
+            overflow.U = UtilityExtensions.Overflow(u, -112, 112); //Math.Clamp(u - 225, -112, 112) + 225;
+            overflow.V = UtilityExtensions.Overflow(v, -157, 157);
+            value.Y = Math.Clamp(y, 0, 255);
+            value.U = Math.Clamp(u, -112, 112);
+            value.V = Math.Clamp(v, -157, 157);
+            return value;
+        }
+
         public YUV Subtract(YUV other)
         {
             YUV value = this;
             value.Y -= other.Y;
             value.U -= other.U;
             value.V -= other.V;
+            return value;
+        }
+
+        public YUV Subtract(YUV other, out YUV overflow)
+        {
+            YUV value = this;
+            overflow = default;
+
+            double y = value.Y - other.Y;
+            double u = value.U - other.U;
+            double v = value.V - other.V;
+            overflow.Y = y < 0 ? -y : 0;
+            overflow.U = UtilityExtensions.Overflow(u, -112, 112); //Math.Clamp(u - 225, -112, 112) + 225;
+            overflow.V = UtilityExtensions.Overflow(v, -157, 157);
+            // overflow.U = u < -112 ? -112 - u : u > 112 ? 112 + u : 0; // Math.Clamp(225 - u, -112, 112);
+            // overflow.V = v < -157 ? -157 - v : v > 157 ? 157 + v : 0; //Math.Clamp(315 - v - 315, -157, 157);
+            value.Y = Math.Clamp(y, 0, 255);
+            value.U = Math.Clamp(u, -112, 112);
+            value.V = Math.Clamp(v, -157, 157);
             return value;
         }
 
@@ -101,6 +138,15 @@ namespace Labs.Core.Scheme
             var argb = default(ARGB);
             ToARGB(ref argb);
             return argb;
+        }
+
+        public int CompareTo(YUV other)
+        {
+            int yComparison = Y.CompareTo(other.Y);
+            if (yComparison != 0) return yComparison;
+            int uComparison = U.CompareTo(other.U);
+            if (uComparison != 0) return uComparison;
+            return V.CompareTo(other.V);
         }
     }
 }

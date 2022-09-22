@@ -290,10 +290,9 @@ namespace Lab2
 
             // run number of tests
             (TimeSpan methodTime, ImageBuffer<ARGB> result) =
-                testRunner((int) testsBox.Value, (int) threadsBox.Value);
-            // await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
+            await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
 
-            string elapsedTime = String.Format("{0:00}:{1:0000}", methodTime.TotalSeconds, methodTime.Milliseconds);
+            string elapsedTime = String.Format("{0:00}:{1}", methodTime.TotalSeconds, methodTime.Milliseconds);
 
             Trace.WriteLine("Displaying result...");
             // show image
@@ -393,23 +392,22 @@ namespace Lab2
                 filteringProgress.Minimum = 0;
                 filteringProgress.Maximum = numTests;
             });
+            ConvolutionMethod<TPixel, TChannel> testFunction = filter switch
+            {
+                Filter.Linear => module.Linear,
+                Filter.Laplacian => module.Laplacian,
+                Filter.Median => module.Median,
+                Filter.Mean => module.MeanRecursive,
+                Filter.MinMax => module.MinMax,
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             Trace.WriteLine("Starting tests...");
             for (int count = 0; count < numTests; count++)
             {
                 targetBuffer = UtilityExtensions.PoolCopy(source.Pixels, targetBuffer);
                 result = new(targetBuffer, source.Width, source.Height);
-
-                ConvolutionMethod<TPixel, TChannel> testFunction = filter switch
-                {
-                    Filter.Linear => module.Linear,
-                    Filter.Laplacian => module.Laplacian,
-                    Filter.Median => module.Median,
-                    Filter.Mean => module.MeanRecursive,
-                    Filter.MinMax => module.MinMax,
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-
+                
                 var watch = Stopwatch.StartNew();
                 testFunction.Apply(frame, result, numThreads);
                 watch.Stop();
@@ -458,6 +456,8 @@ namespace Lab2
         private void OnRGBSelected(object sender, EventArgs e)
         {
             if (sender is not RadioButton {Checked: true}) return;
+            
+            _selectedChannels = ARGB.Channel.Undefined;
             _channelBox.DataSource = Enum.GetValues(typeof(ARGB.Channel));
         }
 
@@ -466,6 +466,7 @@ namespace Lab2
             if (sender is not RadioButton {Checked: true}) return;
 
             _channelBox.DataSource = Enum.GetValues(typeof(HLSA.Channel));
+            _selectedChannels = HLSA.Channel.Undefined;
             Algorithms.RGBToHLS(_sourceARGB, ref _sourceHLSA);
         }
 
@@ -474,6 +475,7 @@ namespace Lab2
             if (sender is not RadioButton {Checked: true}) return;
 
             _channelBox.DataSource = Enum.GetValues(typeof(YUV.Channel));
+            _selectedChannels = YUV.Channel.Undefined;
             Algorithms.RGBToYUV(_sourceARGB, ref _sourceYUV);
         }
 

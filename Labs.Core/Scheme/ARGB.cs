@@ -51,12 +51,46 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public ARGB Add(ARGB other, out ARGB overflow)
+        {
+            ARGB value = this;
+            overflow = default;
+
+            int r = value.R + other.R;
+            int g = value.G + other.G;
+            int b = value.B + other.B;
+            overflow.R = (byte) Math.Clamp(r - 255, 0, 255);
+            overflow.G = (byte) Math.Clamp(g - 255, 0, 255);
+            overflow.B = (byte) Math.Clamp(b - 255, 0, 255);
+            value.R = (byte) Math.Clamp(r, 0, 255);
+            value.G = (byte) Math.Clamp(g, 0, 255);
+            value.B = (byte) Math.Clamp(b, 0, 255);
+            return value;
+        }
+
         public ARGB Subtract(ARGB other)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R - other.R, 0, 255);
             value.G = (byte) Math.Clamp(value.G - other.G, 0, 255);
             value.B = (byte) Math.Clamp(value.B - other.B, 0, 255);
+            return value;
+        }
+
+        public ARGB Subtract(ARGB other, out ARGB overflow)
+        {
+            ARGB value = this;
+            overflow = default;
+
+            int r = value.R - other.R;
+            int g = value.G - other.G;
+            int b = value.B - other.B;
+            overflow.R = (byte) (r < 0 ? -r : 0);
+            overflow.G = (byte) (g < 0 ? -g : 0);
+            overflow.B = (byte) (b < 0 ? -b : 0);
+            value.R = (byte) Math.Clamp(r, 0, 255);
+            value.G = (byte) Math.Clamp(g, 0, 255);
+            value.B = (byte) Math.Clamp(b, 0, 255);
             return value;
         }
 
@@ -155,6 +189,13 @@ namespace Labs.Core.Scheme
             value.L = l;
             value.S = s;
             value.A = A / 255.0;
+        }
+
+        public int CompareTo(ARGB other)
+        {
+            int v1 = R + G + B;
+            int v2 = other.R + other.G + other.B;
+            return Math.Sign(v2 - v1);
         }
     }
 }

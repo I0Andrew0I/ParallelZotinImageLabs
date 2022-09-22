@@ -5,18 +5,18 @@ using Labs.Core.Scheme;
 namespace Labs.Core.Filtering
 {
     public sealed record MeanRecursiveConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel)
-        : ConvolutionMethod<TPixel, TChannel>(Image, Channels)
+        : KernelConvolution<TPixel, TChannel>(Image, Channels, Kernel)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
-        public void Apply(Frame f, ImageBuffer<TPixel> resultImage, int numThreads)
+        public override void Apply(Frame frameShape, ImageBuffer<TPixel> resultImage, int numThreads)
         {
             ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = numThreads};
             int imageWidth = Image.Width;
             int imageHeight = Image.Height;
-            int mWidth = f.Width;
-            int mHeight = f.Height;
+            int mWidth = frameShape.Width;
+            int mHeight = frameShape.Height;
+            bool round = frameShape is EllipsoidsFrame;
             int step = (int) Math.Truncate(imageHeight / 16.0);
-            bool round = f is EllipsoidsFrame;
 
             Parallel.For(0, 16, po, (int iter) =>
             {
@@ -27,22 +27,28 @@ namespace Labs.Core.Filtering
 
                 for (int y = from; y < to; y++)
                 {
-                    TPixel rowSum = SlideFrame(f, output, y * imageWidth);
+                    frame.X = 0;
+                    frame.Y = y;
+                    int yOffset = y * imageWidth;
+                    TPixel rowSum = SlideFrame(frame, ref output, yOffset);
+                    rowSum.Extract(Channels, ref output[yOffset]);
+
                     for (int x = 1; x < imageWidth; x++)
                     {
-                        int pixelId = x + y * imageWidth;
+                        int pixelId = x + yOffset;
                         frame.X = x;
                         frame.Y = y;
-                        rowSum = SlideFrame(pixelId, rowSum, f, output);
+                        rowSum = SlideFrame(pixelId, rowSum, frame, ref output);
+                        rowSum.Extract(Channels, ref output[pixelId]);
                     }
                 }
             });
         }
 
-        private TPixel SlideFrame(int pixelId, TPixel rowSum, Frame f, Span<TPixel> output)
+        private TPixel SlideFrame(int pixelId, TPixel rowSum, Frame f, ref Span<TPixel> output)
         {
-            int from = f.X - f.RW;
-            int to = f.X + f.RW;
+            int from = Math.Clamp(f.X - f.RW, 0, Image.Width - 1);
+            int to = Math.Clamp(f.X + f.RW, 0, Image.Width - 1);
             TPixel oldSum = default;
             TPixel newSum = default;
 
@@ -52,7 +58,7 @@ namespace Labs.Core.Filtering
 
                 int matrixY = y0 + f.RH - f.Y;
                 int matrixX = from + f.RW - f.X;
-                int localId = from - 1 + y * Image.Width;
+                int localId = Math.Clamp(from - 1, 0, Image.Width - 1) + y * Image.Width;
 
                 oldSum = oldSum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
             }
@@ -68,10 +74,13 @@ namespace Labs.Core.Filtering
                 newSum = newSum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
             }
 
-            return rowSum.Subtract(oldSum).Add(newSum);
-        }
+            if (oldSum.CompareTo(newSum) == 0)
+                return rowSum;
 
-        protected override TPixel ApplyFrame(int x, int y, Frame f, int iter) =>
-            default;
+            rowSum = rowSum.Add(newSum, out var overflow);
+            oldSum = oldSum.Subtract(overflow, out overflow);
+            rowSum = rowSum.Add(overflow).Subtract(oldSum);
+            return rowSum;
+        }
     }
 }

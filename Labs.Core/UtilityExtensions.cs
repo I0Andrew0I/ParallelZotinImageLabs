@@ -138,5 +138,9 @@ namespace Labs.Core
                 if (input.HasFlag(value))
                     yield return (TEnum) value;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Overflow(double n, double low, double up) =>
+            n < low ? -low - n : n > up ? n - up : 0;
     }
 }

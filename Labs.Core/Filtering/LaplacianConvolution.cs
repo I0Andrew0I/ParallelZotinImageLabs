@@ -3,11 +3,11 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public sealed record LaplacianConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel, double sharpness)
+    public sealed record LaplacianConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel, double Sharpness)
         : ConvolutionMethod<TPixel, TChannel>(Image, Channels)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
-        protected override TPixel SlideFrame(Frame f, Span<TPixel> _, int pixelId)
+        protected override TPixel SlideFrame(in Frame f, ref Span<TPixel> _, int pixelId)
         {
             TPixel sum = default;
             foreach (int y0 in f.IterateY(f.X))
@@ -26,11 +26,8 @@ namespace Labs.Core.Filtering
                 }
             }
 
-            sum = sum.Mul(sharpness);
+            sum = sum.Mul(Sharpness);
             return sum;
         }
-
-        protected override TPixel ApplyFrame(int x, int y, Frame f, int iter) =>
-            default;
     }
 }
