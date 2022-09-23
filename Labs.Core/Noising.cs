@@ -45,13 +45,13 @@ namespace Labs.Core
 
                 ARGB randomPixel = default;
                 if (channel.HasFlag(ARGB.Channel.Red))
-                    randomPixel.R = (byte) (noise * result[id].R);
+                    randomPixel.R = (byte) Math.Clamp(noise * result[id].R, 0, 255);
                 if (channel.HasFlag(ARGB.Channel.Green))
-                    randomPixel.G = (byte) (noise * result[id].G);
+                    randomPixel.G = (byte) Math.Clamp(noise * result[id].G, 0, 255);
                 if (channel.HasFlag(ARGB.Channel.Blue))
-                    randomPixel.B = (byte) (noise * result[id].B);
+                    randomPixel.B = (byte) Math.Clamp(noise * result[id].B, 0, 255);
 
-                result[id] = randomPixel;
+                randomPixel.Extract(channel, ref result[id]);
             }
         }
 
@@ -59,22 +59,23 @@ namespace Labs.Core
         {
             int amountTotal = (int) (noiseRatio * result.Length);
             Random rnd = Random.Shared;
+            int amplitude = Math.Abs(right - left);
 
             for (int i = 0; i < amountTotal; i++)
             {
                 int id = rnd.Next(0, result.Length);
 
-                double noise = left + Math.Abs(right - left) * rnd.NextDouble();
+                double noise = left + amplitude * rnd.NextDouble();
 
                 ARGB randomPixel = default;
                 if (channel.HasFlag(ARGB.Channel.Red))
-                    randomPixel.R = (byte) (noise + result[id].R);
+                    randomPixel.R = (byte) Math.Clamp(noise + result[id].R, 0, 255);
                 if (channel.HasFlag(ARGB.Channel.Green))
-                    randomPixel.G = (byte) (noise + result[id].G);
+                    randomPixel.G = (byte) Math.Clamp(noise + result[id].G, 0, 255);
                 if (channel.HasFlag(ARGB.Channel.Blue))
-                    randomPixel.B = (byte) (noise + result[id].B);
+                    randomPixel.B = (byte) Math.Clamp(noise + result[id].B, 0, 255);
 
-                result[id] = randomPixel;
+                randomPixel.Extract(channel, ref result[id]);
             }
         }
 

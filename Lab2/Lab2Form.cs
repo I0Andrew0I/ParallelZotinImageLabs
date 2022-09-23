@@ -30,25 +30,23 @@ namespace Lab2
 
     public partial class Lab2Form : Form
     {
-        private Filter SelectedFilter { get; set; }
-
-        private Enum _selectedChannels;
-        private bool _roundFrame;
-
         private ArraySegment<ARGB> _sourceARGB;
         private ArraySegment<HLSA> _sourceHLSA;
         private ArraySegment<YUV> _sourceYUV;
+        private int _imageHeight;
+        private int _imageWidth;
+        private FileInfo _imageFile;
 
         private double _noiseLevel = 0.0;
-        private double _coef1 = 0.0;
-        private double _coef2 = 0.0;
+        private double _k1 = 0.0;
+        private double _k2 = 0.0;
+
+        private Filter SelectedFilter { get; set; }
+        private bool _roundFrame;
         private double[,] _kernelMatrix;
-        private Frame _frameSize;
-
-        double _sharpness;
-
-        private int _height;
-        private int _width;
+        private Frame? _frameSize;
+        private Enum? _selectedChannels;
+        private double _sharpness;
 
 
         public Lab2Form()
@@ -60,6 +58,8 @@ namespace Lab2
             fMinMaxRadioButton.CheckedChanged += OnFilterChanged;
             fMedianRadioButton.CheckedChanged += OnFilterChanged;
             fMeanRadioButton.CheckedChanged += OnFilterChanged;
+            radioButton1.Checked = true;
+            radioButton1_CheckedChanged(radioButton1, null);
 
             _channelBox.DataSource = Enum.GetValues(typeof(ARGB.Channel));
             _channelBox.SelectionChangeCommitted += ChannelBoxOnSelectionChangeCommitted;
@@ -88,16 +88,17 @@ namespace Lab2
         {
             OpenFileDialog ofd = new();
             ofd.Filter = "Файлы изображений (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png";
-            if (ofd.ShowDialog() != DialogResult.OK) return;
+            if (ofd.ShowDialog() != DialogResult.OK || ofd.FileName == null) return;
 
             var filePath = ofd.FileName;
+            _imageFile = new FileInfo(filePath);
             searchBox.Text = filePath;
             Bitmap image = (Bitmap) UtilityExtensions.ReadImage(filePath);
 
             inputPictureBox.Image = image;
             outputPictureBox.Image = new Bitmap(image);
-            _height = image.Height;
-            _width = image.Width;
+            _imageHeight = image.Height;
+            _imageWidth = image.Width;
 
             Span<ARGB> pixels = image.LockImage(out var sourceData).Cast<ARGB>();
             _sourceARGB = UtilityExtensions.PoolCopy(pixels, _sourceARGB);
@@ -106,73 +107,29 @@ namespace Lab2
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton1.Checked)
-            {
-                label3.Text = "Коэффициент распределения импульсов";
-                label3.Visible = true;
-                label5.Text = "% 'белых'";
-                label5.Visible = true;
-                label6.Text = "% 'черных'";
-                label6.Visible = true;
-                textBox2.Visible = true;
-                textBox3.Visible = true;
-            }
-            else
-            {
-                label3.Visible = false;
-                label5.Visible = false;
-                label6.Visible = false;
-                textBox2.Visible = false;
-                textBox3.Visible = false;
-            }
+            if (sender is not RadioButton {Checked: true}) return;
+
+            label3.Text = "Коэффициент распределения импульсов";
+            label5.Text = "доля 'белых'";
+            label6.Text = "доля 'черных'";
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton2.Checked)
-            {
-                label3.Text = "Максимальное отклонение в +/- сторону";
-                label3.Visible = true;
-                label3.Visible = true;
-                label5.Text = "от ";
-                label5.Visible = true;
-                label6.Text = "до ";
-                label6.Visible = true;
-                textBox2.Visible = true;
-                textBox3.Visible = true;
-            }
-            else
-            {
-                label3.Visible = false;
-                label5.Visible = false;
-                label6.Visible = false;
-                textBox2.Visible = false;
-                textBox3.Visible = false;
-            }
+            if (sender is not RadioButton {Checked: true}) return;
+
+            label3.Text = "Отклонение: [-255, 255]";
+            label5.Text = "от";
+            label6.Text = "до";
         }
 
         private void radioButton3_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton3.Checked)
-            {
-                label3.Text = "Коэффициент умножения \n (принадлежит отрезку [0.001; 5])";
-                label3.Visible = true;
-                label3.Visible = true;
-                label5.Text = "от ";
-                label5.Visible = true;
-                label6.Text = "до";
-                label6.Visible = true;
-                textBox2.Visible = true;
-                textBox3.Visible = true;
-            }
-            else
-            {
-                label3.Visible = false;
-                label5.Visible = false;
-                label6.Visible = false;
-                textBox2.Visible = false;
-                textBox3.Visible = false;
-            }
+            if (sender is not RadioButton {Checked: true}) return;
+
+            label3.Text = "Коэффициент умножения \n (принадлежит отрезку [0.001; 5])";
+            label5.Text = "от";
+            label6.Text = "до";
         }
 
         private void OnNoiseApply(object sender, EventArgs e)
@@ -183,32 +140,33 @@ namespace Lab2
                 return;
             }
 
-            if (isChannelUndefined())
+            if (IsChannelUndefined())
             {
                 MessageBox.Show("Канал не выбран");
                 return;
             }
 
-            _coef1 = double.Parse(textBox2.Text);
-            _coef2 = double.Parse(textBox3.Text);
+            _k1 = double.Parse(textBox2.Text);
+            _k2 = double.Parse(textBox3.Text);
 
             string filename = "";
             var result = UtilityExtensions.PoolCopy<ARGB>(_sourceARGB);
 
+            var sum = _k1 + _k2;
             if (radioButton1.Checked) //импульсный
             {
-                Noising.ImpulseNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, _coef1, _coef2);
-                filename = "/impulseNoise.png";
+                Noising.ImpulseNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, _k1 / sum, _k2 / sum);
+                filename = "impulseNoise.png";
             }
             else if (radioButton2.Checked) //аддитивный
             {
-                filename = "/additNoise.png";
-                Noising.AdditiveNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, (byte) _coef1, (byte) _coef2);
+                filename = "additNoise.png";
+                Noising.AdditiveNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, (byte) _k1, (byte) _k2);
             }
             else if (radioButton3.Checked) //мультипликативный
             {
-                Noising.MultiplicativeNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, (byte) _coef1, (byte) _coef2);
-                filename = "/multiNoise.png";
+                Noising.MultiplicativeNoise(result, (ARGB.Channel) _selectedChannels, _noiseLevel, (byte) _k1, (byte) _k2);
+                filename = "multiNoise.png";
             }
             else
             {
@@ -218,9 +176,7 @@ namespace Lab2
             if (filename != "")
             {
                 Bitmap image = ShowResult(result);
-
-                FileInfo fileInfo = new(searchBox.Text);
-                image.Save(fileInfo.DirectoryName + filename, ImageFormat.Png);
+                SaveModification(image, filename);
             }
         }
 
@@ -260,13 +216,17 @@ namespace Lab2
                 return;
             }
 
-            if (isChannelUndefined())
+            if (IsChannelUndefined())
             {
                 MessageBox.Show("Канал не выбран");
                 return;
             }
 
-            if (SelectedFilter == Filter.Mean)
+            if (SelectedFilter == Filter.Laplacian)
+            {
+                _kernelMatrix = Kernel.CalculateLaplacian();
+            }
+            else
             {
                 if (_frameSize == null)
                 {
@@ -274,34 +234,25 @@ namespace Lab2
                     return;
                 }
 
-                _kernelMatrix = Kernel.CalculateMean(_frameSize);
-            }
-            else if (SelectedFilter == Filter.Laplacian)
-            {
-                _kernelMatrix = Kernel.CalculateLaplacian();
+                if (SelectedFilter == Filter.Mean)
+                    _kernelMatrix = Kernel.CalculateMean(_frameSize);
             }
 
             filteringGroup.Enabled = false;
             channelGroup.Enabled = false;
 
             // prepare non-generic test runner
-            var testRunner = GetTestRunner(_selectedChannels)(SelectedFilter, _kernelMatrix, _frameSize);
-
+            var testRunner = GetTestRunner(_selectedChannels!)(SelectedFilter, _kernelMatrix, _frameSize!);
 
             // run number of tests
             (TimeSpan methodTime, ImageBuffer<ARGB> result) =
-            await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
+                await Task.Factory.StartNew(() => testRunner((int) testsBox.Value, (int) threadsBox.Value));
 
             string elapsedTime = String.Format("{0:00}:{1}", methodTime.TotalSeconds, methodTime.Milliseconds);
 
             Trace.WriteLine("Displaying result...");
             // show image
-            FileInfo fileInfo = new(searchBox.Text);
             Bitmap bitmap = ShowResult(result.Pixels);
-
-            string suffix = GetChannelSuffix(_selectedChannels);
-
-            bitmap.Save($"{fileInfo.DirectoryName}\\{SelectedFilter}[{suffix}].png");
 
             Trace.WriteLine("Calculating metrics...");
             // calc metrics
@@ -315,6 +266,10 @@ namespace Lab2
 
             Trace.WriteLine("Testing finished...");
             MessageBox.Show($"Time {SelectedFilter} [{_selectedChannels.GetType()}] {elapsedTime}");
+
+            // save image
+            string suffix = GetChannelSuffix(_selectedChannels);
+            SaveModification(bitmap, $"{SelectedFilter}[{suffix}].png");
             filteringGroup.Enabled = true;
             channelGroup.Enabled = true;
         }
@@ -322,7 +277,6 @@ namespace Lab2
         private MethodResolver GetTestRunner(Enum channel) => (filter, kernel, frame) =>
         {
             var result = ArraySegment<ARGB>.Empty;
-            var method = new MethodParameters(filter, frame, kernel);
 
             return channel switch
             {
@@ -335,10 +289,10 @@ namespace Lab2
 
             TestRunner RunTestsRGB(ARGB.Channel channels) => (tests, threads) =>
             {
-                var imageBuffer = new ImageBuffer<ARGB>(_sourceARGB, _width, _height);
+                var imageBuffer = new ImageBuffer<ARGB>(_sourceARGB, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.ARGB(imageBuffer, channels, _kernelMatrix, _sharpness)
+                    ConvolutionMethods.ARGB(imageBuffer, channels, kernel, _sharpness)
                 );
 
                 return (time, argb);
@@ -346,28 +300,28 @@ namespace Lab2
 
             TestRunner RunTestsHLSA(HLSA.Channel channels) => (tests, threads) =>
             {
-                var imageBuffer = new ImageBuffer<HLSA>(_sourceHLSA, _width, _height);
+                var imageBuffer = new ImageBuffer<HLSA>(_sourceHLSA, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.HLSA(imageBuffer, channels, _kernelMatrix, _sharpness)
+                    ConvolutionMethods.HLSA(imageBuffer, channels, kernel, _sharpness)
                 );
 
                 Trace.WriteLine("Converting result...");
                 Algorithms.HLSToRGB(hlsa.Pixels, ref result);
-                return (time, new(result, _width, _height));
+                return (time, new(result, _imageWidth, _imageHeight));
             };
 
             TestRunner RunTestsYUV(YUV.Channel channels) => (tests, threads) =>
             {
-                var imageBuffer = new ImageBuffer<YUV>(_sourceYUV, _width, _height);
+                var imageBuffer = new ImageBuffer<YUV>(_sourceYUV, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<YUV> yuv) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.YUV(imageBuffer, channels, _kernelMatrix, _sharpness)
+                    ConvolutionMethods.YUV(imageBuffer, channels, kernel, _sharpness)
                 );
 
                 Trace.WriteLine("Converting result...");
                 Algorithms.YUVToRGB(yuv.Pixels, ref result);
-                return (time, new(result, _width, _height));
+                return (time, new(result, _imageWidth, _imageHeight));
             };
         };
 
@@ -407,7 +361,7 @@ namespace Lab2
             {
                 targetBuffer = UtilityExtensions.PoolCopy(source.Pixels, targetBuffer);
                 result = new(targetBuffer, source.Width, source.Height);
-                
+
                 var watch = Stopwatch.StartNew();
                 testFunction.Apply(frame, result, numThreads);
                 watch.Stop();
@@ -423,7 +377,7 @@ namespace Lab2
             return (time, result!);
         }
 
-        
+
         private Bitmap ShowResult(ArraySegment<ARGB> result)
         {
             Bitmap image = (Bitmap) outputPictureBox.Image;
@@ -456,7 +410,7 @@ namespace Lab2
         private void OnRGBSelected(object sender, EventArgs e)
         {
             if (sender is not RadioButton {Checked: true}) return;
-            
+
             _selectedChannels = ARGB.Channel.Undefined;
             _channelBox.DataSource = Enum.GetValues(typeof(ARGB.Channel));
         }
@@ -495,7 +449,17 @@ namespace Lab2
             return String.Join("", flags.Select(f => f.Substring(0, 1)));
         }
 
-        private bool isChannelUndefined()
+        private void SaveModification(Bitmap image, string filename)
+        {
+            string subdirPath = _imageFile.Directory.Name + "\\_" + _imageFile.Name;
+            DirectoryInfo subdirectory = Directory.Exists(subdirPath)
+                ? new DirectoryInfo(subdirPath)
+                : _imageFile.Directory!.CreateSubdirectory("_" + _imageFile.Name);
+
+            image.Save(subdirectory.Name + "\\" + filename, ImageFormat.Png);
+        }
+
+        private bool IsChannelUndefined()
         {
             return _selectedChannels == null
                    || _selectedChannels.Equals(ARGB.Channel.Undefined)
