@@ -47,11 +47,13 @@ namespace Lab2
         private Frame? _frameSize;
         private Enum? _selectedChannels;
         private double _sharpness;
+        private Benchmark _benchmarkForm;
 
 
         public Lab2Form()
         {
             InitializeComponent();
+            _benchmarkForm = new Benchmark();
 
             fLaplacianRadioButton.CheckedChanged += OnFilterChanged;
             fLinearRadioButton.CheckedChanged += OnFilterChanged;
@@ -207,6 +209,11 @@ namespace Lab2
             }
         }
 
+
+        private void OnTestingClick (object sender, EventArgs e)
+        {
+            _benchmarkForm.Show();
+        }
 
         private async void OnApplyFiltering(object sender, EventArgs e)
         {

@@ -77,6 +77,7 @@ namespace Lab2
 			this.label11 = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.button5 = new System.Windows.Forms.Button();
 			this.channelGroup.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
@@ -634,6 +635,7 @@ namespace Lab2
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.button5);
 			this.panel1.Controls.Add(this.groupBox1);
 			this.panel1.Controls.Add(this.groupBox3);
 			this.panel1.Controls.Add(this.button4);
@@ -651,6 +653,16 @@ namespace Lab2
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(1189, 291);
 			this.panel1.TabIndex = 30;
+			// 
+			// button5
+			// 
+			this.button5.Location = new System.Drawing.Point(1027, 41);
+			this.button5.Name = "button5";
+			this.button5.Size = new System.Drawing.Size(149, 25);
+			this.button5.TabIndex = 29;
+			this.button5.Text = "Тестирование";
+			this.button5.UseVisualStyleBackColor = true;
+			this.button5.Click += new System.EventHandler(this.OnTestingClick);
 			// 
 			// Lab2Form
 			// 
@@ -731,5 +743,6 @@ namespace Lab2
 		private Label label13;
 		private TableLayoutPanel tableLayoutPanel1;
 		private Panel panel1;
+		private Button button5;
 	}
 }
