@@ -184,9 +184,9 @@ namespace Labs.Core
 
             foreach (HLSA pix in pixels)
             {
+                var h = (int) Math.Round(pix.H / 360 * 255);
                 var l = (int) Math.Round(pix.L * 255);
                 var s = (int) Math.Round(pix.S * 255);
-                var h = (int) Math.Round(pix.S / 360 * 255);
                 H[h]++;
                 L[l]++;
                 S[s]++;
