@@ -56,10 +56,11 @@ namespace Lab1
 			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.buttonSearch = new System.Windows.Forms.Button();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this._channelBox = new System.Windows.Forms.ComboBox();
 			this.buttonViz = new System.Windows.Forms.Button();
-			this.radioButton3 = new System.Windows.Forms.RadioButton();
-			this.radioButton2 = new System.Windows.Forms.RadioButton();
-			this.radioButton1 = new System.Windows.Forms.RadioButton();
+			this.yuvRadio = new System.Windows.Forms.RadioButton();
+			this.rgbRadio = new System.Windows.Forms.RadioButton();
+			this.hlsRadio = new System.Windows.Forms.RadioButton();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.buttonMod = new System.Windows.Forms.Button();
 			this.radioButton5 = new System.Windows.Forms.RadioButton();
@@ -91,6 +92,7 @@ namespace Lab1
 			this.inputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.inputPictureBox.Name = "inputPictureBox";
 			this.inputPictureBox.Size = new System.Drawing.Size(597, 353);
+			this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.inputPictureBox.TabIndex = 0;
 			this.inputPictureBox.TabStop = false;
 			// 
@@ -102,6 +104,7 @@ namespace Lab1
 			this.outputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.outputPictureBox.Name = "outputPictureBox";
 			this.outputPictureBox.Size = new System.Drawing.Size(597, 353);
+			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.outputPictureBox.TabIndex = 1;
 			this.outputPictureBox.TabStop = false;
 			// 
@@ -266,7 +269,6 @@ namespace Lab1
 			this.buttonHR.TabIndex = 6;
 			this.buttonHR.Text = "HLS -> RGB";
 			this.buttonHR.UseVisualStyleBackColor = true;
-			this.buttonHR.Click += new System.EventHandler(this.OnHLStoRGB);
 			// 
 			// buttonRH
 			// 
@@ -277,7 +279,6 @@ namespace Lab1
 			this.buttonRH.TabIndex = 0;
 			this.buttonRH.Text = "RGB -> HLS";
 			this.buttonRH.UseVisualStyleBackColor = true;
-			this.buttonRH.Click += new System.EventHandler(this.OnRGBtoHLS);
 			// 
 			// openFileDialog
 			// 
@@ -314,22 +315,31 @@ namespace Lab1
 			// 
 			// groupBox3
 			// 
+			this.groupBox3.Controls.Add(this._channelBox);
 			this.groupBox3.Controls.Add(this.buttonViz);
-			this.groupBox3.Controls.Add(this.radioButton3);
-			this.groupBox3.Controls.Add(this.radioButton2);
-			this.groupBox3.Controls.Add(this.radioButton1);
+			this.groupBox3.Controls.Add(this.yuvRadio);
+			this.groupBox3.Controls.Add(this.rgbRadio);
+			this.groupBox3.Controls.Add(this.hlsRadio);
 			this.groupBox3.Location = new System.Drawing.Point(13, 395);
 			this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox3.Size = new System.Drawing.Size(118, 149);
+			this.groupBox3.Size = new System.Drawing.Size(153, 160);
 			this.groupBox3.TabIndex = 11;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Канал";
 			// 
+			// _channelBox
+			// 
+			this._channelBox.FormattingEnabled = true;
+			this._channelBox.Location = new System.Drawing.Point(24, 98);
+			this._channelBox.Name = "_channelBox";
+			this._channelBox.Size = new System.Drawing.Size(108, 23);
+			this._channelBox.TabIndex = 24;
+			// 
 			// buttonViz
 			// 
-			this.buttonViz.Location = new System.Drawing.Point(8, 111);
+			this.buttonViz.Location = new System.Drawing.Point(25, 127);
 			this.buttonViz.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonViz.Name = "buttonViz";
 			this.buttonViz.Size = new System.Drawing.Size(98, 27);
@@ -338,48 +348,49 @@ namespace Lab1
 			this.buttonViz.UseVisualStyleBackColor = true;
 			this.buttonViz.Click += new System.EventHandler(this.onFilterChannels);
 			// 
-			// radioButton3
+			// yuvRadio
 			// 
-			this.radioButton3.AutoSize = true;
-			this.radioButton3.Location = new System.Drawing.Point(8, 74);
-			this.radioButton3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.radioButton3.Name = "radioButton3";
-			this.radioButton3.Size = new System.Drawing.Size(77, 19);
-			this.radioButton3.TabIndex = 2;
-			this.radioButton3.TabStop = true;
-			this.radioButton3.Text = "B (синий)";
-			this.radioButton3.UseVisualStyleBackColor = true;
+			this.yuvRadio.AutoSize = true;
+			this.yuvRadio.Location = new System.Drawing.Point(24, 76);
+			this.yuvRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.yuvRadio.Name = "yuvRadio";
+			this.yuvRadio.Size = new System.Drawing.Size(47, 19);
+			this.yuvRadio.TabIndex = 23;
+			this.yuvRadio.TabStop = true;
+			this.yuvRadio.Text = "YUV";
+			this.yuvRadio.UseVisualStyleBackColor = true;
 			// 
-			// radioButton2
+			// rgbRadio
 			// 
-			this.radioButton2.AutoSize = true;
-			this.radioButton2.Location = new System.Drawing.Point(8, 47);
-			this.radioButton2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.radioButton2.Name = "radioButton2";
-			this.radioButton2.Size = new System.Drawing.Size(91, 19);
-			this.radioButton2.TabIndex = 1;
-			this.radioButton2.TabStop = true;
-			this.radioButton2.Text = "G (зелёный)";
-			this.radioButton2.UseVisualStyleBackColor = true;
+			this.rgbRadio.AutoSize = true;
+			this.rgbRadio.Checked = true;
+			this.rgbRadio.Location = new System.Drawing.Point(24, 26);
+			this.rgbRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.rgbRadio.Name = "rgbRadio";
+			this.rgbRadio.Size = new System.Drawing.Size(47, 19);
+			this.rgbRadio.TabIndex = 21;
+			this.rgbRadio.TabStop = true;
+			this.rgbRadio.Text = "RGB";
+			this.rgbRadio.UseVisualStyleBackColor = true;
 			// 
-			// radioButton1
+			// hlsRadio
 			// 
-			this.radioButton1.AutoSize = true;
-			this.radioButton1.Location = new System.Drawing.Point(8, 22);
-			this.radioButton1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.radioButton1.Name = "radioButton1";
-			this.radioButton1.Size = new System.Drawing.Size(91, 19);
-			this.radioButton1.TabIndex = 0;
-			this.radioButton1.TabStop = true;
-			this.radioButton1.Text = "R (красный)";
-			this.radioButton1.UseVisualStyleBackColor = true;
+			this.hlsRadio.AutoSize = true;
+			this.hlsRadio.Location = new System.Drawing.Point(25, 51);
+			this.hlsRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.hlsRadio.Name = "hlsRadio";
+			this.hlsRadio.Size = new System.Drawing.Size(46, 19);
+			this.hlsRadio.TabIndex = 22;
+			this.hlsRadio.TabStop = true;
+			this.hlsRadio.Text = "HLS";
+			this.hlsRadio.UseVisualStyleBackColor = true;
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Controls.Add(this.buttonMod);
 			this.groupBox4.Controls.Add(this.radioButton5);
 			this.groupBox4.Controls.Add(this.radioButton6);
-			this.groupBox4.Location = new System.Drawing.Point(157, 395);
+			this.groupBox4.Location = new System.Drawing.Point(174, 395);
 			this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -502,7 +513,7 @@ namespace Lab1
 			this._saveResultsBox.Text = "Сохранять результат";
 			this._saveResultsBox.UseVisualStyleBackColor = true;
 			// 
-			// button1
+			// testButton
 			// 
 			this.testButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
 			this.testButton.Location = new System.Drawing.Point(597, 480);
@@ -579,9 +590,6 @@ namespace Lab1
         private System.Windows.Forms.Button buttonSearch;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button buttonViz;
-        private System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.Button buttonYUV;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button buttonMod;
@@ -599,6 +607,10 @@ namespace Lab1
 		private NumericUpDown _testCountBox;
 		private CheckBox _saveResultsBox;
 		private Button testButton;
+		private ComboBox _channelBox;
+		private RadioButton yuvRadio;
+		private RadioButton hlsRadio;
+		private RadioButton rgbRadio;
 	}
 }
 

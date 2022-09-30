@@ -9,36 +9,36 @@ namespace Labs.Core
 {
     public class Algorithms
     {
-        public static void RGBToHLS(in ArraySegment<ARGB> argb, ref ArraySegment<HLSA> result)
+        public static void RGBToHLS(in Span<ARGB> argb, ref ArraySegment<HLSA> result)
         {
-            if (result.Count != argb.Count)
-                result = UtilityExtensions.Pool(argb.Count, result);
+            if (result.Count != argb.Length)
+                result = UtilityExtensions.Pool(argb.Length, result);
 
             var hlsa = result.AsSpan();
 
-            for (int i = 0; i < argb.Count; i++)
+            for (int i = 0; i < argb.Length; i++)
                 argb[i].ToHLSA(ref hlsa[i]);
         }
 
-        public static void RGBToYUV(ArraySegment<ARGB> argb, ref ArraySegment<YUV> result)
+        public static void RGBToYUV(Span<ARGB> argb, ref ArraySegment<YUV> result)
         {
-            if (result.Count != argb.Count)
-                result = UtilityExtensions.Pool(argb.Count, result);
+            if (result.Count != argb.Length)
+                result = UtilityExtensions.Pool(argb.Length, result);
 
             var yuv = result.AsSpan();
 
-            for (int i = 0; i < argb.Count; i++)
+            for (int i = 0; i < argb.Length; i++)
                 argb[i].ToYUV(ref yuv[i]);
         }
 
-        public static void HLSToRGB(in ArraySegment<HLSA> hlsa, ref ArraySegment<ARGB> result)
+        public static void HLSToRGB(in Span<HLSA> hlsa, ref ArraySegment<ARGB> result)
         {
-            if (result.Count != hlsa.Count)
-                result = UtilityExtensions.Pool(hlsa.Count, result);
+            if (result.Count != hlsa.Length)
+                result = UtilityExtensions.Pool(hlsa.Length, result);
 
             var argb = result.AsSpan();
 
-            for (int i = 0; i < hlsa.Count; i++)
+            for (int i = 0; i < hlsa.Length; i++)
                 hlsa[i].ToARGB(ref argb[i]);
         }
 
@@ -178,21 +178,41 @@ namespace Labs.Core
 
         public static (uint[] H, uint[] L, uint[] S) Histogram(Span<HLSA> pixels)
         {
-            uint[] H = new uint[361];
-            uint[] L = new uint[361];
-            uint[] S = new uint[361];
+            uint[] H = new uint[256];
+            uint[] L = new uint[256];
+            uint[] S = new uint[256];
 
             foreach (HLSA pix in pixels)
             {
-                var l = (int) Math.Round(pix.L * 360);
-                var s = (int) Math.Round(pix.S * 360);
-                H[(int) pix.H]++;
+                var l = (int) Math.Round(pix.L * 255);
+                var s = (int) Math.Round(pix.S * 255);
+                var h = (int) Math.Round(pix.S / 360 * 255);
+                H[h]++;
                 L[l]++;
                 S[s]++;
             }
 
             return (H, L, S);
         }
+
+        public static (uint[] Y, uint[] U, uint[] V) Histogram(Span<YUV> pixels)
+        {
+            uint[] Y = new uint[256];
+            uint[] U = new uint[256];
+            uint[] V = new uint[256];
+
+            foreach (YUV pix in pixels)
+            {
+                var u = (int) Math.Round((pix.U + 112) / 225 * 255);
+                var v = (int) Math.Round((pix.V + 157) / 315 * 255);
+                Y[(int) pix.Y]++;
+                U[u]++;
+                V[v]++;
+            }
+
+            return (Y, U, V);
+        }
+
 
         [Obsolete]
         public static (uint[] R, uint[] G, uint[] B) Histogram(Bitmap image)

@@ -23,13 +23,15 @@ namespace Lab1
         private double _contrast;
         private int _fileNameCounter = 0;
         private double[] _correctionCurve;
-        private bool IsRGB = false;
+
+        private Enum Channels;
 
         private readonly PlotView _histogram;
 
         private ArraySegment<byte>? _targetBuffer;
         private ArraySegment<byte>? _sourceBuffer;
         private ArraySegment<HLSA>? _hlsaPixels;
+        private ArraySegment<YUV>? _yuvPixels;
         private Benchmark _benchmarkForm;
 
         public Lab1Form()
@@ -39,9 +41,16 @@ namespace Lab1
             _histogram = new PlotView() {Dock = DockStyle.Fill};
             histogramPanel.Controls.Add(_histogram);
 
-            inputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-            outputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             _contrast = contrastTrackBar.Value / 10.0;
+
+            rgbRadio.CheckedChanged += ConvertColorModel;
+            hlsRadio.CheckedChanged += ConvertColorModel;
+            yuvRadio.CheckedChanged += ConvertColorModel;
+
+            var rgb = ARGB.Channel.All;
+            _channelBox.DataSource = Enum.GetValues(rgb.GetType());
+            _channelBox.SelectionChangeCommitted += SetChannels;
+            Channels = rgb;
         }
 
         private void buttonSearch_Click(object sender, EventArgs e)
@@ -55,7 +64,7 @@ namespace Lab1
 
                 Bitmap image = (Bitmap) UtilityExtensions.ReadImage(_filePath);
 
-                IsRGB = true;
+                Channels = ARGB.Channel.All;
                 inputPictureBox.Image = image;
                 outputPictureBox.Image = new Bitmap(image);
 
@@ -68,57 +77,9 @@ namespace Lab1
             }
         }
 
-        private void OnRGBtoHLS(object sender, EventArgs e)
+        private void SetChannels(object? sender, EventArgs e)
         {
-            if (_sourceBuffer == null)
-            {
-                MessageBox.Show("Картинка не выбрана");
-                return;
-            }
-
-            if (IsRGB == false)
-            {
-                MessageBox.Show("Изображение уже представлено в этой цветовой модели");
-                return;
-            }
-
-            IsRGB = false;
-            ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
-            _hlsaPixels = Algorithms.RGBToHLS(targetMemory);
-
-            ShowResult(targetMemory);
-            UpdateHistogram(_hlsaPixels.Value.AsSpan());
-
-            radioButton1.Text = "H (тон)";
-            radioButton2.Text = "L (яркость)";
-            radioButton3.Text = "S (насыщенность)";
-        }
-
-        private void OnHLStoRGB(object sender, EventArgs e)
-        {
-            if (_sourceBuffer == null)
-            {
-                MessageBox.Show("Картинка не выбрана");
-                return;
-            }
-
-            if (IsRGB == true)
-            {
-                MessageBox.Show("Изображение уже представлено в этой цветовой модели");
-                return;
-            }
-
-            IsRGB = true;
-            ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
-            Algorithms.HLStoRGB(_hlsaPixels.Value, ref targetMemory);
-
-            ShowResult(targetMemory);
-
-            UpdateHistogram(targetMemory.Cast<ARGB>());
-
-            radioButton1.Text = "R (красный)";
-            radioButton2.Text = "G (зелёный)";
-            radioButton3.Text = "B (синий)";
+            Channels = (Enum) _channelBox.SelectedItem;
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
@@ -131,54 +92,121 @@ namespace Lab1
             _contrast = contrastTrackBar.Value / 10.0;
         }
 
+        private void ConvertColorModel(object? sender, EventArgs e)
+        {
+            if (sender is not RadioButton {Checked: true}) return;
+
+            object channels;
+            if (sender == rgbRadio)
+                channels = ARGB.Channel.All;
+            else if (sender == hlsRadio)
+                channels = HLSA.Channel.All;
+            else if (sender == yuvRadio)
+                channels = YUV.Channel.All;
+            else return;
+
+            if (channels.GetType() == Channels.GetType())
+            {
+                MessageBox.Show("Изображение уже представлено в этой цветовой модели");
+                return;
+            }
+            
+            _channelBox.DataSource = Enum.GetValues(channels.GetType());
+            Channels = (Enum) channels;
+
+            if (channels.Equals(ARGB.Channel.All) && _sourceBuffer != null)
+            {
+                UpdateHistogram(_sourceBuffer.Value.Cast<ARGB>());
+            }
+
+            if (channels.Equals(HLSA.Channel.All) && _sourceBuffer != null)
+            {
+                ArraySegment<HLSA> result = _hlsaPixels ?? ArraySegment<HLSA>.Empty;
+                Algorithms.RGBToHLS(_sourceBuffer.Value.Cast<ARGB>(), ref result);
+                UpdateHistogram(result.AsSpan());
+                _hlsaPixels = result;
+            }
+
+            if (channels.Equals(YUV.Channel.All) && _sourceBuffer != null)
+            {
+                ArraySegment<YUV> result = _yuvPixels ?? ArraySegment<YUV>.Empty;
+                Algorithms.RGBToYUV(_sourceBuffer.Value.Cast<ARGB>(), ref result);
+                UpdateHistogram(result.AsSpan());
+                _yuvPixels = result;
+            }
+        }
 
         private void onFilterChannels(object sender, EventArgs e)
         {
+            buttonViz.Enabled = false;
             var image = (Bitmap) outputPictureBox.Image;
             Span<byte> bytes = image.LockImage(out var locked);
             Span<ARGB> outputPixel = bytes.Cast<ARGB>();
 
-            if (IsRGB)
-            {
-                if (_sourceBuffer is not { } sourceMemory)
-                    return;
-
-                _targetBuffer ??= CopyFromSource(sourceMemory);
-                Span<ARGB> inputPixel = _targetBuffer.Value.Cast<ARGB>();
-                FilterRGBChannel(inputPixel, outputPixel);
-            }
-            else
-            {
-                if (_hlsaPixels is not { } hlsaArray)
-                    return;
-
-                FilterHLSChannel(hlsaArray.AsSpan(), outputPixel);
-            }
+            ApplyFiltration(outputPixel);
 
             image.UnlockBits(locked);
             outputPictureBox.Image = image;
+            buttonViz.Enabled = true;
         }
 
-        private void FilterHLSChannel(Span<HLSA> input, Span<ARGB> output)
+        private void ApplyFiltration(Span<ARGB> outputPixel)
+        {
+            switch (Channels)
+            {
+                case ARGB.Channel channels:
+                {
+                    if (_sourceBuffer is not { } rgbArray)
+                        return;
+
+                    _targetBuffer ??= CopyFromSource(rgbArray);
+                    Span<ARGB> inputPixel = _targetBuffer.Value.Cast<ARGB>();
+
+                    FilterChannels(inputPixel, outputPixel, channels);
+                    break;
+                }
+                case HLSA.Channel channels:
+                {
+                    if (_hlsaPixels is not { } hlsaArray)
+                        return;
+
+                    FilterChannels(hlsaArray.AsSpan(), outputPixel, channels);
+                    break;
+                }
+                case YUV.Channel channels:
+                {
+                    if (_yuvPixels is not { } yuvArray)
+                        return;
+
+                    FilterChannels(yuvArray.AsSpan(), outputPixel, channels);
+                    break;
+                }
+            }
+        }
+
+        private void FilterChannels(Span<HLSA> input, Span<ARGB> output, HLSA.Channel channels)
         {
             ARGB value = default(ARGB);
+
+            bool HUE = channels.HasFlag(HLSA.Channel.Hue);
+            bool LIG = channels.HasFlag(HLSA.Channel.Lightness);
+            bool SAT = channels.HasFlag(HLSA.Channel.Saturation);
+
             for (int i = 0; i < output.Length; i++)
             {
                 HLSA pixel = input[i];
-                if (radioButton1.Checked)
+                if (HUE)
                 {
                     pixel.L = 0.5;
                     pixel.S = 1;
                     value = pixel.ToARGB();
                 }
-
-                if (radioButton2.Checked)
+                else if (LIG)
                 {
                     var v = (byte) Math.Round(pixel.L * 255.0);
                     value = new ARGB(v, v, v, 255);
                 }
-
-                if (radioButton3.Checked)
+                else if (SAT)
                 {
                     var v = (byte) Math.Round(pixel.S * 255.0);
                     value = new ARGB(v, v, v, 255);
@@ -188,19 +216,23 @@ namespace Lab1
             }
         }
 
-        private void FilterRGBChannel(Span<ARGB> input, Span<ARGB> output)
+        private void FilterChannels(Span<ARGB> input, Span<ARGB> output, ARGB.Channel channels)
         {
+            bool RED = channels.HasFlag(ARGB.Channel.Red);
+            bool BLUE = channels.HasFlag(ARGB.Channel.Blue);
+            bool GREEN = channels.HasFlag(ARGB.Channel.Green);
+
             for (int i = 0; i < output.Length; i++)
             {
                 byte r = 0, g = 0, b = 0;
                 //получить цвет пикселя
                 var pix = input[i];
 
-                if (radioButton1.Checked)
+                if (RED)
                     r = pix.R;
-                if (radioButton2.Checked)
+                if (GREEN)
                     g = pix.G;
-                if (radioButton3.Checked)
+                if (BLUE)
                     b = pix.B;
 
                 output[i].R = r;
@@ -209,6 +241,40 @@ namespace Lab1
                 output[i].A = 255;
             }
         }
+
+
+        private void FilterChannels(Span<YUV> input, Span<ARGB> output, YUV.Channel channels)
+        {
+            ARGB value = default(ARGB);
+
+            bool Y = channels.HasFlag(YUV.Channel.Y);
+            bool U = channels.HasFlag(YUV.Channel.U);
+            bool V = channels.HasFlag(YUV.Channel.V);
+
+            for (int i = 0; i < output.Length; i++)
+            {
+                YUV pixel = input[i];
+                if (Y)
+                {
+                    pixel.U = 0;
+                    pixel.V = 0;
+                    value = pixel.ToARGB();
+                }
+                else if (U)
+                {
+                    pixel.V = 0;
+                    value = pixel.ToARGB();
+                }
+                else if (V)
+                {
+                    pixel.U = 0;
+                    value = pixel.ToARGB();
+                }
+
+                output[i] = value;
+            }
+        }
+
 
         private void onTransformImage(object sender, EventArgs e)
         {
@@ -296,6 +362,12 @@ namespace Lab1
             var hist = Algorithms.Histogram(pixels);
             var labels = ("Hue", "Lightness", "Saturation");
             DrawChart(_histogram, hist, labels);
+        }
+
+        private void UpdateHistogram(Span<YUV> pixels)
+        {
+            var hist = Algorithms.Histogram(pixels);
+            DrawChart(_histogram, hist, ("Y", "U", "V"));
         }
 
 
