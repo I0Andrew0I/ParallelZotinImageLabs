@@ -65,19 +65,16 @@ namespace Lab1
             if (_points.Last().X != 255)
                 _points.Add(new Point(255, 255));
 
-            double[] coefK = new double[_points.Count - 1];
-            double[] coefB = new double[_points.Count - 1];
-
             for (int k = 0; k < _points.Count - 2; k++)
             {
                 int x2x1 = _points[k + 1].X - _points[k].X;
                 int y2y1 = _points[k + 1].Y - _points[k].Y;
 
-                coefK[k] = x2x1 == 0 ? 0 : y2y1 / x2x1;
-                coefB[k] = (_points[k].Y * x2x1 - _points[k].X * y2y1) / x2x1;
+                double contrast = x2x1 == 0 ? 0 : y2y1 / x2x1;
+                double brightness = (_points[k].Y * x2x1 - _points[k].X * y2y1) / (double) x2x1;
 
                 for (int a = _points[k].X; a < _points[k + 1].X; a++)
-                    Y[a] = coefK[k] * a + coefB[k];
+                    Y[a] = contrast * a + brightness;
             }
 
             Close();
