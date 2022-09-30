@@ -32,10 +32,6 @@ namespace Lab1
         private void InitializeComponent()
         {
 			this.components = new System.ComponentModel.Container();
-			this.inputPictureBox = new System.Windows.Forms.PictureBox();
-			this.outputPictureBox = new System.Windows.Forms.PictureBox();
-			this.inputLabel = new System.Windows.Forms.Label();
-			this.label1 = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.label9 = new System.Windows.Forms.Label();
 			this.label8 = new System.Windows.Forms.Label();
@@ -48,9 +44,6 @@ namespace Lab1
 			this.contrastTrackBar = new System.Windows.Forms.TrackBar();
 			this.brightnessTrackBar = new System.Windows.Forms.TrackBar();
 			this.timer = new System.Windows.Forms.Timer(this.components);
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.buttonHR = new System.Windows.Forms.Button();
-			this.buttonRH = new System.Windows.Forms.Button();
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.label4 = new System.Windows.Forms.Label();
 			this.textBox1 = new System.Windows.Forms.TextBox();
@@ -72,61 +65,24 @@ namespace Lab1
 			this._testCountBox = new System.Windows.Forms.NumericUpDown();
 			this._saveResultsBox = new System.Windows.Forms.CheckBox();
 			this.testButton = new System.Windows.Forms.Button();
-			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
+			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.inputPictureBox = new System.Windows.Forms.PictureBox();
+			this.outputPictureBox = new System.Windows.Forms.PictureBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.inputLabel = new System.Windows.Forms.Label();
+			this.panel1 = new System.Windows.Forms.Panel();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.contrastTrackBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.brightnessTrackBar)).BeginInit();
-			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this._testCountBox)).BeginInit();
+			this.tableLayoutPanel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
+			this.panel1.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// inputPictureBox
-			// 
-			this.inputPictureBox.BackColor = System.Drawing.Color.White;
-			this.inputPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-			this.inputPictureBox.Location = new System.Drawing.Point(2, 27);
-			this.inputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.inputPictureBox.Name = "inputPictureBox";
-			this.inputPictureBox.Size = new System.Drawing.Size(597, 353);
-			this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.inputPictureBox.TabIndex = 0;
-			this.inputPictureBox.TabStop = false;
-			// 
-			// outputPictureBox
-			// 
-			this.outputPictureBox.BackColor = System.Drawing.Color.White;
-			this.outputPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-			this.outputPictureBox.Location = new System.Drawing.Point(604, 27);
-			this.outputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.outputPictureBox.Name = "outputPictureBox";
-			this.outputPictureBox.Size = new System.Drawing.Size(597, 353);
-			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.outputPictureBox.TabIndex = 1;
-			this.outputPictureBox.TabStop = false;
-			// 
-			// inputLabel
-			// 
-			this.inputLabel.AutoSize = true;
-			this.inputLabel.Location = new System.Drawing.Point(4, 9);
-			this.inputLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.inputLabel.Name = "inputLabel";
-			this.inputLabel.Size = new System.Drawing.Size(141, 15);
-			this.inputLabel.TabIndex = 2;
-			this.inputLabel.Text = "Исходное изображение:";
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(604, 9);
-			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(63, 15);
-			this.label1.TabIndex = 3;
-			this.label1.Text = "Результат:";
 			// 
 			// groupBox1
 			// 
@@ -140,11 +96,11 @@ namespace Lab1
 			this.groupBox1.Controls.Add(this.label2);
 			this.groupBox1.Controls.Add(this.contrastTrackBar);
 			this.groupBox1.Controls.Add(this.brightnessTrackBar);
-			this.groupBox1.Location = new System.Drawing.Point(330, 506);
+			this.groupBox1.Location = new System.Drawing.Point(337, 117);
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox1.Size = new System.Drawing.Size(535, 103);
+			this.groupBox1.Size = new System.Drawing.Size(531, 103);
 			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Изменение яркости/контраста";
@@ -247,39 +203,6 @@ namespace Lab1
 			this.brightnessTrackBar.TabIndex = 0;
 			this.brightnessTrackBar.Scroll += new System.EventHandler(this.trackBar1_Scroll);
 			// 
-			// groupBox2
-			// 
-			this.groupBox2.Controls.Add(this.buttonHR);
-			this.groupBox2.Controls.Add(this.buttonRH);
-			this.groupBox2.Location = new System.Drawing.Point(330, 395);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(412, 66);
-			this.groupBox2.TabIndex = 5;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Смена цветовой модели";
-			// 
-			// buttonHR
-			// 
-			this.buttonHR.Location = new System.Drawing.Point(221, 31);
-			this.buttonHR.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.buttonHR.Name = "buttonHR";
-			this.buttonHR.Size = new System.Drawing.Size(177, 27);
-			this.buttonHR.TabIndex = 6;
-			this.buttonHR.Text = "HLS -> RGB";
-			this.buttonHR.UseVisualStyleBackColor = true;
-			// 
-			// buttonRH
-			// 
-			this.buttonRH.Location = new System.Drawing.Point(26, 31);
-			this.buttonRH.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.buttonRH.Name = "buttonRH";
-			this.buttonRH.Size = new System.Drawing.Size(177, 27);
-			this.buttonRH.TabIndex = 0;
-			this.buttonRH.Text = "RGB -> HLS";
-			this.buttonRH.UseVisualStyleBackColor = true;
-			// 
 			// openFileDialog
 			// 
 			this.openFileDialog.FileName = "ofd";
@@ -287,7 +210,7 @@ namespace Lab1
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(4, 558);
+			this.label4.Location = new System.Drawing.Point(4, 179);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(80, 15);
@@ -296,7 +219,7 @@ namespace Lab1
 			// 
 			// textBox1
 			// 
-			this.textBox1.Location = new System.Drawing.Point(4, 576);
+			this.textBox1.Location = new System.Drawing.Point(4, 197);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.textBox1.Name = "textBox1";
 			this.textBox1.Size = new System.Drawing.Size(224, 23);
@@ -304,7 +227,7 @@ namespace Lab1
 			// 
 			// buttonSearch
 			// 
-			this.buttonSearch.Location = new System.Drawing.Point(236, 573);
+			this.buttonSearch.Location = new System.Drawing.Point(236, 194);
 			this.buttonSearch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.Size = new System.Drawing.Size(88, 27);
@@ -320,7 +243,7 @@ namespace Lab1
 			this.groupBox3.Controls.Add(this.yuvRadio);
 			this.groupBox3.Controls.Add(this.rgbRadio);
 			this.groupBox3.Controls.Add(this.hlsRadio);
-			this.groupBox3.Location = new System.Drawing.Point(13, 395);
+			this.groupBox3.Location = new System.Drawing.Point(4, 4);
 			this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -390,7 +313,7 @@ namespace Lab1
 			this.groupBox4.Controls.Add(this.buttonMod);
 			this.groupBox4.Controls.Add(this.radioButton5);
 			this.groupBox4.Controls.Add(this.radioButton6);
-			this.groupBox4.Location = new System.Drawing.Point(174, 395);
+			this.groupBox4.Location = new System.Drawing.Point(165, 4);
 			this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -436,14 +359,15 @@ namespace Lab1
 			// 
 			// histogramPanel
 			// 
-			this.histogramPanel.Location = new System.Drawing.Point(885, 395);
+			this.histogramPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.histogramPanel.Location = new System.Drawing.Point(875, 12);
 			this.histogramPanel.Name = "histogramPanel";
-			this.histogramPanel.Size = new System.Drawing.Size(307, 192);
+			this.histogramPanel.Size = new System.Drawing.Size(326, 204);
 			this.histogramPanel.TabIndex = 14;
 			// 
 			// _threadCountBox
 			// 
-			this._threadCountBox.Location = new System.Drawing.Point(816, 417);
+			this._threadCountBox.Location = new System.Drawing.Point(806, 34);
 			this._threadCountBox.Maximum = new decimal(new int[] {
             6,
             0,
@@ -466,7 +390,7 @@ namespace Lab1
 			// label10
 			// 
 			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(749, 395);
+			this.label10.Location = new System.Drawing.Point(739, 12);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(120, 15);
 			this.label10.TabIndex = 16;
@@ -475,7 +399,7 @@ namespace Lab1
 			// label11
 			// 
 			this.label11.AutoSize = true;
-			this.label11.Location = new System.Drawing.Point(746, 442);
+			this.label11.Location = new System.Drawing.Point(606, 12);
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(123, 15);
 			this.label11.TabIndex = 17;
@@ -488,7 +412,7 @@ namespace Lab1
             0,
             0,
             0});
-			this._testCountBox.Location = new System.Drawing.Point(816, 460);
+			this._testCountBox.Location = new System.Drawing.Point(677, 34);
 			this._testCountBox.Minimum = new decimal(new int[] {
             1,
             0,
@@ -498,7 +422,7 @@ namespace Lab1
 			this._testCountBox.Size = new System.Drawing.Size(49, 23);
 			this._testCountBox.TabIndex = 18;
 			this._testCountBox.Value = new decimal(new int[] {
-            10,
+            1,
             0,
             0,
             0});
@@ -506,7 +430,7 @@ namespace Lab1
 			// _saveResultsBox
 			// 
 			this._saveResultsBox.AutoSize = true;
-			this._saveResultsBox.Location = new System.Drawing.Point(729, 489);
+			this._saveResultsBox.Location = new System.Drawing.Point(728, 102);
 			this._saveResultsBox.Name = "_saveResultsBox";
 			this._saveResultsBox.Size = new System.Drawing.Size(140, 19);
 			this._saveResultsBox.TabIndex = 19;
@@ -516,7 +440,7 @@ namespace Lab1
 			// testButton
 			// 
 			this.testButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-			this.testButton.Location = new System.Drawing.Point(597, 480);
+			this.testButton.Location = new System.Drawing.Point(761, 68);
 			this.testButton.Name = "testButton";
 			this.testButton.Size = new System.Drawing.Size(99, 28);
 			this.testButton.TabIndex = 20;
@@ -524,66 +448,131 @@ namespace Lab1
 			this.testButton.UseVisualStyleBackColor = false;
 			this.testButton.Click += new System.EventHandler(this.OnTest);
 			// 
+			// tableLayoutPanel1
+			// 
+			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.tableLayoutPanel1.ColumnCount = 2;
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tableLayoutPanel1.Controls.Add(this.inputPictureBox, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.outputPictureBox, 1, 1);
+			this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this.inputLabel, 0, 0);
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(4, 3);
+			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+			this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel1.RowCount = 2;
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(1197, 376);
+			this.tableLayoutPanel1.TabIndex = 30;
+			// 
+			// inputPictureBox
+			// 
+			this.inputPictureBox.BackColor = System.Drawing.Color.White;
+			this.inputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.inputPictureBox.Location = new System.Drawing.Point(6, 25);
+			this.inputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.inputPictureBox.Name = "inputPictureBox";
+			this.inputPictureBox.Size = new System.Drawing.Size(588, 346);
+			this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.inputPictureBox.TabIndex = 11;
+			this.inputPictureBox.TabStop = false;
+			// 
+			// outputPictureBox
+			// 
+			this.outputPictureBox.BackColor = System.Drawing.Color.White;
+			this.outputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.outputPictureBox.Location = new System.Drawing.Point(602, 25);
+			this.outputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.outputPictureBox.Name = "outputPictureBox";
+			this.outputPictureBox.Size = new System.Drawing.Size(589, 346);
+			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.outputPictureBox.TabIndex = 12;
+			this.outputPictureBox.TabStop = false;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(602, 2);
+			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(63, 15);
+			this.label1.TabIndex = 14;
+			this.label1.Text = "Результат:";
+			// 
+			// inputLabel
+			// 
+			this.inputLabel.AutoSize = true;
+			this.inputLabel.Location = new System.Drawing.Point(6, 2);
+			this.inputLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.inputLabel.Name = "inputLabel";
+			this.inputLabel.Size = new System.Drawing.Size(141, 15);
+			this.inputLabel.TabIndex = 13;
+			this.inputLabel.Text = "Исходное изображение:";
+			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.groupBox3);
+			this.panel1.Controls.Add(this.groupBox4);
+			this.panel1.Controls.Add(this.histogramPanel);
+			this.panel1.Controls.Add(this._saveResultsBox);
+			this.panel1.Controls.Add(this.testButton);
+			this.panel1.Controls.Add(this._testCountBox);
+			this.panel1.Controls.Add(this.label4);
+			this.panel1.Controls.Add(this.label11);
+			this.panel1.Controls.Add(this.textBox1);
+			this.panel1.Controls.Add(this.label10);
+			this.panel1.Controls.Add(this._threadCountBox);
+			this.panel1.Controls.Add(this.buttonSearch);
+			this.panel1.Controls.Add(this.groupBox1);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel1.Location = new System.Drawing.Point(0, 387);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(1204, 224);
+			this.panel1.TabIndex = 31;
+			// 
 			// Lab1Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1204, 611);
-			this.Controls.Add(this.testButton);
-			this.Controls.Add(this._saveResultsBox);
-			this.Controls.Add(this._testCountBox);
-			this.Controls.Add(this.label11);
-			this.Controls.Add(this.label10);
-			this.Controls.Add(this._threadCountBox);
-			this.Controls.Add(this.histogramPanel);
-			this.Controls.Add(this.groupBox4);
-			this.Controls.Add(this.groupBox3);
-			this.Controls.Add(this.buttonSearch);
-			this.Controls.Add(this.textBox1);
-			this.Controls.Add(this.label4);
-			this.Controls.Add(this.groupBox2);
-			this.Controls.Add(this.groupBox1);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.inputLabel);
-			this.Controls.Add(this.outputPictureBox);
-			this.Controls.Add(this.inputPictureBox);
+			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.tableLayoutPanel1);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.MaximizeBox = false;
 			this.Name = "Lab1Form";
 			this.Text = "Lab1";
-			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.contrastTrackBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.brightnessTrackBar)).EndInit();
-			this.groupBox2.ResumeLayout(false);
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this._testCountBox)).EndInit();
+			this.tableLayoutPanel1.ResumeLayout(false);
+			this.tableLayoutPanel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox inputPictureBox;
-        private System.Windows.Forms.PictureBox outputPictureBox;
-        private System.Windows.Forms.Label inputLabel;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TrackBar contrastTrackBar;
         private System.Windows.Forms.TrackBar brightnessTrackBar;
         private System.Windows.Forms.Timer timer;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button buttonHR;
-        private System.Windows.Forms.Button buttonRH;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBox1;
@@ -611,6 +600,12 @@ namespace Lab1
 		private RadioButton yuvRadio;
 		private RadioButton hlsRadio;
 		private RadioButton rgbRadio;
+		private TableLayoutPanel tableLayoutPanel1;
+		private PictureBox inputPictureBox;
+		private PictureBox outputPictureBox;
+		private Label label1;
+		private Label inputLabel;
+		private Panel panel1;
 	}
 }
 

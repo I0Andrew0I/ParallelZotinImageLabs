@@ -11,6 +11,7 @@ using Labs.Core;
 using Labs.Core.Scheme;
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
 
@@ -110,7 +111,7 @@ namespace Lab1
                 MessageBox.Show("Изображение уже представлено в этой цветовой модели");
                 return;
             }
-            
+
             _channelBox.DataSource = Enum.GetValues(channels.GetType());
             Channels = (Enum) channels;
 
@@ -443,6 +444,8 @@ namespace Lab1
                     new LinearAxis() {Position = AxisPosition.Left, Minimum = 0},
                 }
             };
+            model.IsLegendVisible = true;
+            model.Legends.Add(new Legend(){LegendPlacement = LegendPlacement.Inside, IsLegendVisible = true});
             plotView.Model = model;
         }
 
