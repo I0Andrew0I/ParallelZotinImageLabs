@@ -18,4 +18,10 @@
     <ProjectReference Include="..\Labs.Core\Labs.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Benchmark.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

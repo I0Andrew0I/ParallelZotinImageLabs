@@ -30,10 +30,12 @@ namespace Lab1
         private ArraySegment<byte>? _targetBuffer;
         private ArraySegment<byte>? _sourceBuffer;
         private ArraySegment<HLSA>? _hlsaPixels;
+        private Benchmark _benchmarkForm;
 
         public Lab1Form()
         {
             InitializeComponent();
+            _benchmarkForm = new Benchmark();
             _histogram = new PlotView() {Dock = DockStyle.Fill};
             histogramPanel.Controls.Add(_histogram);
 
@@ -370,6 +372,11 @@ namespace Lab1
                 }
             };
             plotView.Model = model;
+        }
+
+        private void OnTest(object sender, EventArgs e)
+        {
+            _benchmarkForm.Show();
         }
     }
 }

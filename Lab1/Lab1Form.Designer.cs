@@ -70,6 +70,7 @@ namespace Lab1
 			this.label11 = new System.Windows.Forms.Label();
 			this._testCountBox = new System.Windows.Forms.NumericUpDown();
 			this._saveResultsBox = new System.Windows.Forms.CheckBox();
+			this.testButton = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			this.groupBox1.SuspendLayout();
@@ -251,7 +252,7 @@ namespace Lab1
 			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(412, 81);
+			this.groupBox2.Size = new System.Drawing.Size(412, 66);
 			this.groupBox2.TabIndex = 5;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Смена цветовой модели";
@@ -501,11 +502,23 @@ namespace Lab1
 			this._saveResultsBox.Text = "Сохранять результат";
 			this._saveResultsBox.UseVisualStyleBackColor = true;
 			// 
+			// button1
+			// 
+			this.testButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+			this.testButton.Location = new System.Drawing.Point(597, 480);
+			this.testButton.Name = "testButton";
+			this.testButton.Size = new System.Drawing.Size(99, 28);
+			this.testButton.TabIndex = 20;
+			this.testButton.Text = "Тестировать";
+			this.testButton.UseVisualStyleBackColor = false;
+			this.testButton.Click += new System.EventHandler(this.OnTest);
+			// 
 			// Lab1Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1204, 611);
+			this.Controls.Add(this.testButton);
 			this.Controls.Add(this._saveResultsBox);
 			this.Controls.Add(this._testCountBox);
 			this.Controls.Add(this.label11);
@@ -585,6 +598,7 @@ namespace Lab1
 		private Label label11;
 		private NumericUpDown _testCountBox;
 		private CheckBox _saveResultsBox;
+		private Button testButton;
 	}
 }
 
