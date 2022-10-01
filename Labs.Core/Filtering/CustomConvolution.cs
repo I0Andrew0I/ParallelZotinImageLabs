@@ -21,11 +21,14 @@ namespace Labs.Core.Filtering
         {
             int i = 0;
             var source = image.Pixels.AsSpan();
-            foreach (int y0 in frame.IterateY(frame.X))
+            (int yfrom, int yto) = frame.IterateY(frame.X);
+
+            for (int y0 = yfrom; y0 <= yto; y0++)
             {
                 int y = Math.Clamp(y0, 0, image.Height - 1);
+                (int xfrom, int xto) = frame.IterateX(y);
 
-                foreach (int x0 in frame.IterateX(y))
+                for (int x0 = xfrom; x0 <= xto; x0++)
                 {
                     int x = Math.Clamp(x0, 0, image.Width - 1);
 

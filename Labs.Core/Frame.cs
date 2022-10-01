@@ -6,13 +6,15 @@ namespace Labs.Core
 {
     public record Frame
     {
+        protected static readonly (int, int) Empty = (0, 0);
+
         public int RW { get; }
         public int RH { get; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; }
         public int Height { get; }
-        
+
         public Frame(int X, int Y, int Width, int Height)
         {
             this.X = X;
@@ -24,20 +26,22 @@ namespace Labs.Core
         }
 
 
-        public virtual IEnumerable<int> IterateX(int y)
+        public virtual (int from, int to) IterateX(int y)
         {
-            if (Math.Abs(y - Y) <= RH)
-                return Enumerable.Range(X - RW, Width);
+            Range r = new Range(0, 3);
 
-            return Enumerable.Empty<int>();
+            if (Math.Abs(y - Y) <= RH)
+                return (X - RW, X + RW);
+
+            return Empty;
         }
 
-        public virtual IEnumerable<int> IterateY(int x)
+        public virtual (int yfrom, int yto) IterateY(int x)
         {
             if (Math.Abs(x - X) <= RW)
-                return Enumerable.Range(Y - RH, Height);
+                return (Y - RH, Y + RH);
 
-            return Enumerable.Empty<int>();
+            return Empty;
         }
 
         public void Deconstruct(out int X, out int Y, out int Width, out int Height)
@@ -51,7 +55,7 @@ namespace Labs.Core
 
     public record EllipsoidsFrame(int X, int Y, int Width, int Height) : Frame(X, Y, Width, Height)
     {
-        public override IEnumerable<int> IterateX(int y)
+        public override (int from, int to) IterateX(int y)
         {
             int min = X;
             int max = X;
@@ -68,13 +72,13 @@ namespace Labs.Core
                     }
                 }
 
-                return Enumerable.Range(min, max - min);
+                return (min, max);
             }
 
-            return Enumerable.Empty<int>();
+            return Empty;
         }
 
-        public override IEnumerable<int> IterateY(int x)
+        public override (int yfrom, int yto) IterateY(int x)
         {
             int min = Y;
             int max = Y;
@@ -91,10 +95,10 @@ namespace Labs.Core
                     }
                 }
 
-                return Enumerable.Range(min, max - min);
+                return (min, max);
             }
 
-            return Enumerable.Empty<int>();
+            return Empty;
         }
     }
 }

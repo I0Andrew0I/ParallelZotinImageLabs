@@ -10,11 +10,15 @@ namespace Labs.Core.Filtering
         protected override TPixel SlideFrame(in Frame f, ref Span<TPixel> _, int pixelId)
         {
             TPixel sum = default;
-            foreach (int y0 in f.IterateY(f.X))
+            (int yfrom, int yto) = f.IterateY(f.X);
+
+            for (int y0 = yfrom; y0 <= yto; y0++)
             {
                 int y = Math.Clamp(y0, 0, Image.Height - 1);
 
-                foreach (int x0 in f.IterateX(y))
+                (int xfrom, int xto) = f.IterateX(y);
+
+                for (int x0 = xfrom; x0 <= xto; x0++)
                 {
                     int x = Math.Clamp(x0, 0, Image.Width - 1);
 

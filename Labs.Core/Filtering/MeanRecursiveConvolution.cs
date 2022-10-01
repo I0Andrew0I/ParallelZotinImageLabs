@@ -52,7 +52,8 @@ namespace Labs.Core.Filtering
             TPixel oldSum = default;
             TPixel newSum = default;
 
-            foreach (int y0 in f.IterateY(from))
+            (int y1from, int y1to) = f.IterateY(from);
+            for (int y0 = y1from; y0 <= y1to; y0++)
             {
                 int y = Math.Clamp(y0, 0, Image.Height - 1);
 
@@ -63,7 +64,8 @@ namespace Labs.Core.Filtering
                 oldSum = oldSum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
             }
 
-            foreach (int y0 in f.IterateY(to))
+            (int y2from, int y2to) = f.IterateY(to);
+            for (int y0 = y2from; y0 <= y2to; y0++)
             {
                 int y = Math.Clamp(y0, 0, Image.Height - 1);
 

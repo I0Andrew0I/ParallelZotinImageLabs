@@ -14,21 +14,26 @@ namespace Labs.Core.Filtering
             ARGB min = pixel;
             ARGB max = pixel;
 
-            foreach (ARGB p in pixels)
+            bool RED = channel.HasFlag(ARGB.Channel.Red);
+            bool GREEN = channel.HasFlag(ARGB.Channel.Green);
+            bool BLUE = channel.HasFlag(ARGB.Channel.Blue);
+
+            for (var i = 0; i < pixels.Length; i++)
             {
-                if (channel.HasFlag(ARGB.Channel.Red))
+                ARGB p = pixels[i];
+                if (RED)
                 {
                     min.R = Math.Min(min.R, p.R);
                     max.R = Math.Max(max.R, p.R);
                 }
 
-                if (channel.HasFlag(ARGB.Channel.Green))
+                if (GREEN)
                 {
                     min.G = Math.Min(min.G, p.G);
                     max.G = Math.Max(max.G, p.G);
                 }
 
-                if (channel.HasFlag(ARGB.Channel.Blue))
+                if (BLUE)
                 {
                     min.B = Math.Min(min.B, p.B);
                     max.B = Math.Max(max.B, p.B);
@@ -46,22 +51,26 @@ namespace Labs.Core.Filtering
             HLSA pixel = pixels[pixels.Length / 2];
             HLSA min = pixel;
             HLSA max = pixel;
+            bool H = channel.HasFlag(HLSA.Channel.Hue);
+            bool L = channel.HasFlag(HLSA.Channel.Lightness);
+            bool S = channel.HasFlag(HLSA.Channel.Saturation);
 
-            foreach (HLSA p in pixels)
+            for (var i = 0; i < pixels.Length; i++)
             {
-                if (channel.HasFlag(HLSA.Channel.Hue))
+                HLSA p = pixels[i];
+                if (H)
                 {
                     min.H = Math.Min(min.H, p.H);
                     max.H = Math.Max(max.H, p.H);
                 }
 
-                if (channel.HasFlag(HLSA.Channel.Lightness))
+                if (L)
                 {
                     min.L = Math.Min(min.L, p.L);
                     max.L = Math.Max(max.L, p.L);
                 }
 
-                if (channel.HasFlag(HLSA.Channel.Saturation))
+                if (S)
                 {
                     min.S = Math.Min(min.S, p.S);
                     max.S = Math.Max(max.S, p.S);
@@ -80,22 +89,25 @@ namespace Labs.Core.Filtering
             YUV pixel = pixels[pixels.Length / 2];
             YUV min = pixel;
             YUV max = pixel;
+            bool Y = channel.HasFlag(YUV.Channel.Y);
+            bool U = channel.HasFlag(YUV.Channel.U);
+            bool V = channel.HasFlag(YUV.Channel.V);
 
             foreach (YUV p in pixels)
             {
-                if (channel.HasFlag(YUV.Channel.Y))
+                if (Y)
                 {
                     min.Y = Math.Min(min.Y, p.Y);
                     max.Y = Math.Max(max.Y, p.Y);
                 }
 
-                if (channel.HasFlag(YUV.Channel.U))
+                if (U)
                 {
                     min.U = Math.Min(min.U, p.U);
                     max.U = Math.Max(max.U, p.U);
                 }
 
-                if (channel.HasFlag(YUV.Channel.V))
+                if (V)
                 {
                     min.V = Math.Min(min.V, p.V);
                     max.V = Math.Max(max.V, p.V);
