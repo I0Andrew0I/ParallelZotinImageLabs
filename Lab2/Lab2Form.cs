@@ -210,7 +210,7 @@ namespace Lab2
         }
 
 
-        private void OnTestingClick (object sender, EventArgs e)
+        private void OnTestingClick(object sender, EventArgs e)
         {
             _benchmarkForm.Show();
         }
@@ -458,12 +458,15 @@ namespace Lab2
 
         private void SaveModification(Bitmap image, string filename)
         {
-            string subdirPath = _imageFile.Directory.Name + "\\_" + _imageFile.Name;
+            string shortname = _imageFile.Name.Substring(0, _imageFile.Name.IndexOf(".", StringComparison.Ordinal));
+            string subdirPath = _imageFile.Directory + "\\_" + shortname;
             DirectoryInfo subdirectory = Directory.Exists(subdirPath)
                 ? new DirectoryInfo(subdirPath)
-                : _imageFile.Directory!.CreateSubdirectory("_" + _imageFile.Name);
+                : _imageFile.Directory!.CreateSubdirectory(shortname);
 
-            image.Save(subdirectory.Name + "\\" + filename, ImageFormat.Png);
+
+            string subdirectoryName = subdirectory + "\\" + filename;
+            image.Save(subdirectoryName, ImageFormat.Png);
         }
 
         private bool IsChannelUndefined()
