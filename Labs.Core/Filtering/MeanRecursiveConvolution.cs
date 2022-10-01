@@ -15,7 +15,7 @@ namespace Labs.Core.Filtering
             int imageHeight = Image.Height;
             int mWidth = frameShape.Width;
             int mHeight = frameShape.Height;
-            bool round = frameShape is EllipsoidsFrame;
+            bool round = frameShape is EllipsisFrame;
             int step = (int) Math.Truncate(imageHeight / 16.0);
 
             Parallel.For(0, 16, po, (int iter) =>
@@ -23,7 +23,7 @@ namespace Labs.Core.Filtering
                 int from = iter * step;
                 int to = iter == 15 ? imageHeight : (iter + 1) * step;
                 var output = resultImage.Pixels.AsSpan();
-                Frame frame = round ? new EllipsoidsFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
+                Frame frame = round ? new EllipsisFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
 
                 for (int y = from; y < to; y++)
                 {

@@ -9,7 +9,7 @@ namespace Labs.Core.Filtering
     {
         protected override TPixel SlideFrame(in Frame f, ref Span<TPixel> output, int pixelId)
         {
-            ArraySegment<TPixel> rent = UtilityExtensions.Pool(f.Width * f.Height, ArraySegment<TPixel>.Empty);
+            ArraySegment<TPixel> rent = UtilityExtensions.Pool(f.Square, ArraySegment<TPixel>.Empty);
             Span<TPixel> mutable = rent;
             CopyPixels(Image, f, mutable);
             TPixel result = Reducer(mutable, f);
@@ -25,14 +25,14 @@ namespace Labs.Core.Filtering
 
             for (int y0 = yfrom; y0 <= yto; y0++)
             {
-                int y = Math.Clamp(y0, 0, image.Height - 1);
-                (int xfrom, int xto) = frame.IterateX(y);
+                (int xfrom, int xto) = frame.IterateX(y0);
 
                 for (int x0 = xfrom; x0 <= xto; x0++)
                 {
+                    int y = Math.Clamp(y0, 0, image.Height - 1);
                     int x = Math.Clamp(x0, 0, image.Width - 1);
-
                     int pixelId = x + y * image.Width;
+
                     result[i] = source[pixelId];
                     i++;
                 }

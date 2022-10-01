@@ -67,7 +67,7 @@ namespace Lab2
 
             int mWidth = (int) widthBox.Value;
             int mHeight = (int) heightBox.Value;
-            FrameShape = RoundFrame ? new EllipsoidsFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
+            FrameShape = RoundFrame ? new EllipsisFrame(0, 0, mWidth, mHeight) : new Frame(0, 0, mWidth, mHeight);
             Bitmap?[] pictures = new[] {pic1, pic2, pic3, pic4};
             int testsCount = (int) testsBox.Value;
             double[,] meanKernel = Kernel.CalculateMean(FrameShape);

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Labs.Core
 {
@@ -15,6 +13,8 @@ namespace Labs.Core
         public int Width { get; }
         public int Height { get; }
 
+        private int? _square;
+
         public Frame(int X, int Y, int Width, int Height)
         {
             this.X = X;
@@ -25,6 +25,7 @@ namespace Labs.Core
             RH = (Height - 1) / 2;
         }
 
+        public int Square => _square ??= CalculateSquare();
 
         public virtual (int from, int to) IterateX(int y)
         {
@@ -36,7 +37,7 @@ namespace Labs.Core
             return Empty;
         }
 
-        public virtual (int yfrom, int yto) IterateY(int x)
+        public virtual (int from, int to) IterateY(int x)
         {
             if (Math.Abs(x - X) <= RW)
                 return (Y - RH, Y + RH);
@@ -44,61 +45,71 @@ namespace Labs.Core
             return Empty;
         }
 
-        public void Deconstruct(out int X, out int Y, out int Width, out int Height)
-        {
-            X = this.X;
-            Y = this.Y;
-            Width = this.Width;
-            Height = this.Height;
-        }
+        protected virtual int CalculateSquare() =>
+            Width * Height;
     }
 
-    public record EllipsoidsFrame(int X, int Y, int Width, int Height) : Frame(X, Y, Width, Height)
+    public record EllipsisFrame : Frame
     {
+        private readonly float powRW;
+        private readonly float powRH;
+
+        public EllipsisFrame(int X, int Y, int Width, int Height) : base(X, Y, Width, Height)
+        {
+            powRW = RW * RW;
+            powRH = RH * RH;
+        }
+
         public override (int from, int to) IterateX(int y)
         {
             int min = X;
             int max = X;
+            float yOffset = MathF.Pow(y - Y, 2) / powRH;
 
-            if (Math.Sqrt(y * y - Y * Y) <= RH)
+            for (int dx = -RW; dx <= RW; dx++)
             {
-                for (int dx = -RW; dx <= RW; dx++)
-                {
-                    int x = X + dx;
-                    if (Math.Sqrt(x * x - X * X) <= RW)
-                    {
-                        min = Math.Min(min, x);
-                        max = Math.Max(max, x);
-                    }
-                }
+                if (MathF.Pow(dx, 2) / powRW + yOffset > 1)
+                    continue;
 
-                return (min, max);
+                int x = X + dx;
+                min = Math.Min(min, x);
+                max = Math.Max(max, x);
             }
 
-            return Empty;
+            return (min, max);
         }
 
-        public override (int yfrom, int yto) IterateY(int x)
+        public override (int from, int to) IterateY(int x)
         {
             int min = Y;
             int max = Y;
 
-            if (Math.Sqrt(x * x - X * X) <= RW)
+            float xOffset = MathF.Pow(x - X, 2) / powRW;
+            for (int dy = -RH; dy <= RH; dy++)
             {
-                for (int dy = -RH; dy <= RH; dy++)
-                {
-                    int y = Y + dy;
-                    if (Math.Sqrt(y * y - Y * Y) <= RH)
-                    {
-                        min = Math.Min(min, y);
-                        max = Math.Max(max, y);
-                    }
-                }
+                if (xOffset + MathF.Pow(dy, 2) / powRH > 1)
+                    continue;
 
-                return (min, max);
+                int y = Y + dy;
+                min = Math.Min(min, y);
+                max = Math.Max(max, y);
             }
 
-            return Empty;
+            return (min, max);
+        }
+
+        protected override int CalculateSquare()
+        {
+            int square = 0;
+            (int yfrom, int yto) = IterateY(X);
+            for (int y = yfrom; y <= yto; y++)
+            {
+                (int xfrom, int xto) = IterateX(y);
+                for (int x = xfrom; x <= xto; x++)
+                    square++;
+            }
+
+            return square;
         }
     }
 }

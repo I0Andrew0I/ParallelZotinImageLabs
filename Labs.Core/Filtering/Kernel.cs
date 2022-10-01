@@ -18,7 +18,7 @@
         public static double[,] CalculateMean(Frame size)
         {
             var matrix = new double[size.Height, size.Width];
-            double value = 1.0 / size.Height / size.Width;
+            double value = 1.0 / size.Square;
 
             for (int i = 0; i < size.Height; i++)
             for (int j = 0; j < size.Width; j++)

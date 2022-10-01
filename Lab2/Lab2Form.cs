@@ -196,7 +196,7 @@ namespace Lab2
             SelectedFilter = fp.Filter;
             _roundFrame = fp.RoundFrame;
             _frameSize = _roundFrame
-                ? new EllipsoidsFrame(0, 0, fp.MatrixSize.width, fp.MatrixSize.height)
+                ? new EllipsisFrame(0, 0, fp.MatrixSize.width, fp.MatrixSize.height)
                 : new Frame(0, 0, fp.MatrixSize.width, fp.MatrixSize.height);
 
             if (SelectedFilter == Filter.Linear)
