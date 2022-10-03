@@ -2,7 +2,7 @@
 
 namespace Labs.Core.Scheme
 {
-    public interface IColor<TPixel, TChannel>: IComparable<TPixel>
+    public interface IColor<TPixel, TChannel> : IComparable<TPixel>
     {
         public TPixel Add(TPixel other);
         public TPixel Add(TPixel other, out TPixel overflow);
@@ -10,6 +10,7 @@ namespace Labs.Core.Scheme
         public TPixel Subtract(TPixel other, out TPixel overflow);
         public TPixel Mul(double num);
         public TPixel Div(double num);
+        public TPixel Correct(Accumulator overflow);
 
         public void Extract(TChannel channels, ref TPixel value);
     }

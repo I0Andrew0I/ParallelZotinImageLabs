@@ -112,6 +112,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public YUV Correct(Accumulator overflow)
+        {
+            YUV value = this;
+            value.Y = Math.Clamp(value.Y + overflow.K1, 0, 255);
+            value.U = Math.Clamp(value.U + overflow.K2, -112, 112);
+            value.V = Math.Clamp(value.V + overflow.K3, -157, 157);
+            return value;
+        }
+
         public void Extract(Channel channels, ref YUV value)
         {
             if (channels.HasFlag(Channel.Y))

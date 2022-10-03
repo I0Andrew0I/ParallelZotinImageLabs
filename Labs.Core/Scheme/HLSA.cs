@@ -142,7 +142,7 @@ namespace Labs.Core.Scheme
             overflow.S = s < 0 ? -s : 0;
             value.H = Math.Clamp(h, 0, 360);
             value.L = Math.Clamp(l, 0, 1);
-            value.S = Math.Clamp(l, 0, 1);
+            value.S = Math.Clamp(s, 0, 1);
             return value;
         }
 
@@ -161,6 +161,16 @@ namespace Labs.Core.Scheme
             value.H /= num;
             value.L /= num;
             value.S /= num;
+            return value;
+        }
+
+        public HLSA Correct(Accumulator overflow)
+        {
+            HLSA value = this;
+            value.H = Math.Clamp(value.H + overflow.K1, 0, 360);
+            value.L = Math.Clamp(value.L + overflow.K2, 0, 1);
+            value.S = Math.Clamp(value.S + overflow.K3, 0, 1);
+            value.A = Math.Clamp(value.A + overflow.K4, 0, 1);
             return value;
         }
 

@@ -112,6 +112,16 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public ARGB Correct(Accumulator overflow)
+        {
+            ARGB value = this;
+            value.R = (byte) Math.Clamp(value.R + overflow.K1, 0, 255);
+            value.G = (byte) Math.Clamp(value.G + overflow.K2, 0, 255);
+            value.B = (byte) Math.Clamp(value.B + overflow.K3, 0, 255);
+            value.A = (byte) Math.Clamp(value.A + overflow.K4, 0, 255);
+            return value;
+        }
+
         public void Extract(Channel channel, ref ARGB value)
         {
             if (channel.HasFlag(Channel.Red))
