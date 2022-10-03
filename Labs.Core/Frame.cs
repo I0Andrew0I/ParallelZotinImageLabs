@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Labs.Core
 {
@@ -29,8 +30,6 @@ namespace Labs.Core
 
         public virtual (int from, int to) IterateX(int y)
         {
-            Range r = new Range(0, 3);
-
             if (Math.Abs(y - Y) <= RH)
                 return (X - RW, X + RW);
 
@@ -60,6 +59,7 @@ namespace Labs.Core
             powRH = RH * RH;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public override (int from, int to) IterateX(int y)
         {
             int min = X;
@@ -79,6 +79,7 @@ namespace Labs.Core
             return (min, max);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public override (int from, int to) IterateY(int x)
         {
             int min = Y;

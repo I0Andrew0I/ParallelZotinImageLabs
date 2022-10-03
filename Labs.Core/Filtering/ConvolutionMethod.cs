@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Labs.Core.Scheme;
 
@@ -9,6 +10,7 @@ namespace Labs.Core.Filtering
     {
         protected ArraySegment<TPixel> Pixels = Image.Pixels;
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public virtual void Apply(Frame frameShape, ImageBuffer<TPixel> resultImage, int numThreads)
         {
             ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = numThreads};
@@ -41,6 +43,7 @@ namespace Labs.Core.Filtering
             });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.ForwardRef)]
         protected abstract TPixel SlideFrame(in Frame f, ref Span<TPixel> output, int pixelId);
     }
 }

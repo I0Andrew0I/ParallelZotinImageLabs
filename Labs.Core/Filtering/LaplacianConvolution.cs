@@ -24,12 +24,17 @@ namespace Labs.Core.Filtering
                     int matrixY = y0 + f.RH - f.Y;
                     int matrixX = x0 + f.RW - f.X;
                     int localId = x + y * Image.Width;
+                    double K = Kernel[matrixY, matrixX];
 
-                    sum = sum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
+                    if (K >= 0)
+                        sum = sum.Add(Image.Pixels[localId].Mul(K));
+                    else
+                        sum = sum.Subtract(Image.Pixels[localId].Mul(Math.Abs(K)));
                 }
             }
 
             sum = sum.Mul(Sharpness);
+            sum = sum.Add(Image.Pixels[pixelId]);
             return sum;
         }
     }
