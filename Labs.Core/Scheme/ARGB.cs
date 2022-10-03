@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Labs.Core.Scheme
@@ -7,7 +8,7 @@ namespace Labs.Core.Scheme
     public record struct ARGB : IColor<ARGB, ARGB.Channel>
     {
         [Flags]
-        public enum Channel
+        public enum Channel : byte
         {
             Undefined = 0,
             Alpha = 1,
@@ -53,19 +54,11 @@ namespace Labs.Core.Scheme
 
         public ARGB Add(in ARGB other, ref Accumulator overflow)
         {
-            ARGB value = this;
+            int r = R + other.R;
+            int g = G + other.G;
+            int b = B + other.B;
 
-            int r = value.R + other.R;
-            int g = value.G + other.G;
-            int b = value.B + other.B;
-            value.R = (byte) Math.Clamp(r, 0, 255);
-            value.G = (byte) Math.Clamp(g, 0, 255);
-            value.B = (byte) Math.Clamp(b, 0, 255);
-
-            overflow.K1 += r - value.R;
-            overflow.K2 += g - value.G;
-            overflow.K3 += b - value.B;
-            return value;
+            return GetOverflow(r, g, b, ref overflow);
         }
 
         public ARGB Subtract(in ARGB other)
@@ -79,21 +72,11 @@ namespace Labs.Core.Scheme
 
         public ARGB Subtract(in ARGB other, ref Accumulator overflow)
         {
-            ARGB value = this;
+            int r = R - other.R;
+            int g = G - other.G;
+            int b = B - other.B;
 
-            int r = value.R - other.R;
-            int g = value.G - other.G;
-            int b = value.B - other.B;
-
-            value.R = (byte) Math.Clamp(r, 0, 255);
-            value.G = (byte) Math.Clamp(g, 0, 255);
-            value.B = (byte) Math.Clamp(b, 0, 255);
-
-            overflow.K1 += r - value.R;
-            overflow.K2 += g - value.G;
-            overflow.K3 += b - value.B;
-
-            return value;
+            return GetOverflow(r, g, b, ref overflow);
         }
 
         public ARGB Mul(in double num)
@@ -107,21 +90,11 @@ namespace Labs.Core.Scheme
 
         public ARGB Mul(in double num, ref Accumulator overflow)
         {
-            ARGB value = this;
+            double r = R * num;
+            double g = G * num;
+            double b = B * num;
 
-            double r = value.R * num;
-            double g = value.G * num;
-            double b = value.B * num;
-
-            value.R = (byte) Math.Clamp(r, 0, 255);
-            value.G = (byte) Math.Clamp(g, 0, 255);
-            value.B = (byte) Math.Clamp(b, 0, 255);
-
-            overflow.K1 += r - value.R;
-            overflow.K2 += g - value.G;
-            overflow.K3 += b - value.B;
-
-            return value;
+            return GetOverflow(r, g, b, ref overflow);
         }
 
         public ARGB Div(in double num)
@@ -227,6 +200,20 @@ namespace Labs.Core.Scheme
             int v1 = R + G + B;
             int v2 = other.R + other.G + other.B;
             return Math.Sign(v2 - v1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ARGB GetOverflow(in double r, in double g, in double b, ref Accumulator overflow)
+        {
+            ARGB value = default;
+            value.R = (byte) Math.Clamp(r, 0, 255);
+            value.G = (byte) Math.Clamp(g, 0, 255);
+            value.B = (byte) Math.Clamp(b, 0, 255);
+
+            overflow.K1 += r - value.R;
+            overflow.K2 += g - value.G;
+            overflow.K3 += b - value.B;
+            return value;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Labs.Core.Scheme
     public record struct YUV : IColor<YUV, YUV.Channel>
     {
         [Flags]
-        public enum Channel
+        public enum Channel : byte
         {
             Undefined = 0,
             Y = 1,
@@ -21,17 +21,17 @@ namespace Labs.Core.Scheme
         /// <summary>
         /// Luminance (0, 255)
         /// </summary>
-        public double Y { get; set; }
+        public double Y;
 
         /// <summary>
         /// Blue projection (-112, 112)
         /// </summary>
-        public double U { get; set; }
+        public double U;
 
         /// <summary>
         /// Red projection (-157, 157)
         /// </summary>
-        public double V { get; set; }
+        public double V;
 
         public YUV(double Y, double U, double V)
         {
@@ -51,20 +51,11 @@ namespace Labs.Core.Scheme
 
         public YUV Add(in YUV other, ref Accumulator overflow)
         {
-            YUV value = this;
+            double y = Y + other.Y;
+            double u = U + other.U;
+            double v = V + other.V;
 
-            double y = value.Y + other.Y;
-            double u = value.U + other.U;
-            double v = value.V + other.V;
-
-            value.Y = Math.Clamp(y, 0, 255);
-            value.U = Math.Clamp(u, -112, 112);
-            value.V = Math.Clamp(v, -157, 157);
-
-            overflow.K1 += y - value.Y;
-            overflow.K2 += u - value.U;
-            overflow.K3 += v - value.V;
-            return value;
+            return GetOverflow(y, u, v, ref overflow);
         }
 
         public YUV Subtract(in YUV other)
@@ -78,21 +69,11 @@ namespace Labs.Core.Scheme
 
         public YUV Subtract(in YUV other, ref Accumulator overflow)
         {
-            YUV value = this;
+            double y = Y - other.Y;
+            double u = U - other.U;
+            double v = V - other.V;
 
-            double y = value.Y - other.Y;
-            double u = value.U - other.U;
-            double v = value.V - other.V;
-
-            value.Y = Math.Clamp(y, 0, 255);
-            value.U = Math.Clamp(u, -112, 112);
-            value.V = Math.Clamp(v, -157, 157);
-
-            overflow.K1 += y - value.Y;
-            overflow.K2 += u - value.U;
-            overflow.K3 += v - value.V;
-
-            return value;
+            return GetOverflow(y, u, v, ref overflow);
         }
 
         public YUV Mul(in double num)
@@ -106,21 +87,11 @@ namespace Labs.Core.Scheme
 
         public YUV Mul(in double num, ref Accumulator overflow)
         {
-            YUV value = this;
+            double y = Y * num;
+            double u = U * num;
+            double v = V * num;
 
-            double y = value.Y * num;
-            double u = value.U * num;
-            double v = value.V * num;
-
-            value.Y = Math.Clamp(y, 0, 255);
-            value.U = Math.Clamp(u, -112, 112);
-            value.V = Math.Clamp(v, -157, 157);
-
-            overflow.K1 += y - value.Y;
-            overflow.K2 += u - value.U;
-            overflow.K3 += v - value.V;
-
-            return value;
+            return GetOverflow(y, u, v, ref overflow);
         }
 
         public YUV Div(in double num)
@@ -156,9 +127,9 @@ namespace Labs.Core.Scheme
 
         public void ToARGB(ref ARGB value)
         {
-            value.R = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), Byte.MinValue, Byte.MaxValue);
-            value.G = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), Byte.MinValue, Byte.MaxValue);
-            value.B = (byte) Math.Clamp((int) Math.Round(Y + 2.032 * U), Byte.MinValue, Byte.MaxValue);
+            value.R = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), 0, 255);
+            value.G = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), 0, 255);
+            value.B = (byte) Math.Clamp((int) Math.Round(Y + 2.032 * U), 0, 255);
             value.A = 255;
         }
 
@@ -176,6 +147,20 @@ namespace Labs.Core.Scheme
             int uComparison = U.CompareTo(other.U);
             if (uComparison != 0) return uComparison;
             return V.CompareTo(other.V);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static YUV GetOverflow(in double y, in double u, in double v, ref Accumulator overflow)
+        {
+            YUV value = default;
+            value.Y = Math.Clamp(y, 0, 255);
+            value.U = Math.Clamp(u, -112, 112);
+            value.V = Math.Clamp(v, -157, 157);
+
+            overflow.K1 += y - value.Y;
+            overflow.K2 += u - value.U;
+            overflow.K3 += v - value.V;
+            return value;
         }
     }
 }

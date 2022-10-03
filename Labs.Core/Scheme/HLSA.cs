@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Labs.Core.Scheme
 {
     public record struct HLSA : IColor<HLSA, HLSA.Channel>
     {
-        public enum Channel
+        public enum Channel : byte
         {
             Undefined = 0,
             Alpha = 1,
@@ -105,22 +106,11 @@ namespace Labs.Core.Scheme
 
         public HLSA Add(in HLSA other, ref Accumulator overflow)
         {
-            HLSA value = this;
-            overflow = default;
+            double h = H + other.H;
+            double l = L + other.L;
+            double s = S + other.S;
 
-            double h = value.H + other.H;
-            double l = value.L + other.L;
-            double s = value.S + other.S;
-
-            value.H = Math.Clamp(h, 0, 360);
-            value.L = Math.Clamp(l, 0, 1);
-            value.S = Math.Clamp(l, 0, 1);
-
-            overflow.K1 += h - value.H;
-            overflow.K2 += l - value.L;
-            overflow.K3 += s - value.S;
-
-            return value;
+            return GetOverflow(h, l, s, ref overflow);
         }
 
         public HLSA Subtract(in HLSA other)
@@ -134,20 +124,11 @@ namespace Labs.Core.Scheme
 
         public HLSA Subtract(in HLSA other, ref Accumulator overflow)
         {
-            HLSA value = this;
+            double h = H - other.H;
+            double l = L - other.L;
+            double s = S - other.S;
 
-            double h = value.H - other.H;
-            double l = value.L - other.L;
-            double s = value.S - other.S;
-
-            value.H = Math.Clamp(h, 0, 360);
-            value.L = Math.Clamp(l, 0, 1);
-            value.S = Math.Clamp(s, 0, 1);
-
-            overflow.K1 += h - value.H;
-            overflow.K2 += l - value.L;
-            overflow.K3 += s - value.S;
-            return value;
+            return GetOverflow(h, l, s, ref overflow);
         }
 
         public HLSA Mul(in double num)
@@ -161,19 +142,11 @@ namespace Labs.Core.Scheme
 
         public HLSA Mul(in double num, ref Accumulator overflow)
         {
-            HLSA value = this;
+            double h = H * num;
+            double l = L * num;
+            double s = S * num;
 
-            double h = value.H * num;
-            double l = value.L * num;
-            double s = value.S * num;
-            value.H = Math.Clamp(h, 0, 360);
-            value.L = Math.Clamp(l, 0, 1);
-            value.S = Math.Clamp(s, 0, 1);
-
-            overflow.K1 += h - value.H;
-            overflow.K2 += l - value.L;
-            overflow.K3 += s - value.S;
-            return value;
+            return GetOverflow(h, l, s, ref overflow);
         }
 
         public HLSA Div(in double num)
@@ -217,6 +190,21 @@ namespace Labs.Core.Scheme
             int lComparison = L.CompareTo(other.L);
             if (lComparison != 0) return lComparison;
             return S.CompareTo(other.S);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static HLSA GetOverflow(in double h, in double l, in double s, ref Accumulator overflow)
+        {
+            HLSA value = default;
+            value.H = Math.Clamp(h, 0, 360);
+            value.L = Math.Clamp(l, 0, 1);
+            value.S = Math.Clamp(l, 0, 1);
+
+            overflow.K1 += h - value.H;
+            overflow.K2 += l - value.L;
+            overflow.K3 += s - value.S;
+
+            return value;
         }
     }
 }

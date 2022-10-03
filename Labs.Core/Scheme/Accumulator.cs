@@ -70,13 +70,13 @@
 
         public void Extract(in byte channels, ref Accumulator value)
         {
-            if ((channels & 1) == 1u)
+            if ((channels & 0x1) == 0x1)
                 value.K1 = K1;
-            if ((channels & 2) == 1u)
+            if ((channels & 0x2) == 0x1)
                 value.K2 = K2;
-            if ((channels & 4) == 1u)
+            if ((channels & 0x4) == 0x1)
                 value.K3 = K3;
-            if ((channels & 8) == 1u)
+            if ((channels & 0x8) == 0x1)
                 value.K4 = K4;
         }
 
