@@ -27,20 +27,11 @@ namespace Labs.Core.Filtering
                     int localId = x + y * Image.Width;
                     double K = Kernel[matrixY, matrixX];
 
-                    if (K >= 0)
-                    {
-                        sum = sum.Add(Image.Pixels[localId].Mul(K, ref overflow1), ref overflow1);
-                    }
-                    else
-                    {
-                        Accumulator o1 = default;
-                        sum = sum.Subtract(Image.Pixels[localId].Mul(Math.Abs(K), ref o1), ref overflow1);
-                        overflow1 = overflow1.Subtract(o1);
-                    }
+                    sum = sum.Add(Image.Pixels[localId].Mul(K * Sharpness, ref overflow1), ref overflow1);
                 }
             }
 
-            sum = sum.Mul(Sharpness).Correct(overflow1.Mul(Sharpness));
+            sum = sum.Correct(overflow1);
             sum = sum.Add(Image.Pixels[pixelId]);
             return sum;
         }
