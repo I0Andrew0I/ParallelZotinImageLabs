@@ -52,28 +52,21 @@ namespace Labs.Core.Filtering
             TPixel oldSum = default;
             TPixel newSum = default;
 
-            (int y1from, int y1to) = f.IterateY(from);
-            for (int y0 = y1from; y0 <= y1to; y0++)
-            {
-                int y = Math.Clamp(y0, 0, Image.Height - 1);
-
-                int matrixY = y0 + f.RH - f.Y;
-                int matrixX = from + f.RW - f.X;
-                int localId = Math.Clamp(from - 1, 0, Image.Width - 1) + y * Image.Width;
-
-                oldSum = oldSum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
-            }
-
             (int y2from, int y2to) = f.IterateY(to);
             for (int y0 = y2from; y0 <= y2to; y0++)
             {
                 int y = Math.Clamp(y0, 0, Image.Height - 1);
 
                 int matrixY = y0 + f.RH - f.Y;
-                int matrixX = to + f.RW - f.X;
-                int localId = to + y * Image.Width;
 
-                newSum = newSum.Add(Image.Pixels[localId].Mul(Kernel[matrixY, matrixX]));
+                int matrixX1 = from + f.RW - f.X;
+                int matrixX2 = to + f.RW - f.X;
+
+                int localId1 = Math.Clamp(from - 1, 0, Image.Width - 1) + y * Image.Width;
+                int localId2 = to + y * Image.Width;
+
+                oldSum = oldSum.Add(Image.Pixels[localId1].Mul(Kernel[matrixY, matrixX1]));
+                newSum = newSum.Add(Image.Pixels[localId2].Mul(Kernel[matrixY, matrixX2]));
             }
 
             if (oldSum.CompareTo(newSum) == 0)
