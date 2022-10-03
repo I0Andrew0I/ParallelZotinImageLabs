@@ -2,16 +2,17 @@
 
 namespace Labs.Core.Scheme
 {
-    public interface IColor<TPixel, TChannel> : IComparable<TPixel>
+    public interface IColor<TPixel, TChannel> : IComparable<TPixel> where TPixel : struct
     {
-        public TPixel Add(TPixel other);
-        public TPixel Add(TPixel other, out TPixel overflow);
-        public TPixel Subtract(TPixel other);
-        public TPixel Subtract(TPixel other, out TPixel overflow);
-        public TPixel Mul(double num);
-        public TPixel Div(double num);
-        public TPixel Correct(Accumulator overflow);
+        public TPixel Add(in TPixel other);
+        public TPixel Add(in TPixel other, ref Accumulator overflow);
+        public TPixel Subtract(in TPixel other);
+        public TPixel Subtract(in TPixel other, ref Accumulator overflow);
+        public TPixel Mul(in double num);
+        public TPixel Mul(in double num, ref Accumulator overflow);
+        public TPixel Div(in double num);
+        public TPixel Correct(in Accumulator overflow);
 
-        public void Extract(TChannel channels, ref TPixel value);
+        public void Extract(in TChannel channels, ref TPixel value);
     }
 }

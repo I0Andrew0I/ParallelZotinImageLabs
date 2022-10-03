@@ -40,7 +40,7 @@ namespace Labs.Core.Scheme
             this.V = V;
         }
 
-        public YUV Add(YUV other)
+        public YUV Add(in YUV other)
         {
             YUV value = this;
             value.Y += other.Y;
@@ -49,24 +49,25 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Add(YUV other, out YUV overflow)
+        public YUV Add(in YUV other, ref Accumulator overflow)
         {
             YUV value = this;
-            overflow = default;
 
             double y = value.Y + other.Y;
             double u = value.U + other.U;
             double v = value.V + other.V;
-            overflow.Y = Math.Clamp(y - 255, 0, 255);
-            overflow.U = UtilityExtensions.Overflow(u, -112, 112); //Math.Clamp(u - 225, -112, 112) + 225;
-            overflow.V = UtilityExtensions.Overflow(v, -157, 157);
+
             value.Y = Math.Clamp(y, 0, 255);
             value.U = Math.Clamp(u, -112, 112);
             value.V = Math.Clamp(v, -157, 157);
+
+            overflow.K1 += y - value.Y;
+            overflow.K2 += u - value.U;
+            overflow.K3 += v - value.V;
             return value;
         }
 
-        public YUV Subtract(YUV other)
+        public YUV Subtract(in YUV other)
         {
             YUV value = this;
             value.Y -= other.Y;
@@ -75,26 +76,26 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Subtract(YUV other, out YUV overflow)
+        public YUV Subtract(in YUV other, ref Accumulator overflow)
         {
             YUV value = this;
-            overflow = default;
 
             double y = value.Y - other.Y;
             double u = value.U - other.U;
             double v = value.V - other.V;
-            overflow.Y = y < 0 ? -y : 0;
-            overflow.U = UtilityExtensions.Overflow(u, -112, 112); //Math.Clamp(u - 225, -112, 112) + 225;
-            overflow.V = UtilityExtensions.Overflow(v, -157, 157);
-            // overflow.U = u < -112 ? -112 - u : u > 112 ? 112 + u : 0; // Math.Clamp(225 - u, -112, 112);
-            // overflow.V = v < -157 ? -157 - v : v > 157 ? 157 + v : 0; //Math.Clamp(315 - v - 315, -157, 157);
+
             value.Y = Math.Clamp(y, 0, 255);
             value.U = Math.Clamp(u, -112, 112);
             value.V = Math.Clamp(v, -157, 157);
+
+            overflow.K1 += y - value.Y;
+            overflow.K2 += u - value.U;
+            overflow.K3 += v - value.V;
+
             return value;
         }
 
-        public YUV Mul(double num)
+        public YUV Mul(in double num)
         {
             YUV value = this;
             value.Y *= num;
@@ -103,7 +104,26 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Div(double num)
+        public YUV Mul(in double num, ref Accumulator overflow)
+        {
+            YUV value = this;
+
+            double y = value.Y * num;
+            double u = value.U * num;
+            double v = value.V * num;
+
+            value.Y = Math.Clamp(y, 0, 255);
+            value.U = Math.Clamp(u, -112, 112);
+            value.V = Math.Clamp(v, -157, 157);
+
+            overflow.K1 += y - value.Y;
+            overflow.K2 += u - value.U;
+            overflow.K3 += v - value.V;
+
+            return value;
+        }
+
+        public YUV Div(in double num)
         {
             YUV value = this;
             value.Y /= num;
@@ -112,7 +132,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Correct(Accumulator overflow)
+        public YUV Correct(in Accumulator overflow)
         {
             YUV value = this;
             value.Y = Math.Clamp(value.Y + overflow.K1, 0, 255);
@@ -121,7 +141,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public void Extract(Channel channels, ref YUV value)
+        public void Extract(in Channel channels, ref YUV value)
         {
             if (channels.HasFlag(Channel.Y))
                 value.Y = Y;

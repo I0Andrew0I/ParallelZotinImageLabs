@@ -42,7 +42,7 @@ namespace Labs.Core.Scheme
             this.A = A;
         }
 
-        public ARGB Add(ARGB other)
+        public ARGB Add(in ARGB other)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R + other.R, 0, 255);
@@ -51,24 +51,24 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Add(ARGB other, out ARGB overflow)
+        public ARGB Add(in ARGB other, ref Accumulator overflow)
         {
             ARGB value = this;
-            overflow = default;
 
             int r = value.R + other.R;
             int g = value.G + other.G;
             int b = value.B + other.B;
-            overflow.R = (byte) Math.Clamp(r - 255, 0, 255);
-            overflow.G = (byte) Math.Clamp(g - 255, 0, 255);
-            overflow.B = (byte) Math.Clamp(b - 255, 0, 255);
             value.R = (byte) Math.Clamp(r, 0, 255);
             value.G = (byte) Math.Clamp(g, 0, 255);
             value.B = (byte) Math.Clamp(b, 0, 255);
+
+            overflow.K1 += r - value.R;
+            overflow.K2 += g - value.G;
+            overflow.K3 += b - value.B;
             return value;
         }
 
-        public ARGB Subtract(ARGB other)
+        public ARGB Subtract(in ARGB other)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R - other.R, 0, 255);
@@ -77,24 +77,26 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Subtract(ARGB other, out ARGB overflow)
+        public ARGB Subtract(in ARGB other, ref Accumulator overflow)
         {
             ARGB value = this;
-            overflow = default;
 
             int r = value.R - other.R;
             int g = value.G - other.G;
             int b = value.B - other.B;
-            overflow.R = (byte) (r < 0 ? -r : 0);
-            overflow.G = (byte) (g < 0 ? -g : 0);
-            overflow.B = (byte) (b < 0 ? -b : 0);
+
             value.R = (byte) Math.Clamp(r, 0, 255);
             value.G = (byte) Math.Clamp(g, 0, 255);
             value.B = (byte) Math.Clamp(b, 0, 255);
+
+            overflow.K1 += r - value.R;
+            overflow.K2 += g - value.G;
+            overflow.K3 += b - value.B;
+
             return value;
         }
 
-        public ARGB Mul(double num)
+        public ARGB Mul(in double num)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R * num, 0, 255);
@@ -103,7 +105,26 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Div(double num)
+        public ARGB Mul(in double num, ref Accumulator overflow)
+        {
+            ARGB value = this;
+
+            double r = value.R * num;
+            double g = value.G * num;
+            double b = value.B * num;
+
+            value.R = (byte) Math.Clamp(r, 0, 255);
+            value.G = (byte) Math.Clamp(g, 0, 255);
+            value.B = (byte) Math.Clamp(b, 0, 255);
+
+            overflow.K1 += r - value.R;
+            overflow.K2 += g - value.G;
+            overflow.K3 += b - value.B;
+
+            return value;
+        }
+
+        public ARGB Div(in double num)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R / num, 0, 255);
@@ -112,7 +133,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Correct(Accumulator overflow)
+        public ARGB Correct(in Accumulator overflow)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R + overflow.K1, 0, 255);
@@ -122,7 +143,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public void Extract(Channel channel, ref ARGB value)
+        public void Extract(in Channel channel, ref ARGB value)
         {
             if (channel.HasFlag(Channel.Red))
                 value.R = R;

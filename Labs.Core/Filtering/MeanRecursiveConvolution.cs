@@ -51,6 +51,8 @@ namespace Labs.Core.Filtering
             int to = Math.Clamp(f.X + f.RW, 0, Image.Width - 1);
             TPixel oldSum = default;
             TPixel newSum = default;
+            Accumulator overflow1 = default;
+            Accumulator overflow2 = default;
 
             (int y2from, int y2to) = f.IterateY(to);
             for (int y0 = y2from; y0 <= y2to; y0++)
@@ -65,16 +67,18 @@ namespace Labs.Core.Filtering
                 int localId1 = Math.Clamp(from - 1, 0, Image.Width - 1) + y * Image.Width;
                 int localId2 = to + y * Image.Width;
 
-                oldSum = oldSum.Add(Image.Pixels[localId1].Mul(Kernel[matrixY, matrixX1]));
-                newSum = newSum.Add(Image.Pixels[localId2].Mul(Kernel[matrixY, matrixX2]));
+                newSum = newSum.Add(Image.Pixels[localId2].Mul(Kernel[matrixY, matrixX2], ref overflow1), ref overflow1);
+                oldSum = oldSum.Add(Image.Pixels[localId1].Mul(Kernel[matrixY, matrixX1], ref overflow2), ref overflow2);
             }
 
             if (oldSum.CompareTo(newSum) == 0)
                 return rowSum;
 
-            rowSum = rowSum.Add(newSum, out var overflow);
-            oldSum = oldSum.Subtract(overflow, out overflow);
-            rowSum = rowSum.Add(overflow).Subtract(oldSum);
+            overflow1 = overflow1.Subtract(overflow2);
+
+            rowSum = rowSum.Add(newSum, ref overflow1);
+            rowSum = rowSum.Subtract(oldSum, ref overflow1);
+            rowSum = rowSum.Correct(overflow1);
             return rowSum;
         }
     }

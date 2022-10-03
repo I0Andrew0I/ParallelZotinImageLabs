@@ -12,6 +12,7 @@ namespace Labs.Core.Filtering
             TPixel sum = default;
             (int yfrom, int yto) = f.IterateY(f.X);
 
+            Accumulator overflow1 = default;
             for (int y0 = yfrom; y0 <= yto; y0++)
             {
                 (int xfrom, int xto) = f.IterateX(y0);
@@ -27,13 +28,19 @@ namespace Labs.Core.Filtering
                     double K = Kernel[matrixY, matrixX];
 
                     if (K >= 0)
-                        sum = sum.Add(Image.Pixels[localId].Mul(K));
+                    {
+                        sum = sum.Add(Image.Pixels[localId].Mul(K, ref overflow1), ref overflow1);
+                    }
                     else
-                        sum = sum.Subtract(Image.Pixels[localId].Mul(Math.Abs(K)));
+                    {
+                        Accumulator o1 = default;
+                        sum = sum.Subtract(Image.Pixels[localId].Mul(Math.Abs(K), ref o1), ref overflow1);
+                        overflow1 = overflow1.Subtract(o1);
+                    }
                 }
             }
 
-            sum = sum.Mul(Sharpness);
+            sum = sum.Mul(Sharpness).Correct(overflow1.Mul(Sharpness));
             sum = sum.Add(Image.Pixels[pixelId]);
             return sum;
         }

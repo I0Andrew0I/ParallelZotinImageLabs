@@ -7,7 +7,7 @@
         public double K3;
         public double K4;
 
-        public Accumulator Add(Accumulator other)
+        public Accumulator Add(in Accumulator other)
         {
             var value = this;
             value.K1 += other.K1;
@@ -17,13 +17,13 @@
             return value;
         }
 
-        public Accumulator Add(Accumulator other, out Accumulator acc)
+        public Accumulator Add(in Accumulator other, ref Accumulator acc)
         {
             acc = default;
             return Add(other);
         }
 
-        public Accumulator Subtract(Accumulator other)
+        public Accumulator Subtract(in Accumulator other)
         {
             var value = this;
             value.K1 -= other.K1;
@@ -33,13 +33,13 @@
             return value;
         }
 
-        public Accumulator Subtract(Accumulator other, out Accumulator acc)
+        public Accumulator Subtract(in Accumulator other, ref Accumulator acc)
         {
             acc = default;
             return Subtract(other);
         }
 
-        public Accumulator Mul(double num)
+        public Accumulator Mul(in double num)
         {
             var value = this;
             value.K1 *= num;
@@ -49,7 +49,13 @@
             return value;
         }
 
-        public Accumulator Div(double num)
+        public Accumulator Mul(in double num, ref Accumulator overflow)
+        {
+            overflow = default;
+            return Mul(num);
+        }
+
+        public Accumulator Div(in double num)
         {
             var value = this;
             value.K1 *= num;
@@ -59,10 +65,10 @@
             return value;
         }
 
-        public Accumulator Correct(Accumulator overflow) =>
+        public Accumulator Correct(in Accumulator overflow) =>
             Add(overflow);
 
-        public void Extract(byte channels, ref Accumulator value)
+        public void Extract(in byte channels, ref Accumulator value)
         {
             if ((channels & 1) == 1u)
                 value.K1 = K1;
