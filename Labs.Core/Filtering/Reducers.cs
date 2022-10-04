@@ -14,9 +14,9 @@ namespace Labs.Core.Filtering
             ARGB min = pixel;
             ARGB max = pixel;
 
-            bool RED = channel.HasFlag(ARGB.Channel.Red);
-            bool GREEN = channel.HasFlag(ARGB.Channel.Green);
-            bool BLUE = channel.HasFlag(ARGB.Channel.Blue);
+            bool RED = (channel & ARGB.Channel.Red) != 0;
+            bool BLUE = (channel & ARGB.Channel.Blue) != 0;
+            bool GREEN = (channel & ARGB.Channel.Green) != 0;
 
             for (var i = 0; i < pixels.Length; i++)
             {
@@ -51,9 +51,9 @@ namespace Labs.Core.Filtering
             HLSA pixel = pixels[pixels.Length / 2];
             HLSA min = pixel;
             HLSA max = pixel;
-            bool H = channel.HasFlag(HLSA.Channel.Hue);
-            bool L = channel.HasFlag(HLSA.Channel.Lightness);
-            bool S = channel.HasFlag(HLSA.Channel.Saturation);
+            bool H = (channel & HLSA.Channel.Hue) != 0;
+            bool L = (channel & HLSA.Channel.Lightness) != 0;
+            bool S = (channel & HLSA.Channel.Saturation) != 0;
 
             for (var i = 0; i < pixels.Length; i++)
             {
@@ -89,9 +89,9 @@ namespace Labs.Core.Filtering
             YUV pixel = pixels[pixels.Length / 2];
             YUV min = pixel;
             YUV max = pixel;
-            bool Y = channel.HasFlag(YUV.Channel.Y);
-            bool U = channel.HasFlag(YUV.Channel.U);
-            bool V = channel.HasFlag(YUV.Channel.V);
+            bool Y = (channel & YUV.Channel.Y) != 0;
+            bool U = (channel & YUV.Channel.U) != 0;
+            bool V = (channel & YUV.Channel.V) != 0;
 
             foreach (YUV p in pixels)
             {
@@ -125,9 +125,9 @@ namespace Labs.Core.Filtering
         {
             ARGB pixel = pixels[pixels.Length / 2];
 
-            bool RED = channel.HasFlag(ARGB.Channel.Red);
-            bool BLUE = channel.HasFlag(ARGB.Channel.Blue);
-            bool GREEN = channel.HasFlag(ARGB.Channel.Green);
+            bool RED = (channel & ARGB.Channel.Red) != 0;
+            bool BLUE = (channel & ARGB.Channel.Blue) != 0;
+            bool GREEN = (channel & ARGB.Channel.Green) != 0;
 
             byte[] red = RED ? new byte[pixels.Length] : Array.Empty<byte>();
             byte[] blue = BLUE ? new byte[pixels.Length] : Array.Empty<byte>();
@@ -161,9 +161,9 @@ namespace Labs.Core.Filtering
         {
             HLSA pixel = pixels[pixels.Length / 2];
 
-            bool HUE = channel.HasFlag(HLSA.Channel.Hue);
-            bool LIG = channel.HasFlag(HLSA.Channel.Lightness);
-            bool SAT = channel.HasFlag(HLSA.Channel.Saturation);
+            bool HUE = (channel & HLSA.Channel.Hue) != 0;
+            bool LIG = (channel & HLSA.Channel.Lightness) != 0;
+            bool SAT = (channel & HLSA.Channel.Saturation) != 0;
 
             double[] hue = HUE ? new double[pixels.Length] : Array.Empty<double>();
             double[] lightness = LIG ? new double[pixels.Length] : Array.Empty<double>();
@@ -197,9 +197,9 @@ namespace Labs.Core.Filtering
         {
             YUV pixel = pixels[pixels.Length / 2];
 
-            bool Y = channel.HasFlag(YUV.Channel.Y);
-            bool U = channel.HasFlag(YUV.Channel.U);
-            bool V = channel.HasFlag(YUV.Channel.V);
+            bool Y = (channel & YUV.Channel.Y) != 0;
+            bool U = (channel & YUV.Channel.U) != 0;
+            bool V = (channel & YUV.Channel.V) != 0;
 
             double[] ys = Y ? new double[pixels.Length] : Array.Empty<double>();
             double[] us = U ? new double[pixels.Length] : Array.Empty<double>();

@@ -114,13 +114,13 @@ namespace Labs.Core.Scheme
 
         public void Extract(in Channel channels, ref YUV value)
         {
-            if (channels.HasFlag(Channel.Y))
+            if ((channels & Channel.Y) != 0)
                 value.Y = Y;
 
-            if (channels.HasFlag(Channel.U))
+            if ((channels & Channel.U) != 0)
                 value.U = U;
 
-            if (channels.HasFlag(Channel.V))
+            if ((channels & Channel.V) != 0)
                 value.V = V;
         }
 

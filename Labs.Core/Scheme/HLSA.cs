@@ -5,6 +5,7 @@ namespace Labs.Core.Scheme
 {
     public record struct HLSA : IColor<HLSA, HLSA.Channel>
     {
+        [Flags]
         public enum Channel : byte
         {
             Undefined = 0,
@@ -170,16 +171,16 @@ namespace Labs.Core.Scheme
 
         public void Extract(in Channel channels, ref HLSA value)
         {
-            if (channels.HasFlag(Channel.Hue))
+            if ((channels & Channel.Hue) != 0)
                 value.H = H;
 
-            if (channels.HasFlag(Channel.Lightness))
+            if ((channels & Channel.Lightness) != 0)
                 value.L = L;
 
-            if (channels.HasFlag(Channel.Saturation))
+            if ((channels & Channel.Saturation) != 0)
                 value.S = S;
 
-            if (channels.HasFlag(Channel.Alpha))
+            if ((channels & Channel.Alpha) != 0)
                 value.A = A;
         }
 

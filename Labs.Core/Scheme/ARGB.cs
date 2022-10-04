@@ -118,16 +118,16 @@ namespace Labs.Core.Scheme
 
         public void Extract(in Channel channel, ref ARGB value)
         {
-            if (channel.HasFlag(Channel.Red))
+            if ((channel & Channel.Red) != 0)
                 value.R = R;
 
-            if (channel.HasFlag(Channel.Green))
+            if ((channel & Channel.Green) != 0)
                 value.G = G;
 
-            if (channel.HasFlag(Channel.Blue))
+            if ((channel & Channel.Blue) != 0)
                 value.B = B;
 
-            if (channel.HasFlag(Channel.Alpha))
+            if ((channel & Channel.Alpha) != 0)
                 value.A = A;
         }
 
