@@ -7,7 +7,7 @@
         public double K3;
         public double K4;
 
-        public Accumulator Add(in Accumulator other)
+        public Accumulator Add(ref Accumulator other)
         {
             var value = this;
             value.K1 += other.K1;
@@ -17,13 +17,13 @@
             return value;
         }
 
-        public Accumulator Add(in Accumulator other, ref Accumulator acc)
+        public Accumulator Add(ref Accumulator other, ref Accumulator acc)
         {
             acc = default;
-            return Add(other);
+            return Add(ref other);
         }
 
-        public Accumulator Subtract(in Accumulator other)
+        public Accumulator Subtract(ref Accumulator other)
         {
             var value = this;
             value.K1 -= other.K1;
@@ -33,13 +33,13 @@
             return value;
         }
 
-        public Accumulator Subtract(in Accumulator other, ref Accumulator acc)
+        public Accumulator Subtract(ref Accumulator other, ref Accumulator acc)
         {
             acc = default;
-            return Subtract(other);
+            return Subtract(ref other);
         }
 
-        public Accumulator Mul(in double num)
+        public Accumulator Mul(double num)
         {
             var value = this;
             value.K1 *= num;
@@ -49,13 +49,13 @@
             return value;
         }
 
-        public Accumulator Mul(in double num, ref Accumulator overflow)
+        public Accumulator Mul(double num, ref Accumulator overflow)
         {
             overflow = default;
             return Mul(num);
         }
 
-        public Accumulator Div(in double num)
+        public Accumulator Div(double num)
         {
             var value = this;
             value.K1 *= num;
@@ -65,10 +65,10 @@
             return value;
         }
 
-        public Accumulator Correct(in Accumulator overflow) =>
-            Add(overflow);
+        public Accumulator Correct(ref Accumulator overflow) =>
+            Add(ref overflow);
 
-        public void Extract(in byte channels, ref Accumulator value)
+        public void Extract(byte channels, ref Accumulator value)
         {
             if ((channels & 0x1) == 0x1)
                 value.K1 = K1;

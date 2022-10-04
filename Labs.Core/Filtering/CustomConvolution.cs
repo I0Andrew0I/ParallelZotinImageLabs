@@ -3,7 +3,7 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public record CustomConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, FrameReducer<TPixel, TChannel> Reducer)
+    public record CustomConvolution<TPixel, TChannel>(ImageBuffer<TPixel> Image, TChannel Channels, FrameReducer<TPixel, TChannel> Reducer)
         : ConvolutionMethod<TPixel, TChannel>(Image, Channels)
         where TPixel : struct, IColor<TPixel, TChannel>
     {

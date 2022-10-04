@@ -3,13 +3,14 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public sealed record LaplacianConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel, double Sharpness)
+    public sealed record LaplacianConvolution<TPixel, TChannel>(ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel, double Sharpness)
         : ConvolutionMethod<TPixel, TChannel>(Image, Channels)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
         protected override TPixel SlideFrame(in Frame f, ref Span<TPixel> _, int pixelId)
         {
             TPixel sum = default;
+            TPixel source = Pixels[pixelId];
             (int yfrom, int yto) = f.IterateY(f.X);
 
             Accumulator overflow1 = default;
@@ -27,12 +28,13 @@ namespace Labs.Core.Filtering
                     int localId = x + y * Image.Width;
                     double K = Kernel[matrixY, matrixX];
 
-                    sum = sum.Add(Image.Pixels[localId].Mul(K * Sharpness, ref overflow1), ref overflow1);
+                    TPixel mul = Pixels[localId].Mul(K * Sharpness, ref overflow1);
+                    sum = sum.Add(ref mul, ref overflow1);
                 }
             }
 
-            sum = sum.Correct(overflow1);
-            sum = sum.Add(Image.Pixels[pixelId]);
+            sum = sum.Correct(ref overflow1);
+            sum = sum.Add(ref source);
             return sum;
         }
     }

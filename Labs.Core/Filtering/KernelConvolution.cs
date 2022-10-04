@@ -3,7 +3,7 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public record KernelConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel)
+    public record KernelConvolution<TPixel, TChannel>(ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel)
         : ConvolutionMethod<TPixel, TChannel>(Image, Channels)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
@@ -26,7 +26,8 @@ namespace Labs.Core.Filtering
                     int localId = x + y * Image.Width;
 
                     TPixel pixel = Image.Pixels[localId];
-                    result = result.Add(pixel.Mul(Kernel[matrixY, matrixX]));
+                    TPixel mul = pixel.Mul(Kernel[matrixY, matrixX]);
+                    result = result.Add(ref mul);
                 }
             }
 

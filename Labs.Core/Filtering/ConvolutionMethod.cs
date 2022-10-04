@@ -5,7 +5,7 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public abstract record ConvolutionMethod<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels)
+    public abstract record ConvolutionMethod<TPixel, TChannel>(ImageBuffer<TPixel> Image, TChannel Channels)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
         protected ArraySegment<TPixel> Pixels = Image.Pixels;
@@ -35,7 +35,6 @@ namespace Labs.Core.Filtering
                         int pixelId = x + y * imageWidth;
                         frame.X = x;
                         frame.Y = y;
-
                         TPixel pixel = SlideFrame(frame, ref output, pixelId);
                         pixel.Extract(Channels, ref output[pixelId]);
                     }

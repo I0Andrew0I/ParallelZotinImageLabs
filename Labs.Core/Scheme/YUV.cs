@@ -40,7 +40,7 @@ namespace Labs.Core.Scheme
             this.V = V;
         }
 
-        public YUV Add(in YUV other)
+        public YUV Add(ref YUV other)
         {
             YUV value = this;
             value.Y += other.Y;
@@ -49,7 +49,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Add(in YUV other, ref Accumulator overflow)
+        public YUV Add(ref YUV other, ref Accumulator overflow)
         {
             double y = Y + other.Y;
             double u = U + other.U;
@@ -58,7 +58,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(y, u, v, ref overflow);
         }
 
-        public YUV Subtract(in YUV other)
+        public YUV Subtract(ref YUV other)
         {
             YUV value = this;
             value.Y -= other.Y;
@@ -67,7 +67,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Subtract(in YUV other, ref Accumulator overflow)
+        public YUV Subtract(ref YUV other, ref Accumulator overflow)
         {
             double y = Y - other.Y;
             double u = U - other.U;
@@ -76,7 +76,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(y, u, v, ref overflow);
         }
 
-        public YUV Mul(in double num)
+        public YUV Mul(double num)
         {
             YUV value = this;
             value.Y *= num;
@@ -85,7 +85,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Mul(in double num, ref Accumulator overflow)
+        public YUV Mul(double num, ref Accumulator overflow)
         {
             double y = Y * num;
             double u = U * num;
@@ -94,7 +94,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(y, u, v, ref overflow);
         }
 
-        public YUV Div(in double num)
+        public YUV Div(double num)
         {
             YUV value = this;
             value.Y /= num;
@@ -103,7 +103,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public YUV Correct(in Accumulator overflow)
+        public YUV Correct(ref Accumulator overflow)
         {
             YUV value = this;
             value.Y = Math.Clamp(value.Y + overflow.K1, 0, 255);
@@ -112,7 +112,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public void Extract(in Channel channels, ref YUV value)
+        public void Extract(Channel channels, ref YUV value)
         {
             if ((channels & Channel.Y) != 0)
                 value.Y = Y;
@@ -150,7 +150,7 @@ namespace Labs.Core.Scheme
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static YUV GetOverflow(in double y, in double u, in double v, ref Accumulator overflow)
+        private static YUV GetOverflow(double y, double u, double v, ref Accumulator overflow)
         {
             YUV value = default;
             value.Y = Math.Clamp(y, 0, 255);

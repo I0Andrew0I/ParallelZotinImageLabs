@@ -4,7 +4,7 @@ using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
-    public sealed record MeanRecursiveConvolution<TPixel, TChannel>(in ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel)
+    public sealed record MeanRecursiveConvolution<TPixel, TChannel>(ImageBuffer<TPixel> Image, TChannel Channels, double[,] Kernel)
         : KernelConvolution<TPixel, TChannel>(Image, Channels, Kernel)
         where TPixel : struct, IColor<TPixel, TChannel>
     {
@@ -67,18 +67,21 @@ namespace Labs.Core.Filtering
                 int localId1 = Math.Clamp(from - 1, 0, Image.Width - 1) + y * Image.Width;
                 int localId2 = to + y * Image.Width;
 
-                newSum = newSum.Add(Image.Pixels[localId2].Mul(Kernel[matrixY, matrixX2], ref overflow1), ref overflow1);
-                oldSum = oldSum.Add(Image.Pixels[localId1].Mul(Kernel[matrixY, matrixX1], ref overflow2), ref overflow2);
+                TPixel mul1 = Pixels[localId2].Mul(Kernel[matrixY, matrixX2], ref overflow1);
+                TPixel mul2 = Pixels[localId1].Mul(Kernel[matrixY, matrixX1], ref overflow2);
+                
+                newSum = newSum.Add(ref mul1, ref overflow1);
+                oldSum = oldSum.Add(ref mul2, ref overflow2);
             }
 
             if (oldSum.CompareTo(newSum) == 0)
                 return rowSum;
 
-            overflow1 = overflow1.Subtract(overflow2);
+            overflow1 = overflow1.Subtract(ref overflow2);
 
-            rowSum = rowSum.Add(newSum, ref overflow1);
-            rowSum = rowSum.Subtract(oldSum, ref overflow1);
-            rowSum = rowSum.Correct(overflow1);
+            rowSum = rowSum.Add(ref newSum, ref overflow1);
+            rowSum = rowSum.Subtract(ref oldSum, ref overflow1);
+            rowSum = rowSum.Correct(ref overflow1);
             return rowSum;
         }
     }

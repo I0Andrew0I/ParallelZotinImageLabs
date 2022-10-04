@@ -43,7 +43,7 @@ namespace Labs.Core.Scheme
             this.A = A;
         }
 
-        public ARGB Add(in ARGB other)
+        public ARGB Add(ref ARGB other)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R + other.R, 0, 255);
@@ -52,7 +52,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Add(in ARGB other, ref Accumulator overflow)
+        public ARGB Add(ref ARGB other, ref Accumulator overflow)
         {
             int r = R + other.R;
             int g = G + other.G;
@@ -61,7 +61,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(r, g, b, ref overflow);
         }
 
-        public ARGB Subtract(in ARGB other)
+        public ARGB Subtract(ref ARGB other)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R - other.R, 0, 255);
@@ -70,7 +70,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Subtract(in ARGB other, ref Accumulator overflow)
+        public ARGB Subtract(ref ARGB other, ref Accumulator overflow)
         {
             int r = R - other.R;
             int g = G - other.G;
@@ -79,7 +79,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(r, g, b, ref overflow);
         }
 
-        public ARGB Mul(in double num)
+        public ARGB Mul(double num)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R * num, 0, 255);
@@ -88,7 +88,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Mul(in double num, ref Accumulator overflow)
+        public ARGB Mul(double num, ref Accumulator overflow)
         {
             double r = R * num;
             double g = G * num;
@@ -97,7 +97,7 @@ namespace Labs.Core.Scheme
             return GetOverflow(r, g, b, ref overflow);
         }
 
-        public ARGB Div(in double num)
+        public ARGB Div(double num)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R / num, 0, 255);
@@ -106,7 +106,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public ARGB Correct(in Accumulator overflow)
+        public ARGB Correct(ref Accumulator overflow)
         {
             ARGB value = this;
             value.R = (byte) Math.Clamp(value.R + overflow.K1, 0, 255);
@@ -116,7 +116,7 @@ namespace Labs.Core.Scheme
             return value;
         }
 
-        public void Extract(in Channel channel, ref ARGB value)
+        public void Extract(Channel channel, ref ARGB value)
         {
             if ((channel & Channel.Red) != 0)
                 value.R = R;
@@ -187,7 +187,7 @@ namespace Labs.Core.Scheme
             else if (0 < l && l <= 0.5)
                 s = (max - min) / (max + min);
             else if (l > 0.5)
-                s = (max - min) / (2 - (max + min)); //(max-min > 0)?
+                s = (max - min) / (2 - (max + min)); //(max-mref > 0)?
 
             value.H = h;
             value.L = l;
@@ -203,7 +203,7 @@ namespace Labs.Core.Scheme
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ARGB GetOverflow(in double r, in double g, in double b, ref Accumulator overflow)
+        private static ARGB GetOverflow(double r, double g, double b, ref Accumulator overflow)
         {
             ARGB value = default;
             value.R = (byte) Math.Clamp(r, 0, 255);
