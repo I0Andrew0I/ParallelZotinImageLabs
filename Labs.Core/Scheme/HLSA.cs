@@ -57,8 +57,8 @@ namespace Labs.Core.Scheme
             if (S == 0)
             {
                 // ахроматический цвет (шкала серого)
-                var v = (byte) Math.Round(L * 255.0);
-                value = new ARGB(v, v, v, (byte) (A * 255));
+                var v = (byte)Math.Round(L * 255.0);
+                value = new ARGB(v, v, v, (byte)(A * 255));
             }
 
             double q = (L < 0.5) ? (L * (1.0 + S)) : (L + S - (L * S));
@@ -90,10 +90,10 @@ namespace Labs.Core.Scheme
                 else T[a] = p;
             }
 
-            value.R = (byte) Math.Round(T[0] * 255.0);
-            value.G = (byte) Math.Round(T[1] * 255.0);
-            value.B = (byte) Math.Round(T[2] * 255.0);
-            value.A = (byte) Math.Round(A * 255);
+            value.R = (byte)Math.Round(T[0] * 255.0);
+            value.G = (byte)Math.Round(T[1] * 255.0);
+            value.B = (byte)Math.Round(T[2] * 255.0);
+            value.A = (byte)Math.Round(A * 255);
         }
 
         public HLSA Add(ref HLSA other)
@@ -166,6 +166,15 @@ namespace Labs.Core.Scheme
             value.L = Math.Clamp(value.L + overflow.K2, 0, 1);
             value.S = Math.Clamp(value.S + overflow.K3, 0, 1);
             value.A = Math.Clamp(value.A + overflow.K4, 0, 1);
+            return value;
+        }
+
+        public Accumulator Convert()
+        {
+            Accumulator value = default;
+            value.K1 = H;
+            value.K2 = L;
+            value.K3 = S;
             return value;
         }
 

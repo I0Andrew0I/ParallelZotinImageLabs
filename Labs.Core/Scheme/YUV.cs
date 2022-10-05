@@ -112,6 +112,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public Accumulator Convert()
+        {
+            Accumulator value = default;
+            value.K1 = Y;
+            value.K2 = U;
+            value.K3 = V;
+            return value;
+        }
+
         public void Extract(Channel channels, ref YUV value)
         {
             if ((channels & Channel.Y) != 0)
@@ -127,9 +136,9 @@ namespace Labs.Core.Scheme
 
         public void ToARGB(ref ARGB value)
         {
-            value.R = (byte) Math.Clamp((int) Math.Round(Y + 1.14 * V), 0, 255);
-            value.G = (byte) Math.Clamp((int) Math.Round(Y - 0.395 * U - 0.581 * V), 0, 255);
-            value.B = (byte) Math.Clamp((int) Math.Round(Y + 2.032 * U), 0, 255);
+            value.R = (byte)Math.Clamp((int)Math.Round(Y + 1.14 * V), 0, 255);
+            value.G = (byte)Math.Clamp((int)Math.Round(Y - 0.395 * U - 0.581 * V), 0, 255);
+            value.B = (byte)Math.Clamp((int)Math.Round(Y + 2.032 * U), 0, 255);
             value.A = 255;
         }
 

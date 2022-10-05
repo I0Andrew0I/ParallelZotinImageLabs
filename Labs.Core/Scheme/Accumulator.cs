@@ -65,8 +65,18 @@
             return value;
         }
 
+
+        public void Convert<TPixel, TChannel>(out TPixel pixel) where TPixel : struct, IColor<TPixel, TChannel>
+        {
+            pixel = default;
+            pixel = pixel.Correct(ref this);
+        }
+
         public Accumulator Correct(ref Accumulator overflow) =>
             Add(ref overflow);
+
+        public Accumulator Convert() =>
+            this;
 
         public void Extract(byte channels, ref Accumulator value)
         {
