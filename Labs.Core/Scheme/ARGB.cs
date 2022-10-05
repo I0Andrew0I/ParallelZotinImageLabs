@@ -112,7 +112,16 @@ namespace Labs.Core.Scheme
             value.R = (byte) Math.Clamp(value.R + overflow.K1, 0, 255);
             value.G = (byte) Math.Clamp(value.G + overflow.K2, 0, 255);
             value.B = (byte) Math.Clamp(value.B + overflow.K3, 0, 255);
-            value.A = (byte) Math.Clamp(value.A + overflow.K4, 0, 255);
+            value.A = 255;
+            return value;
+        }
+
+        public Accumulator Convert()
+        {
+            Accumulator value = default;
+            value.K1 = R;
+            value.K2 = G;
+            value.K3 = B;
             return value;
         }
 

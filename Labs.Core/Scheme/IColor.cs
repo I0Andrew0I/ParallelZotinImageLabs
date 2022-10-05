@@ -12,6 +12,7 @@ namespace Labs.Core.Scheme
         public TPixel Mul(in double num, ref Accumulator overflow);
         public TPixel Div(in double num);
         public TPixel Correct(in Accumulator overflow);
+        public Accumulator Convert();
 
         public void Extract(in TChannel channels, ref TPixel value);
     }
