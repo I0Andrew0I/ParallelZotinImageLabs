@@ -112,6 +112,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public Accumulator Convert()
+        {
+            Accumulator value = default;
+            value.K1 = Y;
+            value.K2 = U;
+            value.K3 = V;
+            return value;
+        }
+
         public void Extract(in Channel channels, ref YUV value)
         {
             if ((channels & Channel.Y) != 0)
