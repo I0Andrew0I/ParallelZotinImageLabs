@@ -45,10 +45,10 @@ namespace Labs.Core.Scheme
 
         public ARGB Add(ref ARGB other)
         {
-            ARGB value = this;
-            value.R = (byte) Math.Clamp(value.R + other.R, 0, 255);
-            value.G = (byte) Math.Clamp(value.G + other.G, 0, 255);
-            value.B = (byte) Math.Clamp(value.B + other.B, 0, 255);
+            ARGB value = default;
+            value.R = (byte) Math.Clamp(R + other.R, 0, 255);
+            value.G = (byte) Math.Clamp(G + other.G, 0, 255);
+            value.B = (byte) Math.Clamp(B + other.B, 0, 255);
             return value;
         }
 
@@ -63,10 +63,10 @@ namespace Labs.Core.Scheme
 
         public ARGB Subtract(ref ARGB other)
         {
-            ARGB value = this;
-            value.R = (byte) Math.Clamp(value.R - other.R, 0, 255);
-            value.G = (byte) Math.Clamp(value.G - other.G, 0, 255);
-            value.B = (byte) Math.Clamp(value.B - other.B, 0, 255);
+            ARGB value = default;
+            value.R = (byte) Math.Clamp(R - other.R, 0, 255);
+            value.G = (byte) Math.Clamp(G - other.G, 0, 255);
+            value.B = (byte) Math.Clamp(B - other.B, 0, 255);
             return value;
         }
 

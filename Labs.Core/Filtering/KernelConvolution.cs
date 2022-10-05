@@ -12,6 +12,7 @@ namespace Labs.Core.Filtering
             TPixel result = default;
             (int yfrom, int yto) = f.IterateY(f.X);
 
+            Accumulator overflow = default;
             for (int y0 = yfrom; y0 <= yto; y0++)
             {
                 (int xfrom, int xto) = f.IterateX(y0);
@@ -25,11 +26,14 @@ namespace Labs.Core.Filtering
                     int matrixX = x0 + f.RW - f.X;
                     int localId = x + y * Image.Width;
 
-                    TPixel pixel = Image.Pixels[localId];
-                    TPixel mul = pixel.Mul(Kernel[matrixY, matrixX]);
+                    TPixel pixel = Pixels[localId];
+                    double K = Kernel[matrixY, matrixX];
+                    TPixel mul = pixel.Mul(K, ref overflow);
                     result = result.Add(ref mul);
                 }
             }
+
+            result.Correct(ref overflow);
 
             return result;
         }
