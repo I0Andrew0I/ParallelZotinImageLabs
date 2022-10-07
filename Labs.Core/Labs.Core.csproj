@@ -17,4 +17,8 @@
       <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Segmentation" />
+    </ItemGroup>
+
 </Project>
