@@ -342,7 +342,7 @@ namespace Lab2
         {
             (int numTests, int numThreads) = test;
 
-            ImageBuffer<TPixel> result;
+            ImageBuffer<TPixel> result = new ImageBuffer<TPixel>(ArraySegment<TPixel>.Empty, source.Width, source.Height);
             ArraySegment<TPixel> targetBuffer = ArraySegment<TPixel>.Empty;
             List<TimeSpan> tests = new();
 
@@ -367,7 +367,7 @@ namespace Lab2
             for (int count = 0; count < numTests; count++)
             {
                 targetBuffer = UtilityExtensions.PoolCopy(source.Pixels, targetBuffer);
-                result = new(targetBuffer, source.Width, source.Height);
+                result = result with {Pixels = targetBuffer};
 
                 var watch = Stopwatch.StartNew();
                 testFunction.Apply(frame, result, numThreads);
@@ -381,7 +381,7 @@ namespace Lab2
             Trace.WriteLine("Calculating time...");
 
             TimeSpan time = UtilityExtensions.CalculateTime(tests);
-            return (time, result!);
+            return (time, result);
         }
 
 
