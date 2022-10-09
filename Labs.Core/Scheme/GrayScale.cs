@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Labs.Core.Scheme
 {
-    public record struct GrayScale : IColor<GrayScale, byte>
+    [StructLayout(LayoutKind.Sequential)]
+    public readonly record struct GrayScale : IColor<GrayScale, byte>
     {
         /// <summary>
         /// (0, 255)
         /// </summary>
-        public double Value;
+        public readonly double Value { get; init; }
+
+        public GrayScale(double value) =>
+            Value = value;
 
         public GrayScale Add(in GrayScale other) =>
             ClampColor(Value + other.Value);
@@ -31,36 +36,29 @@ namespace Labs.Core.Scheme
         public GrayScale Div(in double num) =>
             ClampColor(Value / num);
 
-        public GrayScale Correct(in Accumulator overflow)
-        {
-            GrayScale temp = this;
-            temp.Value += overflow.K1;
-            return temp;
-        }
+        public GrayScale Correct(in Accumulator overflow) =>
+            new GrayScale(Value + overflow.K1);
 
         public void Extract(in byte channels, ref GrayScale other) =>
-            other.Value = Value;
+            other = this;
 
         public int CompareTo(GrayScale other) =>
             Value.CompareTo(other.Value);
 
+        public static explicit operator GrayScale(double value) =>
+            ClampColor(value);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static GrayScale GetOverflow(double value, ref Accumulator overflow)
         {
-            GrayScale result = default;
-            result.Value = ClampValue(value);
-
+            GrayScale result = ClampColor(value);
             overflow.K1 += result.Value - value;
             return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static GrayScale ClampColor(double value)
-        {
-            GrayScale result = default;
-            result.Value = ClampValue(value);
-            return result;
-        }
+        private static GrayScale ClampColor(double value) =>
+            new(ClampValue(value));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static double ClampValue(double value) =>

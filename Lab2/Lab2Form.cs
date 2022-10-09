@@ -342,7 +342,7 @@ namespace Lab2
         {
             (int numTests, int numThreads) = test;
 
-            ImageBuffer<TPixel> result = null;
+            ImageBuffer<TPixel> result;
             ArraySegment<TPixel> targetBuffer = ArraySegment<TPixel>.Empty;
             List<TimeSpan> tests = new();
 

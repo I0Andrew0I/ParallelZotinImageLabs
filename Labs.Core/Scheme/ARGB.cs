@@ -145,6 +145,9 @@ namespace Labs.Core.Scheme
             value.V = 0.615 * R - 0.51499 * G - 0.10001 * B;
         }
 
+        public GrayScale ToGray() =>
+            new GrayScale(B * 0.3 + G * 0.59 + R * 0.11);
+
         public HLSA ToHLSA()
         {
             var value = default(HLSA);
