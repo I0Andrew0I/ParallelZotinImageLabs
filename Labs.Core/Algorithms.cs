@@ -9,6 +9,17 @@ namespace Labs.Core
 {
     public class Algorithms
     {
+        public static void RGBToGrayscale(Span<ARGB> argb, ref ArraySegment<GrayScale> result)
+        {
+            if (result.Count != argb.Length)
+                result = UtilityExtensions.Pool(argb.Length, result);
+
+            var gray = result.AsSpan();
+
+            for (int i = 0; i < argb.Length; i++)
+                gray[i] = argb[i].ToGray();
+        }
+
         public static void RGBToHLS(in Span<ARGB> argb, ref ArraySegment<HLSA> result)
         {
             if (result.Count != argb.Length)

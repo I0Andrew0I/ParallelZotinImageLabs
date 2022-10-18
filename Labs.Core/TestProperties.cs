@@ -1,4 +1,4 @@
-﻿namespace Lab2
+﻿namespace Labs.Core
 {
     public class TestProperties
     {
