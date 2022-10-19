@@ -42,6 +42,7 @@ namespace Lab3
             negativeRadio.CheckedChanged += OnKernelSignChanged;
             inputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             outputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            contourBox.DataSource = Enum.GetValues(typeof(ContourMethod));
         }
 
         private void buttonSearch_Click(object sender, EventArgs e)
@@ -142,7 +143,8 @@ namespace Lab3
                 case ContourMethod.Laplace:
                 {
                     Stopwatch stopWatch = Stopwatch.StartNew();
-                    ContourMethods.Laplacian(source, tempResult, f, _threshold, _multiplier, ContourMethods.GetLaplacian(_positiveConv), threads: 1);
+                    ContourMethods.Laplacian(source, tempResult, new Frame(0, 0, 3, 3),
+                        _threshold, _multiplier, ContourMethods.GetLaplacian(_positiveConv), threads: 1);
                     stopWatch.Stop();
                     time = stopWatch.Elapsed;
                     break;
@@ -648,5 +650,8 @@ namespace Lab3
             Bitmap resultBmp = ShowResult(imageBuffer);
             resultBmp.Save(_imageFile.DirectoryName + "/" + fileName + ".png", ImageFormat.Png);
         }
+
+        private void contourBox_SelectedIndexChanged(object sender, EventArgs e) =>
+            _methodContur = (ContourMethod) contourBox.SelectedItem;
     }
 }

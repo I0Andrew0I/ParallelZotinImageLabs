@@ -338,7 +338,6 @@ namespace Lab3
 			this.label6.Size = new System.Drawing.Size(40, 15);
 			this.label6.TabIndex = 6;
 			this.label6.Text = "Kernel";
-			this.label6.Visible = false;
 			// 
 			// positiveRadio
 			// 
@@ -351,7 +350,6 @@ namespace Lab3
 			this.positiveRadio.TabStop = true;
 			this.positiveRadio.Text = "positive";
 			this.positiveRadio.UseVisualStyleBackColor = true;
-			this.positiveRadio.Visible = false;
 			// 
 			// negativeRadio
 			// 
@@ -364,7 +362,6 @@ namespace Lab3
 			this.negativeRadio.TabStop = true;
 			this.negativeRadio.Text = "negative";
 			this.negativeRadio.UseVisualStyleBackColor = true;
-			this.negativeRadio.Visible = false;
 			// 
 			// groupBox2
 			// 
@@ -644,6 +641,7 @@ namespace Lab3
 			this.contourBox.Name = "contourBox";
 			this.contourBox.Size = new System.Drawing.Size(121, 23);
 			this.contourBox.TabIndex = 31;
+			this.contourBox.SelectedIndexChanged += new System.EventHandler(this.contourBox_SelectedIndexChanged);
 			// 
 			// groupBox5
 			// 

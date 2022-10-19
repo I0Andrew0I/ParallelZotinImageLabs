@@ -65,9 +65,10 @@ namespace Labs.Core.Segmentation
                         double Gx = 0;
                         double Gy = 0;
 
+                        f.X = x;
+                        f.Y = y;
                         int picid = x + y * imageWidth;
                         (int yfrom, int yto) = f.IterateY(f.X);
-
 
                         for (int y0 = yfrom; y0 <= yto; y0++)
                         {
@@ -116,7 +117,8 @@ namespace Labs.Core.Segmentation
                     for (int x = 0; x < imageWidth; x++)
                     {
                         double res = 0;
-
+                        f.X = x;
+                        f.Y = y;
                         int picid = x + y * imageWidth;
                         (int yfrom, int yto) = f.IterateY(f.X);
 
