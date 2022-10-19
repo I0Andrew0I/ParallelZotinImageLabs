@@ -169,6 +169,15 @@ namespace Labs.Core.Scheme
             return value;
         }
 
+        public Accumulator Convert()
+        {
+            Accumulator value = default;
+            value.K1 = H;
+            value.K2 = L;
+            value.K3 = S;
+            return value;
+        }
+
         public void Extract(in Channel channels, ref HLSA value)
         {
             if ((channels & Channel.Hue) != 0)
