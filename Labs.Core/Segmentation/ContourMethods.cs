@@ -87,7 +87,7 @@ namespace Labs.Core.Segmentation
                             }
                         }
 
-                        double res = Math.Sqrt(Gx + Gy);
+                        double res = Math.Abs(Gx) + Math.Abs(Gy);
                         res = res >= threshold ? res * multiplier : 0;
 
                         resultPixels[picid] = (GrayScale) res;
@@ -131,7 +131,7 @@ namespace Labs.Core.Segmentation
                             {
                                 int mX = x0 - xfrom;
 
-                                int fy = Math.Clamp(y0, 0, sourceImage.Height - 1);
+                                int fy = Math.Clamp(y0, 0, imageHeight - 1);
                                 int fx = Math.Clamp(x0, 0, imageWidth - 1);
                                 int frameId = fx + fy * imageWidth;
 
@@ -146,43 +146,6 @@ namespace Labs.Core.Segmentation
                 }
             });
         }
-
-        // {
-        //     //for (int y = 0; y < height - 1; y++)
-        //     ParallelOptions po = new ParallelOptions {MaxDegreeOfParallelism = 4};
-        //     Parallel.For(0, source.Height - 1, po, (int y) =>
-        //     {
-        //         Span<GrayScale> sourcePixels = source.Pixels;
-        //         Span<GrayScale> resultPixels = result.Pixels;
-        //
-        //         for (int x = 0; x < source.Width - 1; x++)
-        //         {
-        //             double res = 0;
-        //
-        //             for (int dy = -RH; dy <= RH; dy++)
-        //             {
-        //                 int ky = dy + y;
-        //                 if (ky < 0) ky = 0;
-        //                 if (ky > source.Height - 1) ky = source.Height - 1;
-        //                 for (int dx = -RW; dx <= RW; dx++)
-        //                 {
-        //                     int kx = x + dx;
-        //                     if (kx < 0) kx = 0;
-        //                     if (kx > source.Width - 1) kx = source.Width - 1;
-        //
-        //                     int pid = kx + ky * source.Width;
-        //                     res += sourcePixels[pid].Value * laplacian[dy + RH, dx + RW];
-        //                 }
-        //             }
-        //
-        //
-        //             res = res >= threshold ? res * multiplier : 0;
-        //
-        //             int id = x + y * source.Width;
-        //             resultPixels[id] = (GrayScale) res;
-        //         }
-        //     });
-        // }
 
         public static double[,] GetLaplacian(bool positive)
         {
