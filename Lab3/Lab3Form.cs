@@ -31,6 +31,7 @@ namespace Lab3
 
         private ImageBuffer<ARGB>? _originalSource;
         private ImageBuffer<GrayScale>? _grayScaleSource;
+        private ArraySegment<GrayScale>? _temporary;
 
         private FileInfo _imageFile;
 
@@ -40,9 +41,11 @@ namespace Lab3
 
             positiveRadio.CheckedChanged += OnKernelSignChanged;
             negativeRadio.CheckedChanged += OnKernelSignChanged;
-            inputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-            outputPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            inputPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            outputPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             contourBox.DataSource = Enum.GetValues(typeof(ContourMethod));
+            _frameWidth = 3;
+            _frameHeight = 3;
         }
 
         private void buttonSearch_Click(object sender, EventArgs e)
@@ -75,6 +78,12 @@ namespace Lab3
 
         private void OnSaveAsSource(object sender, EventArgs e)
         {
+            if (_grayScaleSource is not { } source || _temporary is not { } gray)
+            {
+                MessageBox.Show("Картинка не преобразована");
+                return;
+            }
+
             if (outputPictureBox.Image == null || outputPictureBox.Image == inputPictureBox.Image)
             {
                 MessageBox.Show("Не найдены изменения!");
@@ -88,6 +97,8 @@ namespace Lab3
 
             inputPictureBox.Image = outputPictureBox.Image;
             outputPictureBox.Image = new Bitmap(inputPictureBox.Image);
+            _grayScaleSource = new ImageBuffer<GrayScale>(gray, source.Width, source.Height);
+            _temporary = ArraySegment<GrayScale>.Empty;
         }
 
 
@@ -103,6 +114,7 @@ namespace Lab3
             Algorithms.RGBToGrayscale(source.Pixels, ref pixels);
             _grayScaleSource = new ImageBuffer<GrayScale>(pixels, source.Width, source.Height);
 
+            _temporary = pixels;
             SaveImageCopy(pixels, "fromRGBtoGrayScale");
         }
 
@@ -167,7 +179,8 @@ namespace Lab3
                 return;
             }
 
-            ArraySegment<GrayScale> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
+            ArraySegment<GrayScale> pixels =
+                UtilityExtensions.Pool(source.Pixels.Count, _temporary ?? ArraySegment<GrayScale>.Empty);
             ImageBuffer<GrayScale> tempResult = new(pixels, source.Width, source.Height);
             Frame frame = new(0, 0, _frameWidth, _frameHeight);
 
@@ -192,12 +205,14 @@ namespace Lab3
                 MessageBox.Show($"Глобальный {ts.Seconds:00}:{ts.Milliseconds:000}");
             }
 
+            _temporary = pixels;
             SaveImageCopy(pixels, "binarized");
         }
 
         #region Binarisation methods
 
-        private static void GlobalThresholdMethod(ImageBuffer<GrayScale> sourceImage, ImageBuffer<GrayScale> resultImage, double threshold)
+        private static void GlobalThresholdMethod(ImageBuffer<GrayScale> sourceImage,
+            ImageBuffer<GrayScale> resultImage, double threshold)
         {
             Span<GrayScale> source = sourceImage.Pixels;
             Span<GrayScale> pixels = resultImage.Pixels;
@@ -217,7 +232,8 @@ namespace Lab3
             return sum / size;
         }
 
-        private static void LocalThresholdMethod(ImageBuffer<GrayScale> sourceImage, ImageBuffer<GrayScale> resultImage, in Frame frame)
+        private static void LocalThresholdMethod(ImageBuffer<GrayScale> sourceImage, ImageBuffer<GrayScale> resultImage,
+            in Frame frame)
         {
             double size = frame.Square;
 
@@ -259,85 +275,98 @@ namespace Lab3
                 return;
             }
 
-            ArraySegment<GrayScale> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
+            bool[,] mask = new bool[3, 3]
+            {
+                {false, true, false},
+                {true, true, true},
+                {false, true, false}
+            };
+
+            ArraySegment<GrayScale> pixels = UtilityExtensions.Pool(source.Pixels.Count, _temporary ?? ArraySegment<GrayScale>.Empty);
             ImageBuffer<GrayScale> tempResult = new(pixels, source.Width, source.Height);
 
             string filename = "";
             if (expansionRadio.Checked) //классическое расширение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                ClassicExpansionFilteringMethod(source, tempResult);
+                ClassicExpansionFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Seconds:00}:{ts.Milliseconds:000}";
-                MessageBox.Show("Расш класс " + elapsedTime);
-                filename = "fastR";
+                MessageBox.Show($"Classic shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
+                filename = "classic_expansion";
             }
             else if (fastExpansionRadio.Checked) //ускоренное расширение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                SpeedyExpansionFilteringMethod(source, tempResult);
+                SpeedyExpansionFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Seconds:00}:{ts.Milliseconds:000}";
-                MessageBox.Show("Расш ускор " + elapsedTime);
-                filename = "fastR";
+                MessageBox.Show($"Fast expansion {ts.Seconds:00}:{ts.Milliseconds:000}");
+                filename = "fast_expansion";
             }
             else if (shrinkingRadio.Checked) //классическое сужение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                ClassicalShrinkingFilteringMethod(source, tempResult);
+                ClassicalShrinkingFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Seconds:00}:{ts.Milliseconds:000}";
-                MessageBox.Show("Суж класс " + elapsedTime);
-                filename = "classicS";
+                MessageBox.Show($"Classical shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
+                filename = "classic_shrinking";
             }
             else if (fastShrinkingRadio.Checked) //ускоренное сужение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                SpeedyShrinkingFilteringMethod(source, tempResult);
+                SpeedyShrinkingFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = $"{ts.Seconds:00}:{ts.Milliseconds:000}";
-                MessageBox.Show("Суж ускор " + elapsedTime);
-                filename = "fastS";
+                MessageBox.Show($"Fast shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
+                filename = "fast_shrinking";
             }
             else
             {
                 MessageBox.Show("Не выбран способ морфологической обработки!");
             }
 
+            _temporary = pixels;
             if (filename != "")
                 SaveImageCopy(pixels, filename);
         }
 
         #region Morphological filtering
 
-        private void ClassicExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result)
+        private void ClassicExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+            bool[,] mask)
         {
+            Span<GrayScale> sourcePixels = source.Pixels;
             Span<GrayScale> resultPixels = result.Pixels;
+            int mWidth = mask.GetLength(0);
+            int mHeight = mask.GetLength(1);
+            int RW = (mWidth - 1) / 2;
+            int RH = (mHeight - 1) / 2;
 
-            for (int y = 2; y < source.Height - 2; y++)
-            for (int x = 2; x < source.Width - 2; x++)
+            var maxY = source.Height - RH - 1;
+            var maxX = source.Width - RW - 1;
+
+            for (int y = RH; y < maxY; y++)
+            for (int x = RW; x < maxX; x++)
             {
                 double max = 0;
 
                 int pid = x + y * source.Width;
-                for (int j = -2; j <= 2; j++)
+                for (int j = -RH; j <= RH; j++)
                 {
-                    int y1 = Math.Clamp(y + j, 0, source.Height - 2);
-                    for (int i = -2; i <= 2; i++)
+                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+                    for (int i = -RW; i <= RW; i++)
                     {
-                        int x1 = Math.Clamp(x + i, 0, source.Width - 2);
+                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
                         int fid = x1 + y1 * source.Width;
 
-                        if (source.Pixels[fid].Value >= max)
-                            max = source.Pixels[fid].Value;
+                        if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
+                            max = sourcePixels[fid].Value;
                     }
                 }
 
@@ -345,26 +374,35 @@ namespace Lab3
             }
         }
 
-        private void ClassicalShrinkingFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result)
+        private void ClassicalShrinkingFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+            bool[,] mask)
         {
+            Span<GrayScale> sourcePixels = source.Pixels;
             Span<GrayScale> resultPixels = result.Pixels;
+            int mWidth = mask.GetLength(0);
+            int mHeight = mask.GetLength(1);
+            int RW = (mWidth - 1) / 2;
+            int RH = (mHeight - 1) / 2;
 
-            for (int y = 2; y < source.Height - 2; y++)
-            for (int x = 2; x < source.Width - 2; x++)
+            var maxY = source.Height - RH - 1;
+            var maxX = source.Width - RW - 1;
+
+            for (int y = RH; y < maxY; y++)
+            for (int x = RW; x < maxX; x++)
             {
-                double min = 255;
                 int pid = x + y * source.Width;
+                double min = sourcePixels[pid].Value;
 
-                for (int j = -2; j <= 2; j++)
+                for (int j = -RH; j <= RH; j++)
                 {
-                    for (int i = -2; i <= 2; i++)
+                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+                    for (int i = -RW; i <= RW; i++)
                     {
-                        int y1 = Math.Clamp(y + j, 0, source.Height - 2);
-                        int x1 = Math.Clamp(x + i, 0, source.Width - 2);
+                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
                         int fid = x1 + y1 * source.Width;
 
-                        if (source.Pixels[fid].Value <= min)
-                            min = resultPixels[fid].Value;
+                        if (sourcePixels[fid].Value <= min && mask[i + RW, j + RH])
+                            min = sourcePixels[fid].Value;
                     }
                 }
 
@@ -372,13 +410,21 @@ namespace Lab3
             }
         }
 
-        private void SpeedyExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result)
+        private void SpeedyExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+            bool[,] mask)
         {
-            Span<GrayScale> resultPixels = result.Pixels;
             Span<GrayScale> sourcePixels = source.Pixels;
+            Span<GrayScale> resultPixels = result.Pixels;
+            int mWidth = mask.GetLength(0);
+            int mHeight = mask.GetLength(1);
+            int RW = (mWidth - 1) / 2;
+            int RH = (mHeight - 1) / 2;
 
-            for (int y = 2; y < source.Height - 2; y++)
-            for (int x = 2; x < source.Width - 2; x++)
+            var maxY = source.Height - RH - 1;
+            var maxX = source.Width - RW - 1;
+
+            for (int y = RH; y < maxY; y++)
+            for (int x = RW; x < maxX; x++)
             {
                 int pid = x + y * source.Width;
                 double max = 0;
@@ -402,15 +448,16 @@ namespace Lab3
                     continue;
                 }
 
-                for (int j = -2; j <= 2; j++)
+                for (int j = -RH; j <= RH; j++)
                 {
-                    int y1 = Math.Clamp(y + j, 0, source.Height - 2);
-                    for (int i = -2; i <= 2; i++)
+                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+                    for (int i = -RW; i <= RW; i++)
                     {
-                        int x1 = Math.Clamp(x + i, 0, source.Width - 2);
+                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
+                        int fid = x1 + y1 * source.Width;
 
-                        if (sourcePixels[x1 + y1 * source.Width].Value >= max)
-                            max = sourcePixels[x1 + y1 * source.Width].Value;
+                        if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
+                            max = sourcePixels[fid].Value;
                     }
                 }
 
@@ -418,13 +465,21 @@ namespace Lab3
             }
         }
 
-        private void SpeedyShrinkingFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result)
+        private void SpeedyShrinkingFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+            bool[,] mask)
         {
-            Span<GrayScale> resultPixels = result.Pixels;
             Span<GrayScale> sourcePixels = source.Pixels;
+            Span<GrayScale> resultPixels = result.Pixels;
+            int mWidth = mask.GetLength(0);
+            int mHeight = mask.GetLength(1);
+            int RW = (mWidth - 1) / 2;
+            int RH = (mHeight - 1) / 2;
 
-            for (int y = 2; y < source.Height - 2; y++)
-            for (int x = 2; x < source.Width - 2; x++)
+            var maxY = source.Height - RH - 1;
+            var maxX = source.Width - RW - 1;
+
+            for (int y = RH; y < maxY; y++)
+            for (int x = RW; x < maxX; x++)
             {
                 int pid = x + y * source.Width;
 
@@ -434,16 +489,17 @@ namespace Lab3
                     continue;
                 }
 
-                double min = 255;
-                for (int j = -2; j <= 2; j++)
+                double min = source.Pixels[pid].Value;
+                for (int j = -RH; j <= RH; j++)
                 {
-                    int y1 = Math.Clamp(y + j, 0, source.Height - 2);
-                    for (int i = -2; i <= 2; i++)
+                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+                    for (int i = -RW; i <= RW; i++)
                     {
-                        int x1 = Math.Clamp(x + i, 0, source.Width - 2);
+                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
+                        int fid = x1 + y1 * source.Width;
 
-                        if (sourcePixels[x1 + y1 * source.Width].Value <= min)
-                            min = sourcePixels[x1 + y1 * source.Width].Value;
+                        if (sourcePixels[fid].Value <= min && mask[i + RW, j + RH])
+                            min = sourcePixels[fid].Value;
                     }
                 }
 
@@ -484,7 +540,8 @@ namespace Lab3
             }
             else if (graphSegmentationRadio.Checked) //графы
             {
-                ArraySegment<GrayScale> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
+                ArraySegment<GrayScale> pixels =
+                    UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
                 ImageBuffer<GrayScale> grayResult = new(pixels, source.Width, source.Height);
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
@@ -502,7 +559,8 @@ namespace Lab3
             }
         }
 
-        private static void HistogramSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<ARGB> result, Random random)
+        private static void HistogramSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<ARGB> result,
+            Random random)
         {
             int[] histY = new int[256];
 
@@ -578,7 +636,8 @@ namespace Lab3
             }
         }
 
-        private static void GraphSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result, double threshold)
+        private static void GraphSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+            double threshold)
         {
             byte[,] matrSv = new byte[source.Width - 1, source.Height - 1];
             for (int x = 0; x < source.Width - 2; x++)
