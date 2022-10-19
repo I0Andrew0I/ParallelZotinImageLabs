@@ -568,7 +568,7 @@ namespace Lab3
             }
 
             Span<ARGB> resultPixels = result.Pixels;
-            for (int i = 0; i < source.Pixels.Count; i += 4)
+            for (int i = 0; i < source.Pixels.Count; i++)
             {
                 // int l = histMas[buffer[i + 2]];
                 int l = histMas[(int) source.Pixels[i].Value]; //???
@@ -578,15 +578,15 @@ namespace Lab3
 
         private static void GraphSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result, double threshold)
         {
-            int[,] matrSv = new int[source.Width - 1, source.Height - 1];
-            for (int x = 0; x < source.Width - 1; x++)
-            for (int y = 0; y < source.Height - 1; y++)
+            byte[,] matrSv = new byte[source.Width - 1, source.Height - 1];
+            for (int x = 0; x < source.Width - 2; x++)
+            for (int y = 0; y < source.Height - 2; y++)
             {
                 int id1 = x + y * source.Width;
                 int id2 = x + 1 + (y + 1) * source.Width;
 
-                var value = (int) (255 - Math.Abs(source.Pixels[id1].Value - source.Pixels[id2].Value));
-                matrSv[x, y] = value < threshold ? 0 : value;
+                double value = 255 - Math.Abs(source.Pixels[id1].Value - source.Pixels[id2].Value);
+                matrSv[x, y] = (byte) (value < threshold ? 0 : value);
             }
 
             Span<GrayScale> resultPixels = result.Pixels;
