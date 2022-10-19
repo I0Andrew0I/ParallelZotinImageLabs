@@ -39,6 +39,13 @@ namespace Labs.Core.Scheme
         public GrayScale Correct(in Accumulator overflow) =>
             new GrayScale(Value + overflow.K1);
 
+        public Accumulator Convert()
+        {
+            Accumulator value = new();
+            value.K1 = Value;
+            return value;
+        }
+
         public void Extract(in byte channels, ref GrayScale other) =>
             other = this;
 
