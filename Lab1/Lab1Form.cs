@@ -489,5 +489,10 @@ namespace Lab1
         {
 
         }
+
+        private void Lab1Form_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

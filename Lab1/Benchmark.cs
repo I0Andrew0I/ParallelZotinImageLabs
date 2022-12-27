@@ -265,5 +265,15 @@ namespace Lab1
             picture.UnlockBits(locked);
             return source;
         }
+
+        private void testsBox_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

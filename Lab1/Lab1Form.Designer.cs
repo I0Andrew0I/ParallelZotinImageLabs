@@ -59,34 +59,30 @@ namespace Lab1
             this.radioButton5 = new System.Windows.Forms.RadioButton();
             this.radioButton6 = new System.Windows.Forms.RadioButton();
             this.histogramPanel = new System.Windows.Forms.Panel();
+            this.testButton = new System.Windows.Forms.Button();
+            this.inputPictureBox = new System.Windows.Forms.PictureBox();
+            this.outputPictureBox = new System.Windows.Forms.PictureBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this._saveResultsBox = new System.Windows.Forms.CheckBox();
             this._threadCountBox = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this._testCountBox = new System.Windows.Forms.NumericUpDown();
-            this._saveResultsBox = new System.Windows.Forms.CheckBox();
-            this.testButton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.inputPictureBox = new System.Windows.Forms.PictureBox();
-            this.outputPictureBox = new System.Windows.Forms.PictureBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.inputLabel = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.contrastTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.brightnessTrackBar)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._testCountBox)).BeginInit();
-            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._testCountBox)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -101,7 +97,7 @@ namespace Lab1
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.contrastTrackBar);
             this.groupBox1.Controls.Add(this.brightnessTrackBar);
-            this.groupBox1.Location = new System.Drawing.Point(385, 156);
+            this.groupBox1.Location = new System.Drawing.Point(642, 426);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -215,16 +211,16 @@ namespace Lab1
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(5, 239);
+            this.label4.Location = new System.Drawing.Point(642, 15);
             this.label4.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(98, 20);
+            this.label4.Size = new System.Drawing.Size(107, 20);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Путь к файлу";
+            this.label4.Text = "Изображение";
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(5, 263);
+            this.textBox1.Location = new System.Drawing.Point(642, 39);
             this.textBox1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(255, 27);
@@ -232,7 +228,7 @@ namespace Lab1
             // 
             // buttonSearch
             // 
-            this.buttonSearch.Location = new System.Drawing.Point(270, 259);
+            this.buttonSearch.Location = new System.Drawing.Point(907, 35);
             this.buttonSearch.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.buttonSearch.Name = "buttonSearch";
             this.buttonSearch.Size = new System.Drawing.Size(101, 36);
@@ -248,7 +244,7 @@ namespace Lab1
             this.groupBox3.Controls.Add(this.yuvRadio);
             this.groupBox3.Controls.Add(this.rgbRadio);
             this.groupBox3.Controls.Add(this.hlsRadio);
-            this.groupBox3.Location = new System.Drawing.Point(5, 5);
+            this.groupBox3.Location = new System.Drawing.Point(854, 190);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -319,7 +315,7 @@ namespace Lab1
             this.groupBox4.Controls.Add(this.buttonMod);
             this.groupBox4.Controls.Add(this.radioButton5);
             this.groupBox4.Controls.Add(this.radioButton6);
-            this.groupBox4.Location = new System.Drawing.Point(189, 5);
+            this.groupBox4.Location = new System.Drawing.Point(642, 190);
             this.groupBox4.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -366,15 +362,90 @@ namespace Lab1
             // histogramPanel
             // 
             this.histogramPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.histogramPanel.Location = new System.Drawing.Point(1000, 16);
+            this.histogramPanel.Location = new System.Drawing.Point(1047, 129);
             this.histogramPanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.histogramPanel.Name = "histogramPanel";
-            this.histogramPanel.Size = new System.Drawing.Size(372, 271);
+            this.histogramPanel.Size = new System.Drawing.Size(317, 274);
             this.histogramPanel.TabIndex = 14;
+            // 
+            // testButton
+            // 
+            this.testButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.testButton.Location = new System.Drawing.Point(1039, 34);
+            this.testButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.testButton.Name = "testButton";
+            this.testButton.Size = new System.Drawing.Size(113, 37);
+            this.testButton.TabIndex = 20;
+            this.testButton.Text = "Тестировать";
+            this.testButton.UseVisualStyleBackColor = false;
+            this.testButton.Click += new System.EventHandler(this.OnTest);
+            // 
+            // inputPictureBox
+            // 
+            this.inputPictureBox.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.inputPictureBox.BackColor = System.Drawing.Color.White;
+            this.inputPictureBox.Location = new System.Drawing.Point(14, 18);
+            this.inputPictureBox.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.inputPictureBox.Name = "inputPictureBox";
+            this.inputPictureBox.Size = new System.Drawing.Size(609, 381);
+            this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.inputPictureBox.TabIndex = 11;
+            this.inputPictureBox.TabStop = false;
+            // 
+            // outputPictureBox
+            // 
+            this.outputPictureBox.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.outputPictureBox.BackColor = System.Drawing.Color.White;
+            this.outputPictureBox.Location = new System.Drawing.Point(14, 427);
+            this.outputPictureBox.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.outputPictureBox.Name = "outputPictureBox";
+            this.outputPictureBox.Size = new System.Drawing.Size(609, 363);
+            this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.outputPictureBox.TabIndex = 12;
+            this.outputPictureBox.TabStop = false;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(211, 66);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(17, 20);
+            this.label14.TabIndex = 22;
+            this.label14.Text = "2";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(19, 68);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(17, 20);
+            this.label13.TabIndex = 15;
+            this.label13.Text = "0";
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(10, 39);
+            this.trackBar1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.trackBar1.Maximum = 20;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(231, 56);
+            this.trackBar1.TabIndex = 15;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll_1);
+            // 
+            // _saveResultsBox
+            // 
+            this._saveResultsBox.AutoSize = true;
+            this._saveResultsBox.Location = new System.Drawing.Point(977, 97);
+            this._saveResultsBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this._saveResultsBox.Name = "_saveResultsBox";
+            this._saveResultsBox.Size = new System.Drawing.Size(175, 24);
+            this._saveResultsBox.TabIndex = 19;
+            this._saveResultsBox.Text = "Сохранять результат";
+            this._saveResultsBox.UseVisualStyleBackColor = true;
             // 
             // _threadCountBox
             // 
-            this._threadCountBox.Location = new System.Drawing.Point(921, 45);
+            this._threadCountBox.Location = new System.Drawing.Point(870, 126);
             this._threadCountBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this._threadCountBox.Maximum = new decimal(new int[] {
             6,
@@ -398,7 +469,7 @@ namespace Lab1
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(845, 16);
+            this.label10.Location = new System.Drawing.Point(794, 97);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(151, 20);
             this.label10.TabIndex = 16;
@@ -407,7 +478,7 @@ namespace Lab1
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(693, 16);
+            this.label11.Location = new System.Drawing.Point(642, 97);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(154, 20);
             this.label11.TabIndex = 17;
@@ -420,7 +491,7 @@ namespace Lab1
             0,
             0,
             0});
-            this._testCountBox.Location = new System.Drawing.Point(774, 45);
+            this._testCountBox.Location = new System.Drawing.Point(723, 126);
             this._testCountBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this._testCountBox.Minimum = new decimal(new int[] {
             1,
@@ -436,170 +507,56 @@ namespace Lab1
             0,
             0});
             // 
-            // _saveResultsBox
+            // groupBox2
             // 
-            this._saveResultsBox.AutoSize = true;
-            this._saveResultsBox.Location = new System.Drawing.Point(832, 136);
-            this._saveResultsBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this._saveResultsBox.Name = "_saveResultsBox";
-            this._saveResultsBox.Size = new System.Drawing.Size(175, 24);
-            this._saveResultsBox.TabIndex = 19;
-            this._saveResultsBox.Text = "Сохранять результат";
-            this._saveResultsBox.UseVisualStyleBackColor = true;
-            // 
-            // testButton
-            // 
-            this.testButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.testButton.Location = new System.Drawing.Point(870, 91);
-            this.testButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.testButton.Name = "testButton";
-            this.testButton.Size = new System.Drawing.Size(113, 37);
-            this.testButton.TabIndex = 20;
-            this.testButton.Text = "Тестировать";
-            this.testButton.UseVisualStyleBackColor = false;
-            this.testButton.Click += new System.EventHandler(this.OnTest);
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.inputPictureBox, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.outputPictureBox, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.inputLabel, 0, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(5, 4);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1368, 501);
-            this.tableLayoutPanel1.TabIndex = 30;
-            // 
-            // inputPictureBox
-            // 
-            this.inputPictureBox.BackColor = System.Drawing.Color.White;
-            this.inputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputPictureBox.Location = new System.Drawing.Point(7, 34);
-            this.inputPictureBox.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.inputPictureBox.Name = "inputPictureBox";
-            this.inputPictureBox.Size = new System.Drawing.Size(672, 460);
-            this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.inputPictureBox.TabIndex = 11;
-            this.inputPictureBox.TabStop = false;
-            // 
-            // outputPictureBox
-            // 
-            this.outputPictureBox.BackColor = System.Drawing.Color.White;
-            this.outputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputPictureBox.Location = new System.Drawing.Point(689, 34);
-            this.outputPictureBox.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.outputPictureBox.Name = "outputPictureBox";
-            this.outputPictureBox.Size = new System.Drawing.Size(672, 460);
-            this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.outputPictureBox.TabIndex = 12;
-            this.outputPictureBox.TabStop = false;
+            this.groupBox2.Controls.Add(this.label1);
+            this.groupBox2.Controls.Add(this.label14);
+            this.groupBox2.Controls.Add(this.trackBar1);
+            this.groupBox2.Controls.Add(this.label13);
+            this.groupBox2.Location = new System.Drawing.Point(642, 585);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox2.Size = new System.Drawing.Size(607, 137);
+            this.groupBox2.TabIndex = 15;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Изменение гаммы для нелинойной степенной коррекции";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(689, 3);
-            this.label1.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.label1.Location = new System.Drawing.Point(19, 66);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(78, 20);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "Результат:";
-            // 
-            // inputLabel
-            // 
-            this.inputLabel.AutoSize = true;
-            this.inputLabel.Location = new System.Drawing.Point(7, 3);
-            this.inputLabel.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.inputLabel.Name = "inputLabel";
-            this.inputLabel.Size = new System.Drawing.Size(180, 20);
-            this.inputLabel.TabIndex = 13;
-            this.inputLabel.Text = "Исходное изображение:";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.label14);
-            this.panel1.Controls.Add(this.label13);
-            this.panel1.Controls.Add(this.label12);
-            this.panel1.Controls.Add(this.trackBar1);
-            this.panel1.Controls.Add(this.groupBox3);
-            this.panel1.Controls.Add(this.groupBox4);
-            this.panel1.Controls.Add(this.histogramPanel);
-            this.panel1.Controls.Add(this._saveResultsBox);
-            this.panel1.Controls.Add(this.testButton);
-            this.panel1.Controls.Add(this._testCountBox);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.label11);
-            this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Controls.Add(this.label10);
-            this.panel1.Controls.Add(this._threadCountBox);
-            this.panel1.Controls.Add(this.buttonSearch);
-            this.panel1.Controls.Add(this.groupBox1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 516);
-            this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1376, 299);
-            this.panel1.TabIndex = 31;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(596, 68);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(17, 20);
-            this.label14.TabIndex = 22;
-            this.label14.Text = "2";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(404, 70);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(17, 20);
-            this.label13.TabIndex = 15;
-            this.label13.Text = "0";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(385, 106);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(456, 20);
-            this.label12.TabIndex = 21;
-            this.label12.Text = "Значение гамма для нелинейного степенного преобразования";
-            // 
-            // trackBar1
-            // 
-            this.trackBar1.Location = new System.Drawing.Point(395, 41);
-            this.trackBar1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.trackBar1.Maximum = 20;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(231, 56);
-            this.trackBar1.TabIndex = 15;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll_1);
+            this.label1.Size = new System.Drawing.Size(17, 20);
+            this.label1.TabIndex = 23;
+            this.label1.Text = "0";
             // 
             // Lab1Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1376, 815);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.ClientSize = new System.Drawing.Size(1376, 821);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.histogramPanel);
+            this.Controls.Add(this.inputPictureBox);
+            this.Controls.Add(this.outputPictureBox);
+            this.Controls.Add(this.groupBox4);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this._saveResultsBox);
+            this.Controls.Add(this.buttonSearch);
+            this.Controls.Add(this._testCountBox);
+            this.Controls.Add(this.testButton);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this._threadCountBox);
+            this.Controls.Add(this.label4);
             this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.MaximizeBox = false;
             this.Name = "Lab1Form";
             this.Text = "Lab1";
+            this.Load += new System.EventHandler(this.Lab1Form_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.contrastTrackBar)).EndInit();
@@ -608,16 +565,15 @@ namespace Lab1
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._testCountBox)).EndInit();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._threadCountBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._testCountBox)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -645,26 +601,23 @@ namespace Lab1
 		private Label label7;
 		private Label label6;
 		private Panel histogramPanel;
-		private NumericUpDown _threadCountBox;
-		private Label label10;
-		private Label label11;
-		private NumericUpDown _testCountBox;
-		private CheckBox _saveResultsBox;
 		private Button testButton;
 		private ComboBox _channelBox;
 		private RadioButton yuvRadio;
 		private RadioButton hlsRadio;
 		private RadioButton rgbRadio;
-		private TableLayoutPanel tableLayoutPanel1;
 		private PictureBox inputPictureBox;
 		private PictureBox outputPictureBox;
-		private Label label1;
-		private Label inputLabel;
-		private Panel panel1;
         private TrackBar trackBar1;
         private Label label14;
         private Label label13;
-        private Label label12;
+        private CheckBox _saveResultsBox;
+        private NumericUpDown _threadCountBox;
+        private Label label10;
+        private Label label11;
+        private NumericUpDown _testCountBox;
+        private GroupBox groupBox2;
+        private Label label1;
     }
 }
 
