@@ -14,6 +14,7 @@ using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Lab1
 {
@@ -160,7 +161,14 @@ namespace Lab1
                     if (_sourceBuffer is not { } rgbArray)
                         return;
 
-                    _targetBuffer ??= CopyFromSource(rgbArray);
+                    if (_targetBuffer is not { } targetArray)
+                    {
+                        _targetBuffer ??= UtilityExtensions.PoolCopy<byte>(rgbArray);
+                    } 
+                    else
+                    {
+                        _targetBuffer ??= UtilityExtensions.PoolCopy(rgbArray, targetArray);
+                    }
                     Span<ARGB> inputPixel = _targetBuffer.Value.Cast<ARGB>();
 
                     FilterChannels(inputPixel, outputPixel, channels);
@@ -289,7 +297,15 @@ namespace Lab1
             List<TimeSpan> tests = new();
             for (int count = 0; count < _testCountBox.Value; count++)
             {
-                ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
+                ArraySegment<byte> targetMemory;
+                if (_targetBuffer is not { } targetArray)
+                {
+                    targetMemory = UtilityExtensions.PoolCopy<byte>(_sourceBuffer.Value);
+                }
+                else
+                {
+                    targetMemory = UtilityExtensions.PoolCopy(_sourceBuffer.Value, targetArray);
+                }
 
                 var stopWatch = Stopwatch.StartNew();
                 Algorithms.TransformImage(targetMemory, _brightness, _contrast, (int) _threadCountBox.Value);
@@ -320,22 +336,33 @@ namespace Lab1
             }
 
 
-            double[] correctionCurve = Array.Empty<double>();
+            //double[] correctionCurve = Array.Empty<double>();
             if (radioButton6.Checked)
             {
-                Points getPoints = new Points();
-                if (getPoints.ShowDialog() == DialogResult.OK)
-                    correctionCurve = getPoints.Y;
-                else
-                    return;
+                //Points getPoints = new Points();
+                //if (getPoints.ShowDialog() == DialogResult.OK)
+                //correctionCurve = getPoints.Y;
+                //else
+                //    return;
             }
+
+            float gamma = (float)trackBar1.Value / 10;
 
             List<TimeSpan> tests = new();
             for (int count = 0; count < _testCountBox.Value; count++)
             {
-                ArraySegment<byte> targetMemory = CopyFromSource(_sourceBuffer.Value);
+                ArraySegment<byte> targetMemory;
+                if (_targetBuffer is not { } targetArray)
+                {
+                    targetMemory = UtilityExtensions.PoolCopy<byte>(_sourceBuffer.Value);
+                }
+                else
+                {
+                    targetMemory = UtilityExtensions.PoolCopy(_sourceBuffer.Value, targetArray);
+                }
+
                 var stopWatch = Stopwatch.StartNew();
-                Algorithms.ColorCorrection(targetMemory, correctionCurve, radioButton6.Checked, (int) _threadCountBox.Value);
+                Algorithms.ColorCorrection(targetMemory, gamma, radioButton6.Checked, (int) _threadCountBox.Value);
                 stopWatch.Stop();
                 tests.Add(stopWatch.Elapsed);
                 _targetBuffer = targetMemory;
@@ -398,31 +425,35 @@ namespace Lab1
                 resultBmp = (Bitmap) outputPictureBox.Image;
             }
 
-            resultBmp.CopyFrom(imageBuffer);
+            var outputBuffer = resultBmp.LockImage(out var locked);
+            var inputBuffer = imageBuffer.AsSpan();
+            inputBuffer.CopyTo(outputBuffer);
+            resultBmp.UnlockBits(locked);
+            // resultBmp.CopyFrom(imageBuffer);
             outputPictureBox.Image = resultBmp;
             return resultBmp;
         }
 
-        private ArraySegment<byte> CopyFromSource(ArraySegment<byte> sourceMemory)
-        {
-            if (_targetBuffer is not { } targetMemory)
-            {
-                byte[] rent = ArrayPool<byte>.Shared.Rent(sourceMemory.Count);
-                targetMemory = new ArraySegment<byte>(rent, 0, sourceMemory.Count);
-                _targetBuffer = targetMemory;
-            }
+        //private ArraySegment<byte> CopyFromSource(ArraySegment<byte> sourceMemory)
+        //{
+        //    if (_targetBuffer is not { } targetMemory)
+        //    {
+        //        byte[] rent = ArrayPool<byte>.Shared.Rent(sourceMemory.Count);
+        //        targetMemory = new ArraySegment<byte>(rent, 0, sourceMemory.Count);
+        //        _targetBuffer = targetMemory;
+        //    }
 
-            if (targetMemory.Count < sourceMemory.Count)
-            {
-                ArrayPool<byte>.Shared.Return(targetMemory.Array);
-                byte[] rent = ArrayPool<byte>.Shared.Rent(sourceMemory.Count);
-                targetMemory = new ArraySegment<byte>(rent, 0, sourceMemory.Count);
-                _targetBuffer = targetMemory;
-            }
+        //    if (targetMemory.Count < sourceMemory.Count)
+        //    {
+        //        ArrayPool<byte>.Shared.Return(targetMemory.Array);
+        //        byte[] rent = ArrayPool<byte>.Shared.Rent(sourceMemory.Count);
+        //        targetMemory = new ArraySegment<byte>(rent, 0, sourceMemory.Count);
+        //        _targetBuffer = targetMemory;
+        //    }
 
-            sourceMemory.CopyTo(targetMemory);
-            return targetMemory;
-        }
+        //    sourceMemory.CopyTo(targetMemory);
+        //    return targetMemory;
+        //}
 
         void DrawChart(PlotView plotView, (uint[] R, uint[] G, uint[] B) hist, (string, string, string) Titles)
         {
@@ -452,6 +483,11 @@ namespace Lab1
         private void OnTest(object sender, EventArgs e)
         {
             _benchmarkForm.Show();
+        }
+
+        private void trackBar1_Scroll_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

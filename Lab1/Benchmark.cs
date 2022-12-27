@@ -27,7 +27,6 @@ namespace Lab1
         private double _contast;
         private int _brightness;
 
-        private double[]? _curve;
 
         public Benchmark()
         {
@@ -44,12 +43,6 @@ namespace Lab1
             if (_savePath == null)
             {
                 MessageBox.Show("Выберите куда сохранить файл");
-                return;
-            }
-
-            if (_curve == null)
-            {
-                MessageBox.Show("Задайте кривую!");
                 return;
             }
 
@@ -89,6 +82,8 @@ namespace Lab1
             overallProgress.Step = 1;
             startButton.Enabled = false;
 
+            float gamma = (float)trackBar1.Value / 10;
+
             foreach (var method in methods)
             {
                 localProgress.Value = 1;
@@ -111,7 +106,7 @@ namespace Lab1
                             // run number of tests
                             TimeSpan methodTime =
                                 await Task.Factory.StartNew(() =>
-                                    RunTests(source, method, _curve, _brightness, _contast, testsCount, threads));
+                                    RunTests(source, method, gamma, _brightness, _contast, testsCount, threads));
 
                             times[threads - 1, picId - 1] = methodTime;
                         }
@@ -210,16 +205,9 @@ namespace Lab1
             _brightness = brightnessTrackBar.Value;
         }
 
-        private void setCurveButton_Click(object sender, EventArgs e)
-        {
-            Points getPoints = new Points();
-            if (getPoints.ShowDialog() == DialogResult.OK)
-                _curve = getPoints.Y;
-        }
-
         private TimeSpan RunTests(
             ArraySegment<byte> source, CorrectionMethod method,
-            double[] curve, int brightness, double contrast,
+            float gamma, int brightness, double contrast,
             int numTests, int numThreads)
         {
             ArraySegment<byte> targetBuffer = ArraySegment<byte>.Empty;
@@ -237,10 +225,10 @@ namespace Lab1
                         Algorithms.TransformImage(targetBuffer, brightness, contrast, numThreads);
                         break;
                     case CorrectionMethod.EquationSystem:
-                        Algorithms.ColorCorrection(targetBuffer, curve, false, numThreads);
+                        Algorithms.ColorCorrection(targetBuffer, gamma, false, numThreads);
                         break;
                     case CorrectionMethod.CorrectionCurve:
-                        Algorithms.ColorCorrection(targetBuffer, curve, true, numThreads);
+                        Algorithms.ColorCorrection(targetBuffer, gamma, true, numThreads);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(method), method, null);
