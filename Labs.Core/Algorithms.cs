@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Labs.Core.Filtering;
 using Labs.Core.Scheme;
 
 namespace Labs.Core
@@ -136,10 +137,17 @@ namespace Labs.Core
             });
         }
 
-        public static void ColorCorrection(ArraySegment<byte> imageBuffer, double[] curve, bool curveCorrection, int threads)
+        public static void ColorCorrection(ArraySegment<byte> imageBuffer, float gamma, bool curveCorrection, int threads)
         {
             ParallelOptions po = new() {MaxDegreeOfParallelism = threads};
             int step = imageBuffer.Count / 16;
+
+            ARGB min = new ARGB(), max = new ARGB();
+
+            if (!curveCorrection)
+            {
+                (min, max) = MinMaxRGB(imageBuffer);
+            }
 
             Parallel.For(0, 16, po, iter =>
             {
@@ -147,18 +155,67 @@ namespace Labs.Core
                 Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(portion);
 
                 var yuv = default(YUV);
+
                 for (int i = 0; i < pixels.Length; i++)
                 {
-                    pixels[i].ToYUV(ref yuv);
-
-                    yuv.Y = curveCorrection
-                        ? curve[(int) Math.Round(yuv.Y)]
-                        : EquationSystem(yuv.Y);
-
-                    yuv.ToARGB(ref pixels[i]);
+                    if (curveCorrection)
+                    {
+                        pixels[i].ToYUV(ref yuv);
+                        yuv.Y = NonLinearPower(yuv.Y, gamma);
+                        yuv.ToARGB(ref pixels[i]);
+                    }
+                    else
+                    {
+                        pixels[i] = AutoLevels(pixels[i], min, max);
+                    }
                 }
             });
         }
+
+        public static (ARGB min, ARGB max) MinMaxRGB(ArraySegment<byte> imageBuffer)
+        {
+            Span<ARGB> pixels = MemoryMarshal.Cast<byte, ARGB>(imageBuffer);
+            int rMin = 256, gMin = 256, bMin = 256;
+            int rMax = -1, gMax = -1, bMax = -1;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                if (pixels[i].R < rMin)
+                    rMin = pixels[i].R;
+
+                if (pixels[i].G < gMin)
+                    gMin = pixels[i].G;
+
+                if (pixels[i].B < bMin)
+                    bMin = pixels[i].B;
+
+                if (pixels[i].R > rMax)
+                    rMax = pixels[i].R;
+
+                if (pixels[i].G > gMax)
+                    gMax = pixels[i].G;
+
+                if (pixels[i].B > bMax)
+                    bMax = pixels[i].B;
+            }
+
+            ARGB minColor = new ARGB((byte)rMin, (byte)gMin, (byte)bMin);
+            ARGB maxColor = new ARGB((byte)rMax, (byte)gMax, (byte)bMax);
+
+            return (minColor, maxColor);
+        }
+
+        public static ARGB AutoLevels(ARGB currentPixel, ARGB min, ARGB max)
+        {
+            int newR = (currentPixel.R - min.R) * (255 - 0) / (max.R - min.R);
+            int newG = (currentPixel.G - min.G) * (255 - 0) / (max.G - min.G);
+            int newB = (currentPixel.B - min.B) * (255 - 0) / (max.B - min.B);
+            return new ARGB((byte)newR, (byte)newG, (byte)newB);
+        }
+
+        //public static YUV NonLinearPower()
+        //{
+        //    //new y = 255 * (old y / 255) ^ 1 / значение по графику
+        //}
 
         public static (uint[] R, uint[] G, uint[] B) Histogram(Span<ARGB> pixels)
         {
@@ -242,19 +299,7 @@ namespace Labs.Core
         /// </code>
         /// <param name="y"></param>
         /// <returns></returns>
-        public static double EquationSystem(double y)
-        {
-            double Ynew = y switch
-            {
-                >= 0 and <= 50 => Math.Pow(12 + y, 2),
-                > 50 and <= 100 => Math.Tan(y),
-                > 100 and <= 150 => Math.Sin(y),
-                > 150 and <= 200 => 5 * y,
-                > 200 and <= 255 => Math.Pow(y, 1 / 3.0),
-                _ => 0
-            };
-
-            return Ynew;
-        }
+        public static double NonLinearPower(double y, float gamma)
+            => 255 * Math.Pow(y / 255, 1 / gamma);
     }
 }
