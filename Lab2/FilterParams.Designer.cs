@@ -143,7 +143,7 @@ namespace Lab2
             0});
 			this.widthBox.Location = new System.Drawing.Point(71, 7);
 			this.widthBox.Minimum = new decimal(new int[] {
-            3,
+            1,
             0,
             0,
             0});
@@ -165,7 +165,7 @@ namespace Lab2
             0});
 			this.heightBox.Location = new System.Drawing.Point(71, 32);
 			this.heightBox.Minimum = new decimal(new int[] {
-            3,
+            1,
             0,
             0,
             0});

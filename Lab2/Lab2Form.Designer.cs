@@ -535,7 +535,7 @@ namespace Lab2
 			this.fMinMaxRadioButton.Name = "fMinMaxRadioButton";
 			this.fMinMaxRadioButton.Size = new System.Drawing.Size(231, 19);
 			this.fMinMaxRadioButton.TabIndex = 2;
-			this.fMinMaxRadioButton.Text = "максимума/минимума, (max+min)/2";
+			this.fMinMaxRadioButton.Text = "Jim Kasaburi filter";
 			this.fMinMaxRadioButton.UseVisualStyleBackColor = true;
 			// 
 			// fLaplacianRadioButton

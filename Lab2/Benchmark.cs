@@ -38,7 +38,7 @@ namespace Lab2
             TestingMethods.Add(Filter.Linear, true);
             TestingMethods.Add(Filter.Mean, true);
             TestingMethods.Add(Filter.Median, true);
-            TestingMethods.Add(Filter.MinMax, true);
+            TestingMethods.Add(Filter.Kasaburi, true);
         }
 
         double Speed(double sync, double parallel)
@@ -199,7 +199,7 @@ namespace Lab2
             if (sender == laplacianBox)
                 updated = Filter.Laplacian;
             else if (sender == minMaxBox)
-                updated = Filter.MinMax;
+                updated = Filter.Kasaburi;
             else if (sender == medianBox)
                 updated = Filter.Median;
             else if (sender == meanBox)
@@ -251,7 +251,7 @@ namespace Lab2
                 var imageBuffer = new ImageBuffer<ARGB>(input, width, height);
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.ARGB(imageBuffer, ARGB.Channel.RGB, kernel, 1.5)
+                    ConvolutionMethods.ARGB(imageBuffer, ARGB.Channel.RGB, kernel, 1.5, 50f)
                 );
 
                 return (time, argb);
@@ -278,7 +278,7 @@ namespace Lab2
                 Filter.Laplacian => module.Laplacian,
                 Filter.Median => module.Median,
                 Filter.Mean => module.MeanRecursive,
-                Filter.MinMax => module.MinMax,
+                Filter.Kasaburi => module.Kasaburi,
                 _ => throw new ArgumentOutOfRangeException()
             };
 

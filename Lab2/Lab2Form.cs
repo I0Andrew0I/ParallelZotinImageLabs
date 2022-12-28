@@ -20,7 +20,7 @@ namespace Lab2
         Laplacian,
         Median,
         Mean,
-        MinMax
+        Kasaburi
     }
 
     public delegate (TimeSpan time, ImageBuffer<ARGB> result) TestRunner(int numTests, int numThreads);
@@ -48,6 +48,7 @@ namespace Lab2
         private Enum? _selectedChannels;
         private double _sharpness;
         private Benchmark _benchmarkForm;
+        private float _kasaburiThreshold;
 
 
         public Lab2Form()
@@ -74,7 +75,7 @@ namespace Lab2
             if (fLinearRadioButton.Checked)
                 SelectedFilter = Filter.Linear;
             if (fMinMaxRadioButton.Checked)
-                SelectedFilter = Filter.MinMax;
+                SelectedFilter = Filter.Kasaburi;
             if (fMedianRadioButton.Checked)
                 SelectedFilter = Filter.Median;
             if (fMeanRadioButton.Checked)
@@ -294,12 +295,13 @@ namespace Lab2
                 _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, null)
             };
 
+            _kasaburiThreshold = 10f;
             TestRunner RunTestsRGB(ARGB.Channel channels) => (tests, threads) =>
             {
                 var imageBuffer = new ImageBuffer<ARGB>(_sourceARGB, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.ARGB(imageBuffer, channels, kernel, _sharpness)
+                    ConvolutionMethods.ARGB(imageBuffer, channels, kernel, _sharpness, _kasaburiThreshold)
                 );
 
                 return (time, argb);
@@ -310,7 +312,7 @@ namespace Lab2
                 var imageBuffer = new ImageBuffer<HLSA>(_sourceHLSA, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.HLSA(imageBuffer, channels, kernel, _sharpness)
+                    ConvolutionMethods.HLSA(imageBuffer, channels, kernel, _sharpness, _kasaburiThreshold)
                 );
 
                 Trace.WriteLine("Converting result...");
@@ -359,7 +361,7 @@ namespace Lab2
                 Filter.Laplacian => module.Laplacian,
                 Filter.Median => module.Median,
                 Filter.Mean => module.MeanRecursive,
-                Filter.MinMax => module.MinMax,
+                Filter.Kasaburi => module.Kasaburi,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -411,7 +413,7 @@ namespace Lab2
             _sourceHLSA = UtilityExtensions.Reuse(_sourceHLSA);
 
             inputPictureBox.Image = outputPictureBox.Image;
-            outputPictureBox.Image = null;
+            outputPictureBox.Image = new Bitmap(inputPictureBox.Image);
         }
 
         private void OnRGBSelected(object sender, EventArgs e)
