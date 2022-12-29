@@ -601,6 +601,7 @@ namespace Lab2
 			this.Controls.Add(this.buttonSearch);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "Lab2Form";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Lab2Form";
 			this.channelGroup.ResumeLayout(false);
 			this.channelGroup.PerformLayout();
