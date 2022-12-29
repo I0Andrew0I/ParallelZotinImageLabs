@@ -13,8 +13,8 @@ namespace Lab1
     enum CorrectionMethod
     {
         Brightness,
-        EquationSystem,
-        CorrectionCurve
+        AutoLevels,
+        NonLinearPowerCorrection
     }
 
     public partial class Benchmark : Form
@@ -68,8 +68,8 @@ namespace Lab1
             var methods = new[]
             {
                 CorrectionMethod.Brightness,
-                CorrectionMethod.CorrectionCurve,
-                CorrectionMethod.EquationSystem
+                CorrectionMethod.NonLinearPowerCorrection,
+                CorrectionMethod.AutoLevels
             };
             localProgress.Value = 1;
             localProgress.Maximum = 4 * testsCount * pictureCount;
@@ -224,10 +224,10 @@ namespace Lab1
                     case CorrectionMethod.Brightness:
                         Algorithms.TransformImage(targetBuffer, brightness, contrast, numThreads);
                         break;
-                    case CorrectionMethod.EquationSystem:
+                    case CorrectionMethod.AutoLevels:
                         Algorithms.ColorCorrection(targetBuffer, gamma, false, numThreads);
                         break;
-                    case CorrectionMethod.CorrectionCurve:
+                    case CorrectionMethod.NonLinearPowerCorrection:
                         Algorithms.ColorCorrection(targetBuffer, gamma, true, numThreads);
                         break;
                     default:
