@@ -549,6 +549,7 @@ namespace Lab1
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.MaximizeBox = false;
 			this.Name = "Lab1Form";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Lab1";
 			this.Load += new System.EventHandler(this.Lab1Form_Load);
 			this.groupBox1.ResumeLayout(false);
