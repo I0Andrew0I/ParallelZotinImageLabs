@@ -8,7 +8,7 @@ namespace Labs.Core.Filtering
 
     public static class Reducers
     {
-        public static FrameReducer<ARGB, ARGB.Channel> ARGBKasaburiReducer(ARGB.Channel channel, float threshold) => (pixels, _) =>
+        public static FrameReducer<ARGB, ARGB.Channel> ARGBKasaburiReducer(ARGB.Channel channel, double threshold) => (pixels, _) =>
         {
             decimal total_red = 0;
             decimal total_green = 0;
@@ -29,20 +29,20 @@ namespace Labs.Core.Filtering
                 if (RED && Math.Abs(p.R-source.R) < threshold)
                 {
                     total_red += p.R;
+                    count_red++;
                 }
 
                 if (GREEN && Math.Abs(p.G-source.G) < threshold)
                 {
                     total_green += p.G;
+                    count_green++;
                 }
 
-                if (BLUE && Math.Abs(p.B-source.B) < threshold)
+                if (BLUE && Math.Abs(p.B - source.B) < threshold)
                 {
                     total_blue += p.B;
+                    count_blue++;
                 }
-                count_red++;
-                count_green++;
-                count_blue++;
             }
 
             byte R = RED ? (byte)( total_red / count_red) : source.R;
@@ -52,7 +52,7 @@ namespace Labs.Core.Filtering
             return new ARGB(R, G, B);
         };
         //TODO: fix
-        public static FrameReducer<HLSA, HLSA.Channel> HLSAKasaburiReducer(HLSA.Channel channel, float threshold) => (pixels, _) =>
+        public static FrameReducer<HLSA, HLSA.Channel> HLSAKasaburiReducer(HLSA.Channel channel, double threshold) => (pixels, _) =>
         {
             double total_hue = 0;
             double total_satur = 0;
@@ -65,7 +65,7 @@ namespace Labs.Core.Filtering
 
             bool Hue = (channel & HLSA.Channel.Hue) != 0;
             bool Light = (channel & HLSA.Channel.Lightness) != 0;
-            bool Ssatur = (channel & HLSA.Channel.Saturation) != 0;
+            bool Satur = (channel & HLSA.Channel.Saturation) != 0;
 
             for (var i = 0; i < pixels.Length; i++)
             {
@@ -73,74 +73,73 @@ namespace Labs.Core.Filtering
                 if (Hue && Math.Abs(p.H-source.H) < threshold)
                 {
                     total_hue += p.H;
+                    count_hue++;
                 }
 
                 if (Light && Math.Abs(p.L-source.L) < threshold)
                 {
                     total_light += p.L;
+                    count_light++;
                 }
                 
-                if (Ssatur && Math.Abs(p.S-source.S) < threshold)
+                if (Satur && Math.Abs(p.S-source.S) < threshold)
                 {
                     total_satur += p.S;
+                    count_satur++;
                 }
-
-                count_hue++;
-                count_light++;
-                count_satur++;
             }
 
             double H = Hue ?  total_hue / count_hue : source.H;
             double L = Light ?  total_light / count_light : source.L;
-            double S = Ssatur ?  total_satur / count_satur : source.S;
+            double S = Satur ?  total_satur / count_satur : source.S;
 
             return new HLSA(H, L, S);
         };
         
         
-        // public static FrameReducer<YUV, YUV.Channel> YUVKasaburiReducer(YUV.Channel channel, float threshold) => (pixels, _) =>
-        // {
-        //     decimal total_red = 0;
-        //     decimal total_green = 0;
-        //     decimal total_blue = 0;
-        //     decimal count_red = 0;
-        //     decimal count_green = 0;
-        //     decimal count_blue = 0;
-        //
-        //     ARGB source = pixels[pixels.Length / 2];
-        //
-        //     bool Y = (channel & ARGB.Channel.Red) != 0;
-        //     bool U = (channel & ARGB.Channel.Blue) != 0;
-        //     bool V = (channel & ARGB.Channel.Green) != 0;
-        //
-        //     for (var i = 0; i < pixels.Length; i++)
-        //     {
-        //         ARGB p = pixels[i];
-        //         if (Y && Math.Abs(p.R-source.R) < threshold)
-        //         {
-        //             total_red += p.R;
-        //         }
-        //
-        //         if (V && Math.Abs(p.G-source.G) < threshold)
-        //         {
-        //             total_green += p.G;
-        //         }
-        //
-        //         if (U && Math.Abs(p.B-source.B) < threshold)
-        //         {
-        //             total_blue += p.B;
-        //         }
-        //         count_red++;
-        //         count_green++;
-        //         count_blue++;
-        //     }
-        //
-        //     byte R = Y ? (byte)( total_red / count_red) : source.R;
-        //     byte G = V ? (byte)( total_green / count_green) : source.G;
-        //     byte B = U ? (byte)( total_blue / count_blue) : source.B;
-        //
-        //     return new ARGB(R, G, B);
-        // };
+        public static FrameReducer<YUV, YUV.Channel> YUVKasaburiReducer(YUV.Channel channel, double threshold) => (pixels, _) =>
+        {
+            double total_Y = 0;
+            double total_U = 0;
+            double total_V = 0;
+            double count_Y = 0;
+            double count_U = 0;
+            double count_V = 0;
+        
+            YUV source = pixels[pixels.Length / 2];
+        
+            bool Y = (channel & YUV.Channel.Y) != 0;
+            bool U = (channel & YUV.Channel.U) != 0;
+            bool V = (channel & YUV.Channel.V) != 0;
+        
+            for (var i = 0; i < pixels.Length; i++)
+            {
+                YUV p = pixels[i];
+                if (Y && Math.Abs(p.Y-source.Y) < threshold)
+                {
+                    total_Y += p.Y;
+                    count_Y++;
+                }
+        
+                if (U && Math.Abs(p.U-source.U) < threshold)
+                {
+                    total_U += p.U;
+                    count_U++;
+                }
+
+                if (V && Math.Abs(p.V - source.V) < threshold)
+                {
+                    total_V += p.V;
+                    count_V++;
+                }
+            }
+        
+            double newY = Y ? ( total_Y / count_Y) : source.Y;
+            double newU = U ? ( total_U / count_U) : source.U;
+            double newV = V ? ( total_V / count_V) : source.V;
+        
+            return new YUV(newY, newU, newV);
+        };
         
         
         public static FrameReducer<ARGB, ARGB.Channel> ARGBMinMaxReducer(ARGB.Channel channel) => (pixels, _) =>

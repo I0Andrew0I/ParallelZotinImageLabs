@@ -17,8 +17,8 @@ namespace Lab2
     public enum Filter
     {
         Linear,
-        Laplacian,
         Median,
+        FastMedian,
         Mean,
         Kasaburi
     }
@@ -46,19 +46,16 @@ namespace Lab2
         private double[,] _kernelMatrix;
         private Frame? _frameSize;
         private Enum? _selectedChannels;
-        private double _sharpness;
+        private double _value;
         private Benchmark _benchmarkForm;
-        private float _kasaburiThreshold;
 
 
         public Lab2Form()
         {
             InitializeComponent();
             _benchmarkForm = new Benchmark();
-
-            fLaplacianRadioButton.CheckedChanged += OnFilterChanged;
             fLinearRadioButton.CheckedChanged += OnFilterChanged;
-            fMinMaxRadioButton.CheckedChanged += OnFilterChanged;
+            kasaburiRadioButton.CheckedChanged += OnFilterChanged;
             fMedianRadioButton.CheckedChanged += OnFilterChanged;
             fMeanRadioButton.CheckedChanged += OnFilterChanged;
             radioButton1.Checked = true;
@@ -70,14 +67,12 @@ namespace Lab2
 
         private void OnFilterChanged(object? sender, EventArgs e)
         {
-            if (fLaplacianRadioButton.Checked)
-                SelectedFilter = Filter.Laplacian;
             if (fLinearRadioButton.Checked)
                 SelectedFilter = Filter.Linear;
-            if (fMinMaxRadioButton.Checked)
+            if (kasaburiRadioButton.Checked)
                 SelectedFilter = Filter.Kasaburi;
             if (fMedianRadioButton.Checked)
-                SelectedFilter = Filter.Median;
+                SelectedFilter = Filter.FastMedian;
             if (fMeanRadioButton.Checked)
                 SelectedFilter = Filter.Mean;
         }
@@ -204,9 +199,9 @@ namespace Lab2
             {
                 _kernelMatrix = fp.Matrix;
             }
-            else if (SelectedFilter == Filter.Laplacian)
+            else if (SelectedFilter == Filter.Kasaburi)
             {
-                _sharpness = fp.Sharpness;
+                _value = fp.SliderValue;
             }
         }
 
@@ -230,21 +225,14 @@ namespace Lab2
                 return;
             }
 
-            if (SelectedFilter == Filter.Laplacian)
+            if (_frameSize == null)
             {
-                _kernelMatrix = Kernel.CalculateLaplacian();
+                MessageBox.Show("Не указаны параметры");
+                return;
             }
-            else
-            {
-                if (_frameSize == null)
-                {
-                    MessageBox.Show("Не указаны параметры");
-                    return;
-                }
 
-                if (SelectedFilter == Filter.Mean)
-                    _kernelMatrix = Kernel.CalculateMean(_frameSize);
-            }
+            if (SelectedFilter == Filter.Mean)
+                _kernelMatrix = Kernel.CalculateMean(_frameSize);
 
             filteringGroup.Enabled = false;
             channelGroup.Enabled = false;
@@ -295,13 +283,12 @@ namespace Lab2
                 _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, null)
             };
 
-            _kasaburiThreshold = 10f;
             TestRunner RunTestsRGB(ARGB.Channel channels) => (tests, threads) =>
             {
                 var imageBuffer = new ImageBuffer<ARGB>(_sourceARGB, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.ARGB(imageBuffer, channels, kernel, _sharpness, _kasaburiThreshold)
+                    ConvolutionMethods.ARGB(imageBuffer, channels, kernel, _value)
                 );
 
                 return (time, argb);
@@ -312,7 +299,7 @@ namespace Lab2
                 var imageBuffer = new ImageBuffer<HLSA>(_sourceHLSA, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<HLSA> hlsa) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.HLSA(imageBuffer, channels, kernel, _sharpness, _kasaburiThreshold)
+                    ConvolutionMethods.HLSA(imageBuffer, channels, kernel, _value)
                 );
 
                 Trace.WriteLine("Converting result...");
@@ -325,7 +312,7 @@ namespace Lab2
                 var imageBuffer = new ImageBuffer<YUV>(_sourceYUV, _imageWidth, _imageHeight);
                 (TimeSpan time, ImageBuffer<YUV> yuv) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.YUV(imageBuffer, channels, kernel, _sharpness)
+                    ConvolutionMethods.YUV(imageBuffer, channels, kernel, _value)
                 );
 
                 Trace.WriteLine("Converting result...");
@@ -358,7 +345,7 @@ namespace Lab2
             ConvolutionMethod<TPixel, TChannel> testFunction = filter switch
             {
                 Filter.Linear => module.Linear,
-                Filter.Laplacian => module.Laplacian,
+                Filter.FastMedian => module.Median,
                 Filter.Median => module.Median,
                 Filter.Mean => module.MeanRecursive,
                 Filter.Kasaburi => module.Kasaburi,

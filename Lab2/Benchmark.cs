@@ -28,17 +28,17 @@ namespace Lab2
         {
             InitializeComponent();
 
-            laplacianBox.CheckedChanged += UpdateTestingMethods;
-            minMaxBox.CheckedChanged += UpdateTestingMethods;
-            medianBox.CheckedChanged += UpdateTestingMethods;
+            casaburiBox.CheckedChanged += UpdateTestingMethods;
+            medianCheckBox.CheckedChanged += UpdateTestingMethods;
+            fastMedianBox.CheckedChanged += UpdateTestingMethods;
             meanBox.CheckedChanged += UpdateTestingMethods;
             linearBox.CheckedChanged += UpdateTestingMethods;
 
-            TestingMethods.Add(Filter.Laplacian, true);
+            TestingMethods.Add(Filter.Kasaburi, true);
             TestingMethods.Add(Filter.Linear, true);
             TestingMethods.Add(Filter.Mean, true);
+            TestingMethods.Add(Filter.FastMedian, true);
             TestingMethods.Add(Filter.Median, true);
-            TestingMethods.Add(Filter.Kasaburi, true);
         }
 
         double Speed(double sync, double parallel)
@@ -71,7 +71,6 @@ namespace Lab2
             Bitmap?[] pictures = new[] {pic1, pic2, pic3, pic4};
             int testsCount = (int) testsBox.Value;
             double[,] meanKernel = Kernel.CalculateMean(FrameShape);
-            double[,] laplacian = Kernel.CalculateLaplacian();
             double[,] linear = CalculateLinear(FrameShape);
 
 
@@ -98,13 +97,10 @@ namespace Lab2
                 int picId = 0;
 
 
-                var shape = method == Filter.Laplacian
-                    ? new Frame(0, 0, 3, 3)
-                    : FrameShape;
+                var shape = FrameShape;
 
                 var matrix = method switch
                 {
-                    Filter.Laplacian => laplacian,
                     Filter.Mean => meanKernel,
                     _ => linear
                 };
@@ -196,12 +192,12 @@ namespace Lab2
             if (sender == null) return;
 
             Filter updated = Filter.Linear;
-            if (sender == laplacianBox)
-                updated = Filter.Laplacian;
-            else if (sender == minMaxBox)
+            if (sender == casaburiBox)
                 updated = Filter.Kasaburi;
-            else if (sender == medianBox)
+            else if (sender == medianCheckBox)
                 updated = Filter.Median;
+            else if (sender == fastMedianBox)
+                updated = Filter.FastMedian;
             else if (sender == meanBox)
                 updated = Filter.Mean;
             else if (sender == linearBox)
@@ -251,7 +247,7 @@ namespace Lab2
                 var imageBuffer = new ImageBuffer<ARGB>(input, width, height);
                 (TimeSpan time, ImageBuffer<ARGB> argb) = RunTests(imageBuffer, filter, frame,
                     new(tests, threads),
-                    ConvolutionMethods.ARGB(imageBuffer, ARGB.Channel.RGB, kernel, 1.5, 50f)
+                    ConvolutionMethods.ARGB(imageBuffer, ARGB.Channel.RGB, kernel, 1.5)
                 );
 
                 return (time, argb);
@@ -275,12 +271,15 @@ namespace Lab2
             ConvolutionMethod<TPixel, TChannel> testFunction = filter switch
             {
                 Filter.Linear => module.Linear,
-                Filter.Laplacian => module.Laplacian,
+                Filter.FastMedian => module.Median,
                 Filter.Median => module.Median,
                 Filter.Mean => module.MeanRecursive,
                 Filter.Kasaburi => module.Kasaburi,
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+            if (filter == Filter.Median)
+                frame = new Frame(0, 0, frame.Width, 1);
 
             Trace.WriteLine("Starting tests...");
             for (int count = 0; count < numTests; count++)

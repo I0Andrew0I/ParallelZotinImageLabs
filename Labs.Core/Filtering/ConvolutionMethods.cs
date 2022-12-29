@@ -1,4 +1,5 @@
-﻿using Labs.Core.Scheme;
+﻿using ImageMagick;
+using Labs.Core.Scheme;
 
 namespace Labs.Core.Filtering
 {
@@ -14,33 +15,34 @@ namespace Labs.Core.Filtering
 
     public static class ConvolutionMethods
     {
-        public static ConvolutionModule<ARGB, ARGB.Channel> ARGB(ImageBuffer<ARGB> input, ARGB.Channel channels, double[,] kernel, double sharpness, float threshold) => new()
+        public static ConvolutionModule<ARGB, ARGB.Channel> ARGB(ImageBuffer<ARGB> input, ARGB.Channel channels, double[,] kernel, double value) => new()
         {
             Linear = new KernelConvolution<ARGB, ARGB.Channel>(input, channels, kernel),
-            Laplacian = new LaplacianConvolution<ARGB, ARGB.Channel>(input, channels, kernel, sharpness),
+            Laplacian = new LaplacianConvolution<ARGB, ARGB.Channel>(input, channels, kernel, value),
             Median = new CustomConvolution<ARGB, ARGB.Channel>(input, channels, Reducers.ARGBMedianReducer(channels)),
             // MinMax = new CustomConvolution<ARGB, ARGB.Channel>(input, channels, Reducers.ARGBMinMaxReducer(channels)),
-            Kasaburi = new CustomConvolution<ARGB, ARGB.Channel>(input, channels, Reducers.ARGBKasaburiReducer(channels, threshold)),
+            Kasaburi = new CustomConvolution<ARGB, ARGB.Channel>(input, channels, Reducers.ARGBKasaburiReducer(channels, value)),
             MeanRecursive = new MeanRecursiveConvolution<ARGB, ARGB.Channel>(input, channels, kernel)
         };
 
-        public static ConvolutionModule<HLSA, HLSA.Channel> HLSA(ImageBuffer<HLSA> input, HLSA.Channel channels, double[,] kernel, double sharpness, float threshold) => new()
+        public static ConvolutionModule<HLSA, HLSA.Channel> HLSA(ImageBuffer<HLSA> input, HLSA.Channel channels, double[,] kernel, double value) => new()
         {
             Linear = new KernelConvolution<HLSA, HLSA.Channel>(input, channels, kernel),
-            Laplacian = new LaplacianConvolution<HLSA, HLSA.Channel>(input, channels, kernel, sharpness),
+            Laplacian = new LaplacianConvolution<HLSA, HLSA.Channel>(input, channels, kernel, value),
             Median = new CustomConvolution<HLSA, HLSA.Channel>(input, channels, Reducers.HLSAMedianReducer(channels)),
             // MinMax = new CustomConvolution<HLSA, HLSA.Channel>(input, channels, Reducers.HLSAMinMaxReducer(channels)),
-            Kasaburi = new CustomConvolution<HLSA, HLSA.Channel>(input, channels, Reducers.HLSAKasaburiReducer(channels, threshold)),
+            Kasaburi = new CustomConvolution<HLSA, HLSA.Channel>(input, channels, Reducers.HLSAKasaburiReducer(channels, value)),
             
             MeanRecursive = new MeanRecursiveConvolution<HLSA, HLSA.Channel>(input, channels, kernel)
         };
 
-        public static ConvolutionModule<YUV, YUV.Channel> YUV(ImageBuffer<YUV> input, YUV.Channel channels, double[,] kernel, double sharpness) => new()
+        public static ConvolutionModule<YUV, YUV.Channel> YUV(ImageBuffer<YUV> input, YUV.Channel channels, double[,] kernel, double value) => new()
         {
             Linear = new KernelConvolution<YUV, YUV.Channel>(input, channels, kernel),
-            Laplacian = new LaplacianConvolution<YUV, YUV.Channel>(input, channels, kernel, sharpness),
+            Laplacian = new LaplacianConvolution<YUV, YUV.Channel>(input, channels, kernel, value),
             Median = new CustomConvolution<YUV, YUV.Channel>(input, channels, Reducers.YUVMedianReducer(channels)),
             // MinMax = new CustomConvolution<YUV, YUV.Channel>(input, channels, Reducers.YUVMinMaxReducer(channels)),
+            Kasaburi = new CustomConvolution<YUV, YUV.Channel>(input, channels, Reducers.YUVKasaburiReducer(channels, value)),
             MeanRecursive = new MeanRecursiveConvolution<YUV, YUV.Channel>(input, channels, kernel)
         };
     }

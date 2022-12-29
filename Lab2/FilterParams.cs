@@ -10,7 +10,7 @@ namespace Lab2
         internal double[,]? Matrix;
 
         internal bool RoundFrame;
-        internal double Sharpness;
+        internal double SliderValue;
         internal readonly Filter Filter;
 
         public FilterParams(Filter filter)
@@ -25,18 +25,20 @@ namespace Lab2
         {
             matrixPanel.Visible = false;
             shapePanel.Visible = false;
-            sharpnessPanel.Visible = false;
+            sliderPanel.Visible = false;
             sizePanel.Visible = false;
 
-            if (Filter == Filter.Laplacian)
+            if (Filter == Filter.Kasaburi)
             {
-                sharpnessPanel.Visible = true;
+                sliderPanel.Visible = true;
+                sliderLabel.Text = "Threshold";
+                minSliderLabel.Text = "1";
+                maxSliderLabel.Text = "100";
+                sliderBar.Maximum = 100;
             }
-            else
-            {
-                sizePanel.Visible = true;
-                shapePanel.Visible = true;
-            }
+
+            sizePanel.Visible = true;
+            shapePanel.Visible = true;
 
             if (Filter == Filter.Linear)
             {
@@ -128,9 +130,9 @@ namespace Lab2
             RoundFrame = true;
         }
 
-        private void sharpnessBar_Scroll(object sender, EventArgs e)
+        private void sliderBar_Scroll(object sender, EventArgs e)
         {
-            Sharpness = sharpnessBar.Value / 50.0;
+            SliderValue = sliderBar.Value;
         }
     }
 }
