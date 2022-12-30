@@ -316,10 +316,10 @@ namespace Lab3
             ImageBuffer<GrayScale> tempResult = new(pixels, source.Width, source.Height);
 
             string filename = "";
-            if (toboganningRadio.Checked) //классическое расширение
+            if (classicExpansionRadio.Checked) //классическое расширение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                ToboganningFilteringMethod(source, tempResult, mask);
+                ClassicExpansionFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
@@ -369,9 +369,44 @@ namespace Lab3
         #region Morphological filtering
 
 
+        private void ClassicExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+                bool[,] mask)
+        {
+            Span<GrayScale> sourcePixels = source.Pixels;
+            Span<GrayScale> resultPixels = result.Pixels;
+            int mWidth = mask.GetLength(0);
+            int mHeight = mask.GetLength(1);
+            int RW = (mWidth - 1) / 2;
+            int RH = (mHeight - 1) / 2;
+
+            var maxY = source.Height - RH - 1;
+            var maxX = source.Width - RW - 1;
+
+            for (int y = RH; y < maxY; y++)
+            for (int x = RW; x < maxX; x++)
+            {
+                double max = 0;
+
+                int pid = x + y * source.Width;
+                for (int j = -RH; j <= RH; j++)
+                {
+                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+                    for (int i = -RW; i <= RW; i++)
+                    {
+                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
+                        int fid = x1 + y1 * source.Width;
+
+                        if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
+                            max = sourcePixels[fid].Value;
+                    }
+                }
+
+                resultPixels[pid] = new GrayScale(max);
+            }
+        }
+
         
-        private void ToboganningFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
-            bool[,] mask)
+        private void ToboganningFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result)
         {
             Span<GrayScale> sourcePixels = source.Pixels;
             List<MinPixelCoordinates> sectionPixels = new List<MinPixelCoordinates>();
@@ -589,7 +624,8 @@ namespace Lab3
             }
 
             TimeSpan time;
-            if (histogramSegmentationRadio.Checked) //разбиение
+            classicExpansionRadio
+            if (toboganningSegmentationRadio.Checked) //разбиение
             {
                 ArraySegment<ARGB> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<ARGB>.Empty);
                 ImageBuffer<ARGB> rgbResult = new(pixels, source.Width, source.Height);
@@ -604,14 +640,14 @@ namespace Lab3
                 SaveImageCopy(pixels, "segmentHist");
                 MessageBox.Show($"Histogram segmentation: {time.Seconds:00}:{time.Milliseconds:000}");
             }
-            else if (graphSegmentationRadio.Checked) //графы
+            else if (toboganningSegmentationRadio.Checked) //графы
             {
                 ArraySegment<GrayScale> pixels =
                     UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
                 ImageBuffer<GrayScale> grayResult = new(pixels, source.Width, source.Height);
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                GraphSegmentationMethod(source, grayResult, _threshold);
+                ToboganningFilteringMethod(source, grayResult);
                 stopWatch.Stop();
 
                 time = stopWatch.Elapsed;

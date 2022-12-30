@@ -64,12 +64,12 @@ namespace Lab3
             this.fastShrinkingRadio = new System.Windows.Forms.RadioButton();
             this.shrinkingRadio = new System.Windows.Forms.RadioButton();
             this.fastExpansionRadio = new System.Windows.Forms.RadioButton();
-            this.toboganningRadio = new System.Windows.Forms.RadioButton();
+            this.classicExpansionRadio = new System.Windows.Forms.RadioButton();
             this.button5 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.graphSegmentationRadio = new System.Windows.Forms.RadioButton();
+            this.toboganningSegmentationRadio = new System.Windows.Forms.RadioButton();
             this.button6 = new System.Windows.Forms.Button();
-            this.histogramSegmentationRadio = new System.Windows.Forms.RadioButton();
+            this.regionExpansionRadio = new System.Windows.Forms.RadioButton();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.inputPictureBox = new System.Windows.Forms.PictureBox();
             this.outputPictureBox = new System.Windows.Forms.PictureBox();
@@ -444,7 +444,7 @@ namespace Lab3
             this.groupBox3.Controls.Add(this.fastShrinkingRadio);
             this.groupBox3.Controls.Add(this.shrinkingRadio);
             this.groupBox3.Controls.Add(this.fastExpansionRadio);
-            this.groupBox3.Controls.Add(this.toboganningRadio);
+            this.groupBox3.Controls.Add(this.classicExpansionRadio);
             this.groupBox3.Location = new System.Drawing.Point(674, 632);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.groupBox3.Name = "groupBox3";
@@ -503,15 +503,15 @@ namespace Lab3
             //
             // expansionRadio
             //
-            this.toboganningRadio.AutoSize = true;
-            this.toboganningRadio.Location = new System.Drawing.Point(18, 37);
-            this.toboganningRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.toboganningRadio.Name = "expansionRadio";
-            this.toboganningRadio.Size = new System.Drawing.Size(118, 24);
-            this.toboganningRadio.TabIndex = 6;
-            this.toboganningRadio.TabStop = true;
-            this.toboganningRadio.Text = "Toboganning";
-            this.toboganningRadio.UseVisualStyleBackColor = true;
+            this.classicExpansionRadio.AutoSize = true;
+            this.classicExpansionRadio.Location = new System.Drawing.Point(18, 37);
+            this.classicExpansionRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.classicExpansionRadio.Name = "expansionRadio";
+            this.classicExpansionRadio.Size = new System.Drawing.Size(118, 24);
+            this.classicExpansionRadio.TabIndex = 6;
+            this.classicExpansionRadio.TabStop = true;
+            this.classicExpansionRadio.Text = "Toboganning";
+            this.classicExpansionRadio.UseVisualStyleBackColor = true;
             //
             // button5
             //
@@ -526,9 +526,9 @@ namespace Lab3
             //
             // groupBox4
             //
-            this.groupBox4.Controls.Add(this.graphSegmentationRadio);
+            this.groupBox4.Controls.Add(this.toboganningSegmentationRadio);
             this.groupBox4.Controls.Add(this.button6);
-            this.groupBox4.Controls.Add(this.histogramSegmentationRadio);
+            this.groupBox4.Controls.Add(this.regionExpansionRadio);
             this.groupBox4.Location = new System.Drawing.Point(501, 632);
             this.groupBox4.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.groupBox4.Name = "groupBox4";
@@ -540,15 +540,15 @@ namespace Lab3
             //
             // graphSegmentationRadio
             //
-            this.graphSegmentationRadio.AutoSize = true;
-            this.graphSegmentationRadio.Location = new System.Drawing.Point(14, 64);
-            this.graphSegmentationRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.graphSegmentationRadio.Name = "graphSegmentationRadio";
-            this.graphSegmentationRadio.Size = new System.Drawing.Size(75, 24);
-            this.graphSegmentationRadio.TabIndex = 12;
-            this.graphSegmentationRadio.TabStop = true;
-            this.graphSegmentationRadio.Text = "graphs";
-            this.graphSegmentationRadio.UseVisualStyleBackColor = true;
+            this.toboganningSegmentationRadio.AutoSize = true;
+            this.toboganningSegmentationRadio.Location = new System.Drawing.Point(14, 64);
+            this.toboganningSegmentationRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.toboganningSegmentationRadio.Name = "toboganningSegmentationRadio";
+            this.toboganningSegmentationRadio.Size = new System.Drawing.Size(75, 24);
+            this.toboganningSegmentationRadio.TabIndex = 12;
+            this.toboganningSegmentationRadio.TabStop = true;
+            this.toboganningSegmentationRadio.Text = "Toboganning";
+            this.toboganningSegmentationRadio.UseVisualStyleBackColor = true;
             //
             // button6
             //
@@ -563,15 +563,15 @@ namespace Lab3
             //
             // histogramSegmentationRadio
             //
-            this.histogramSegmentationRadio.AutoSize = true;
-            this.histogramSegmentationRadio.Location = new System.Drawing.Point(14, 31);
-            this.histogramSegmentationRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.histogramSegmentationRadio.Name = "histogramSegmentationRadio";
-            this.histogramSegmentationRadio.Size = new System.Drawing.Size(97, 24);
-            this.histogramSegmentationRadio.TabIndex = 2;
-            this.histogramSegmentationRadio.TabStop = true;
-            this.histogramSegmentationRadio.Text = "histogram";
-            this.histogramSegmentationRadio.UseVisualStyleBackColor = true;
+            this.regionExpansionRadio.AutoSize = true;
+            this.regionExpansionRadio.Location = new System.Drawing.Point(14, 31);
+            this.regionExpansionRadio.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.regionExpansionRadio.Name = "regionExpansionRadio";
+            this.regionExpansionRadio.Size = new System.Drawing.Size(97, 24);
+            this.regionExpansionRadio.TabIndex = 2;
+            this.regionExpansionRadio.TabStop = true;
+            this.regionExpansionRadio.Text = "расширение регионов";
+            this.regionExpansionRadio.UseVisualStyleBackColor = true;
             //
             // tableLayoutPanel1
             //
@@ -724,14 +724,14 @@ namespace Lab3
         private System.Windows.Forms.RadioButton fastShrinkingRadio;
         private System.Windows.Forms.RadioButton shrinkingRadio;
         private System.Windows.Forms.RadioButton fastExpansionRadio;
-        private System.Windows.Forms.RadioButton toboganningRadio;
+        private System.Windows.Forms.RadioButton classicExpansionRadio;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.RadioButton localThresholdRadio;
         private System.Windows.Forms.RadioButton globalThresholdRadio;
-        private System.Windows.Forms.RadioButton graphSegmentationRadio;
-        private System.Windows.Forms.RadioButton histogramSegmentationRadio;
+        private System.Windows.Forms.RadioButton toboganningSegmentationRadio;
+        private System.Windows.Forms.RadioButton regionExpansionRadio;
 		private TableLayoutPanel tableLayoutPanel1;
 		private PictureBox inputPictureBox;
 		private PictureBox outputPictureBox;
