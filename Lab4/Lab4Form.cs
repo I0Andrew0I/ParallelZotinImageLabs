@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -346,7 +347,8 @@ namespace Лабораторная_1
 			TimeSpan ts = stopWatch.Elapsed;
 
 			PrintCurr(ts, "Гистограммные статистики");
-			button7.Visible = true;
+
+			DrawHistogramStats();
 		}
 
         void countMinMax(double[,] arr, out double min, out double max)
@@ -393,7 +395,9 @@ namespace Лабораторная_1
 
             Parallel.For(0, 5, po, i =>
             {
-                LAWS_Map[i] = new int[5][,];
+				//for (int i = 0; i < 5; i++)
+				//{
+				LAWS_Map[i] = new int[5][,];
                 for (int j = 0; j < 5; j++)
                 {
                     LAWS_Map[i][j] = new int[height, width];
@@ -509,91 +513,103 @@ namespace Лабораторная_1
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            Bitmap bmp_orig = new Bitmap(inputPictureBox.Image);
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            LUT(bmp_orig, (int)threads.Value);
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
+			StartLUT((int)threads.Value);
+		}
+
+        void StartLUT(int threadCount)
+        {
+			Bitmap bmp_orig = new Bitmap(inputPictureBox.Image);
+			Stopwatch stopWatch = new Stopwatch();
+			stopWatch.Start();
+			LUT(bmp_orig, threadCount);
+			stopWatch.Stop();
+			TimeSpan ts = stopWatch.Elapsed;
 			PrintCurr(ts, "Карты Лавласа");
-			button8.Visible = true;
-        }
+
+			DrawLavlas();
+		}
 
         private void button7_Click(object sender, EventArgs e)
         {
-            double min = 0, max = 0;
-            string filename = "";
-            double res = 0;
-            int xx = 0;
-            int yy = 0;
-
-            if (radioButton4.Checked)
-            {
-                countMinMax(M2, out min, out max);
-                filename = "/M2.png";
-            }
-            else if (radioButton5.Checked)
-            {
-                countMinMax(R, out min, out max);
-                filename = "/R.png";
-            }
-            else if (radioButton6.Checked)
-            {
-                countMinMax(U, out min, out max);
-                filename = "/U.png";
-            }
-            else if (radioButton7.Checked)
-            {
-                countMinMax(E, out min, out max);
-                filename = "/E.png";
-            }
-            else
-            {
-                MessageBox.Show("Вы не выбрали, какой признак отобразить!");
-                return;
-            }
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    xx = x * 4;
-                    yy = y * sourceData.Stride;
-                    if (radioButton4.Checked)
-                    {
-                        res = ((M2[y,x]-min) / (max - min)) *255;
-                    }
-                    else if (radioButton5.Checked)
-                    {
-                        res = ((R[y,x] - min) / (max - min)) * 255;
-                    }
-                    else if (radioButton6.Checked)
-                    {
-                        res = ((U[y,x] - min) / (max - min)) * 255;
-                    }
-                    else if (radioButton7.Checked)
-                    {
-                        res = ((E[y,x] - min) / (max - min)) * 255;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Вы не выбрали, какой признак отобразить!");
-                    }
-
-                    result[xx + yy + 2] = (byte)res;
-                    result[xx + yy + 1] = (byte)res;
-                    result[xx + yy] = (byte)res;
-                    result[xx + yy + 3] = 255;
-                }
-            }
-
-            //сохраняем там же, где лежит исходный файл
-            FileInfo fileInfo = new FileInfo(filePath);
-            Bitmap resultBmp = new Bitmap(width, height);
-            FromByteToBmp(resultBmp, result);
-            resultBmp.Save(fileInfo.DirectoryName + filename, ImageFormat.Png);
-            outputPictureBox.Image = resultBmp;
+            
         }
+
+		void DrawHistogramStats()
+		{
+			double min = 0, max = 0;
+			string filename = "";
+			double res = 0;
+			int xx = 0;
+			int yy = 0;
+
+			if (radioButton4.Checked)
+			{
+				countMinMax(M2, out min, out max);
+				filename = "/M2.png";
+			}
+			else if (radioButton5.Checked)
+			{
+				countMinMax(R, out min, out max);
+				filename = "/R.png";
+			}
+			else if (radioButton6.Checked)
+			{
+				countMinMax(U, out min, out max);
+				filename = "/U.png";
+			}
+			else if (radioButton7.Checked)
+			{
+				countMinMax(E, out min, out max);
+				filename = "/E.png";
+			}
+			else
+			{
+				MessageBox.Show("Вы не выбрали, какой признак отобразить!");
+				return;
+			}
+
+			for (int y = 0; y < height; y++)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					xx = x * 4;
+					yy = y * sourceData.Stride;
+					if (radioButton4.Checked)
+					{
+						res = ((M2[y, x] - min) / (max - min)) * 255;
+					}
+					else if (radioButton5.Checked)
+					{
+						res = ((R[y, x] - min) / (max - min)) * 255;
+					}
+					else if (radioButton6.Checked)
+					{
+						res = ((U[y, x] - min) / (max - min)) * 255;
+					}
+					else if (radioButton7.Checked)
+					{
+						res = ((E[y, x] - min) / (max - min)) * 255;
+					}
+					else
+					{
+						MessageBox.Show("Вы не выбрали, какой признак отобразить!");
+					}
+
+					result[xx + yy + 2] = (byte)res;
+					result[xx + yy + 1] = (byte)res;
+					result[xx + yy] = (byte)res;
+					result[xx + yy + 3] = 255;
+				}
+			}
+
+			//сохраняем там же, где лежит исходный файл
+			FileInfo fileInfo = new FileInfo(filePath);
+			Bitmap resultBmp = new Bitmap(width, height);
+			FromByteToBmp(resultBmp, result);
+			resultBmp.Save(fileInfo.DirectoryName + filename, ImageFormat.Png);
+			outputPictureBox.Image = resultBmp;
+		}
+
         double LinearFilter(int rh, int rw, int y, int x, double[,] Y, double[,] linearCoefs)
         {
             double res = 0;
@@ -681,450 +697,455 @@ namespace Лабораторная_1
 
         private void button5_Click(object sender, EventArgs e)
         {
-            string filename = "";
-            int porog = int.Parse(textBox2.Text); 
-            int rad = int.Parse(textBox4.Text);
-            double[,] Y = new double[height, width];
-            Y = GetY();
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = (int)threads.Value };
-            if (radioButton8.Checked)
-            {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-                double[,] newY = new double[height, width];
-                //коэффициенты для линейного фильтра
-                double[,] coefsLF = new double[3, 3];
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
-                    {
-                        if (i == 1 && j == 1)
-                            coefsLF[i, j] = 0.2;
-                        else
-                            coefsLF[i, j] = 0.1;
-                    }
-                }
-                //сглаживание линейным фильтром
-                //for (int y = 0; y < height; y++)
-                
-                Parallel.For(0, height, po, y =>
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        newY[y, x] = LinearFilter(1, 1, y, x, Y, coefsLF);
-                    }
-                });
+            StartSpecialPoints((int)threads.Value);
+		}
 
-                double[,] diffX = new double[height, width];
-                double[,] diffY = new double[height, width];
-                double[,] diffXX = new double[height, width];
-                double[,] diffYY = new double[height, width];
-                double[,] diffXY = new double[height, width];
-                int RH = 1, RW = 1;
-
-                ////коэффициенты для градиента по горизонтали
-                double[,] coefsH = new double[3, 3];
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsH[i, 0] = 1;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsH[i, 1] = 0;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsH[i, 2] = -1;
-                }
-
-                //коэффициенты для градиента по вертикали
-                double[,] coefsV = new double[3, 3];
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsV[0, i] = 1;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsV[1, i] = 0;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    coefsV[2, i] = -1;
-                }
-
-
-                //for (int y = 0; y < height; y++)
-                Parallel.For(0, height, po, y =>
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        double linF_ValueX = 0;
-                        double linF_ValueY = 0;
-                        for (int dy = -RH; dy <= RH; dy++)
-                        {
-                            int ky = y + dy;
-                            if (ky < 0) ky = 0;
-                            if (ky > height - 1) ky = height - 1;
-                            for (int dx = -RW; dx <= RW; dx++)
-                            {
-                                int kx = x + dx;
-                                if (kx < 0) kx = 0;
-                                if (kx > width - 1) kx = width - 1;
-                                linF_ValueX += newY[ky, kx] * coefsH[dy + RH, dx + RW];
-                                linF_ValueY += newY[ky, kx] * coefsV[dy + RH, dx + RW];
-                            }
-                        }
-                        linF_ValueX = linF_ValueX < 0 ? 0 : linF_ValueX;
-                        linF_ValueX = linF_ValueX > 255 ? 255 : linF_ValueX;
-                        linF_ValueY = linF_ValueY < 0 ? 0 : linF_ValueY;
-                        linF_ValueY = linF_ValueY > 255 ? 255 : linF_ValueY;
-                        diffX[y, x] = linF_ValueX;
-                        diffY[y, x] = linF_ValueY;
-                    }
-                });
-
-                Parallel.For(0, height, po, y =>
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        double linF_ValueX = 0;
-                        double linF_ValueY = 0;
-                        double linF_ValueXY = 0;
-                        for (int dy = -RH; dy <= RH; dy++)
-                        {
-                            int ky = y + dy;
-                            if (ky < 0) ky = 0;
-                            if (ky > height - 1) ky = height - 1;
-                            for (int dx = -RW; dx <= RW; dx++)
-                            {
-                                int kx = x + dx;
-                                if (kx < 0) kx = 0;
-                                if (kx > width - 1) kx = width - 1;
-                                linF_ValueX += diffX[ky, kx] * coefsH[dy + RH, dx + RW];
-                                linF_ValueY += diffY[ky, kx] * coefsV[dy + RH, dx + RW];
-                                linF_ValueXY += diffX[ky, kx] * coefsV[dy + RH, dx + RW];
-                            }
-                        }
-                        linF_ValueX = linF_ValueX < 0 ? 0 : linF_ValueX;
-                        linF_ValueX = linF_ValueX > 255 ? 255 : linF_ValueX;
-                        linF_ValueY = linF_ValueY < 0 ? 0 : linF_ValueY;
-                        linF_ValueY = linF_ValueY > 255 ? 255 : linF_ValueY;
-                        linF_ValueXY = linF_ValueXY < 0 ? 0 : linF_ValueXY;
-                        linF_ValueXY = linF_ValueXY > 255 ? 255 : linF_ValueXY;
-                        diffXX[y, x] = linF_ValueX;
-                        diffYY[y, x] = linF_ValueY;
-                        diffXY[y, x] = linF_ValueXY;
-                    }
-                });
-
-                //вычисление значения функции отклика угла R
-                double[,] H = new double[height, width];
-                //for (int y = 0; y < height; y++)
-                Parallel.For(0, height, po, y =>
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        double A = diffX[y, x];
-                        double B = diffY[y, x];
-                        double C = diffXY[y, x];
-                        double res = (A * B - C * C) - (0.04 * ((A + B) * (A + B)));
-                        if (res > porog) //порог вводит пользователь
-                            H[y, x] = res;
-                        else
-                            H[y, x] = 0;
-                    }
-                });
-
-                //поиск особых точек для визуализации
-                List<HarrisPoint> HarrisPoints = new List<HarrisPoint>();
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        if (H[y, x] > 0 && H[y,x] > porog)
-                        {
-                            HarrisPoint curHP = new HarrisPoint();
-                            curHP.x = x;
-                            curHP.y = y;
-                            curHP.val = H[y, x];
-                            HarrisPoints.Add(curHP);
-                        }
-                    }
-                }
-
-                //сортировка по убыванию
-                for (int i = 0; i < HarrisPoints.Count - 1; i++)
-                {
-                    if (HarrisPoints[i].val < HarrisPoints[i + 1].val)
-                    {
-                        HarrisPoint tmp = new HarrisPoint();
-                        tmp = HarrisPoints[i];
-                        HarrisPoints[i] = HarrisPoints[i + 1];
-                        HarrisPoints[i + 1] = tmp;
-                    }
-                }
-
-                //отсечение по порогу и удаление точек. радиус задаёт пользователь, >=20
-                int s = HarrisPoints.Count;
-                List<HarrisPoint> arr= new List<HarrisPoint>();
-                for (int i = 0; i < HarrisPoints.Count; i++)
-                {
-                    arr.Add(HarrisPoints[i]);
-                }
-                HarrisPoints.Clear();
-                int a = 0;
-                bool flag;
-                do
-                {
-                    flag = true;
-                    if (a > 0)
-                    {
-                        for (int j = 0; j < HarrisPoints.Count; j++)
-                        {
-                            if (Math.Sqrt(Math.Pow(arr[a].x - HarrisPoints[j].x, 2) + Math.Pow(arr[a].y -
-                            HarrisPoints[j].y, 2)) < rad)
-                            {
-                                flag = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (flag)
-                    {
-                        HarrisPoints.Add(arr[a]);
-                    }
-                    a++;
-                } while (a < s);
-
-                //визуализация
-                int rh = 1; int rw = 1;
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        for (int dy = -rh; dy <= rh; dy++)
-                        {
-                            int ky = dy + y;
-                            if (ky < 0) ky = 0;
-                            if (ky > height - 1) ky = height - 1;
-                            for (int dx = -rw; dx <= rw; dx++)
-                            {
-                                int kx = x + dx;
-                                if (kx < 0) kx = 0;
-                                if (kx > width - 1) kx = width - 1;
-                                HarrisPoint curHP = new HarrisPoint();
-                                curHP.x = kx;
-                                curHP.y = ky;
-                                curHP.val = H[ky, kx];
-                                int xx = kx * 4;
-                                int yy = ky * sourceData.Stride;
-                                if (HarrisPoints.Contains(curHP))
-                                {
-                                    result[xx + yy + 2] = 255;
-                                    result[xx + yy + 1] = 0;
-                                    result[xx + yy] = 0;
-                                    result[xx + yy + 3] = 255;
-                                }
-                                else
-                                {
-                                    result[xx + yy + 2] = buffer[xx + yy + 2];
-                                    result[xx + yy + 1] = buffer[xx + yy + 1];
-                                    result[xx + yy] = buffer[xx + yy];
-                                    result[xx + yy + 3] = 255;
-                                }
-                            }
-                        }
-                    }
-                }
-                stopWatch.Stop();
-                TimeSpan ts = stopWatch.Elapsed;
-
-                PrintCurr(ts, "Харрис");
-                filename = "/Harris.png";
-            }
-            else if(radioButton9.Checked)
-            {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
-                int w = inputPictureBox.Image.Width;
-                int h = inputPictureBox.Image.Height;
-
-                double[,] F = new double[h, w];
-
-                //сглаживание линейным фильтром
-                Parallel.For(0, h, po, y =>
-                {
-                    for (int x = 0; x < w; x++)
-                    {
-                        F[y, x] = 0;
-                    }
-                });
-
-                Parallel.For(0, h, po, y =>
-                {
-                    for (int x = 0; x < w; x++)
-                    {
-                        HarrisPoint[] circle = new HarrisPoint[16];
-                        circle = getBCircle(x, y, Y);
-                        double curPorog = porog + Y[y, x];
-                        int count = 0;
-                        if (circle[0].val >= 0 && (circle[0].val > curPorog || circle[0].val < curPorog))
-                            count++;
-                        if (circle[4].val >= 0 && (circle[4].val > curPorog || circle[4].val < curPorog))
-                            count++;
-                        if (circle[8].val >= 0 && (circle[8].val > curPorog || circle[8].val < curPorog))
-                            count++;
-                        if (circle[12].val >= 0 && (circle[12].val > curPorog || circle[12].val < curPorog))
-                            count++;
-
-                        if (count >= 3)
-                        {
-                            count = 0;
-                            for (int k = 0; k < 16; k++)
-                            {
-                                if (circle[k].val > curPorog)
-                                    count++;
-                            }
-                            F[y, x] = count;
-                        }
-                    }
-                });
-
-                //отсечение по порогу
-                //поиск особых точек для визуализации
-                List<HarrisPoint> points = new List<HarrisPoint>();
-
-                //Parallel.For(0, h, po, y =>
-                for (int y = 0; y < h; y++)
-                {
-                    for (int x = 0; x < w; x++)
-                    {
-                        if (F[y, x] != 0 && F[y, x] > porog)
-                        {
-                            HarrisPoint curHP = new HarrisPoint();
-                            curHP.x = x;
-                            curHP.y = y;
-                            curHP.val = F[y, x];
-                            points.Add(curHP);
-                        }
-                    }
-                }
-                //);
-
-                //сортировка по убыванию
-                for (int i = 0; i < points.Count - 1; i++)
-                {
-                    if (points[i].val < points[i + 1].val)
-                    {
-                        HarrisPoint tmp = new HarrisPoint();
-                        tmp = points[i];
-                        points[i] = points[i + 1];
-                        points[i + 1] = tmp;
-                    }
-                }
-
-                //отсечение по порогу и удаление точек. радиус задаёт пользователь, >=20
-                int s = points.Count;
-                List<HarrisPoint> arr = new List<HarrisPoint>();
-                for (int i = 0; i < points.Count; i++)
-                {
-                    arr.Add(points[i]);
-                }
-                points.Clear();
-                int a = 0;
-                bool flag;
-                do
-                {
-                    flag = true;
-                    if (a > 0)
-                    {
-                        for (int j = 0; j < points.Count; j++)
-                        {
-                            if (Math.Sqrt(Math.Pow(arr[a].x - points[j].x, 2) + Math.Pow(arr[a].y -
-                            points[j].y, 2)) < rad)
-                            {
-                                flag = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (flag)
-                    {
-                        points.Add(arr[a]);
-                    }
-                    a++;
-                } while (a < s);
-
-                //визуализация
-                int rh = 1;
-                int rw = 1;
-                Parallel.For(0, h, po, y =>
-                {
-                    for (int x = 0; x < w; x++)
-                    {
-                        for (int dy = -rh; dy <= rh; dy++)
-                        {
-                            int ky = dy + y;
-                            if (ky < 0) ky = 0;
-                            if (ky > h - 1) ky = h - 1;
-                            for (int dx = -rw; dx <= rw; dx++)
-                            {
-                                int kx = x + dx;
-                                if (kx < 0) kx = 0;
-                                if (kx > w - 1) kx = w - 1;
-                                HarrisPoint curHP = new HarrisPoint();
-                                curHP.x = kx;
-                                curHP.y = ky;
-                                curHP.val = F[ky, kx];
-                                int xx = kx * 4;
-                                int yy = ky * sourceData.Stride;
-                                if (points.Contains(curHP))
-                                {
-                                    result[xx + yy + 2] = 255;
-                                    result[xx + yy + 1] = 0;
-                                    result[xx + yy] = 0;
-                                    result[xx + yy + 3] = 255;
-                                }
-                                else
-                                {
-                                    result[xx + yy + 2] = buffer[xx + yy + 2];
-                                    result[xx + yy + 1] = buffer[xx + yy + 1];
-                                    result[xx + yy] = buffer[xx + yy];
-                                    result[xx + yy + 3] = 255;
-                                }
-                            }
-                        }
-                    }
-                });
-                stopWatch.Stop();
-                TimeSpan ts = stopWatch.Elapsed;
-                
-                PrintCurr(ts, "FAST");
-                filename = "/FAST.png";
-            }
-            else
-            {
-                MessageBox.Show("Вы не выбрали метод!");
-            }
-
-            if (filename != "")
-            {
-                //сохраняем там же, где лежит исходный файл
-                FileInfo fileInfo = new FileInfo(filePath);
-                Bitmap resultBmp = new Bitmap(width, height);
-                FromByteToBmp(resultBmp, result);
-                resultBmp.Save(fileInfo.DirectoryName + filename, ImageFormat.Png);
-                outputPictureBox.Image = resultBmp;
-            }
-        }
-
-        private void button8_Click(object sender, EventArgs e)
+        void StartSpecialPoints (int threadsCount)
         {
-            int count1 = Convert.ToInt32(textBox3.Text);
-            int count2 = Convert.ToInt32(textBox5.Text);
-            outputPictureBox.Image = ShowImg(count1, count2);
-        }
+			string filename = "";
+			int porog = int.Parse(textBox2.Text);
+			int rad = int.Parse(numericUpDown1.Text);
+			double[,] Y = new double[height, width];
+			Y = GetY();
+			ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = threadsCount };
+			if (radioButton8.Checked)
+			{
+				Stopwatch stopWatch = new Stopwatch();
+				stopWatch.Start();
+				double[,] newY = new double[height, width];
+				//коэффициенты для линейного фильтра
+				double[,] coefsLF = new double[3, 3];
+				for (int i = 0; i < 3; i++)
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						if (i == 1 && j == 1)
+							coefsLF[i, j] = 0.2;
+						else
+							coefsLF[i, j] = 0.1;
+					}
+				}
+				//сглаживание линейным фильтром
+				//for (int y = 0; y < height; y++)
+				Parallel.For(0, height, po, y =>
+				{
+					for (int x = 0; x < width; x++)
+					{
+						newY[y, x] = LinearFilter(1, 1, y, x, Y, coefsLF);
+					}
+				});
+
+				double[,] diffX = new double[height, width];
+				double[,] diffY = new double[height, width];
+				double[,] diffXX = new double[height, width];
+				double[,] diffYY = new double[height, width];
+				double[,] diffXY = new double[height, width];
+				int RH = 1, RW = 1;
+
+				////коэффициенты для градиента по горизонтали
+				double[,] coefsH = new double[3, 3];
+				for (int i = 0; i < 3; i++)
+				{
+					coefsH[i, 0] = 1;
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					coefsH[i, 1] = 0;
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					coefsH[i, 2] = -1;
+				}
+
+				//коэффициенты для градиента по вертикали
+				double[,] coefsV = new double[3, 3];
+				for (int i = 0; i < 3; i++)
+				{
+					coefsV[0, i] = 1;
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					coefsV[1, i] = 0;
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					coefsV[2, i] = -1;
+				}
+
+				Parallel.For(0, height, po, y =>
+				{
+					for (int x = 0; x < width; x++)
+					{
+						double linF_ValueX = 0;
+						double linF_ValueY = 0;
+						for (int dy = -RH; dy <= RH; dy++)
+						{
+							int ky = y + dy;
+							if (ky < 0) ky = 0;
+							if (ky > height - 1) ky = height - 1;
+							for (int dx = -RW; dx <= RW; dx++)
+							{
+								int kx = x + dx;
+								if (kx < 0) kx = 0;
+								if (kx > width - 1) kx = width - 1;
+								linF_ValueX += newY[ky, kx] * coefsH[dy + RH, dx + RW];
+								linF_ValueY += newY[ky, kx] * coefsV[dy + RH, dx + RW];
+							}
+						}
+						linF_ValueX = linF_ValueX < 0 ? 0 : linF_ValueX;
+						linF_ValueX = linF_ValueX > 255 ? 255 : linF_ValueX;
+						linF_ValueY = linF_ValueY < 0 ? 0 : linF_ValueY;
+						linF_ValueY = linF_ValueY > 255 ? 255 : linF_ValueY;
+						diffX[y, x] = linF_ValueX;
+						diffY[y, x] = linF_ValueY;
+					}
+				});
+				//for (int y = 0; y < height; y++)
+				Parallel.For(0, height, po, y =>
+				{
+					for (int x = 0; x < width; x++)
+					{
+						double linF_ValueX = 0;
+						double linF_ValueY = 0;
+						double linF_ValueXY = 0;
+						for (int dy = -RH; dy <= RH; dy++)
+						{
+							int ky = y + dy;
+							if (ky < 0) ky = 0;
+							if (ky > height - 1) ky = height - 1;
+							for (int dx = -RW; dx <= RW; dx++)
+							{
+								int kx = x + dx;
+								if (kx < 0) kx = 0;
+								if (kx > width - 1) kx = width - 1;
+								linF_ValueX += diffX[ky, kx] * coefsH[dy + RH, dx + RW];
+								linF_ValueY += diffY[ky, kx] * coefsV[dy + RH, dx + RW];
+								linF_ValueXY += diffX[ky, kx] * coefsV[dy + RH, dx + RW];
+							}
+						}
+						linF_ValueX = linF_ValueX < 0 ? 0 : linF_ValueX;
+						linF_ValueX = linF_ValueX > 255 ? 255 : linF_ValueX;
+						linF_ValueY = linF_ValueY < 0 ? 0 : linF_ValueY;
+						linF_ValueY = linF_ValueY > 255 ? 255 : linF_ValueY;
+						linF_ValueXY = linF_ValueXY < 0 ? 0 : linF_ValueXY;
+						linF_ValueXY = linF_ValueXY > 255 ? 255 : linF_ValueXY;
+						diffXX[y, x] = linF_ValueX;
+						diffYY[y, x] = linF_ValueY;
+						diffXY[y, x] = linF_ValueXY;
+					}
+				});
+
+				//вычисление значения функции отклика угла R
+				double[,] H = new double[height, width];
+				//for (int y = 0; y < height; y++)
+				Parallel.For(0, height, po, y =>
+				{
+					for (int x = 0; x < width; x++)
+					{
+						double A = diffX[y, x];
+						double B = diffY[y, x];
+						double C = diffXY[y, x];
+						double res = (A * B - C * C) - (0.04 * ((A + B) * (A + B)));
+						if (res > porog) //порог вводит пользователь
+							H[y, x] = res;
+						else
+							H[y, x] = 0;
+					}
+				});
+
+				//поиск особых точек для визуализации
+				List<HarrisPoint> HarrisPoints = new List<HarrisPoint>();
+				for (int y = 0; y < height; y++)
+				{
+					for (int x = 0; x < width; x++)
+					{
+						if (H[y, x] > 0 && H[y, x] > porog)
+						{
+							HarrisPoint curHP = new HarrisPoint();
+							curHP.x = x;
+							curHP.y = y;
+							curHP.val = H[y, x];
+							HarrisPoints.Add(curHP);
+						}
+					}
+				}
+
+				//сортировка по убыванию
+				for (int i = 0; i < HarrisPoints.Count - 1; i++)
+				{
+					if (HarrisPoints[i].val < HarrisPoints[i + 1].val)
+					{
+						HarrisPoint tmp = new HarrisPoint();
+						tmp = HarrisPoints[i];
+						HarrisPoints[i] = HarrisPoints[i + 1];
+						HarrisPoints[i + 1] = tmp;
+					}
+				}
+
+				//отсечение по порогу и удаление точек. радиус задаёт пользователь, >=20
+				int s = HarrisPoints.Count;
+				List<HarrisPoint> arr = new List<HarrisPoint>();
+				for (int i = 0; i < HarrisPoints.Count; i++)
+				{
+					arr.Add(HarrisPoints[i]);
+				}
+				HarrisPoints.Clear();
+				int a = 0;
+				bool flag;
+				do
+				{
+					flag = true;
+					if (a > 0)
+					{
+						for (int j = 0; j < HarrisPoints.Count; j++)
+						{
+							if (Math.Sqrt(Math.Pow(arr[a].x - HarrisPoints[j].x, 2) + Math.Pow(arr[a].y -
+							HarrisPoints[j].y, 2)) < rad)
+							{
+								flag = false;
+								break;
+							}
+						}
+					}
+					if (flag)
+					{
+						HarrisPoints.Add(arr[a]);
+					}
+					a++;
+				} while (a < s);
+
+				//визуализация
+				int rh = 1; int rw = 1;
+				for (int y = 0; y < height; y++)
+				{
+					for (int x = 0; x < width; x++)
+					{
+						for (int dy = -rh; dy <= rh; dy++)
+						{
+							int ky = dy + y;
+							if (ky < 0) ky = 0;
+							if (ky > height - 1) ky = height - 1;
+							for (int dx = -rw; dx <= rw; dx++)
+							{
+								int kx = x + dx;
+								if (kx < 0) kx = 0;
+								if (kx > width - 1) kx = width - 1;
+								HarrisPoint curHP = new HarrisPoint();
+								curHP.x = kx;
+								curHP.y = ky;
+								curHP.val = H[ky, kx];
+								int xx = kx * 4;
+								int yy = ky * sourceData.Stride;
+								if (HarrisPoints.Contains(curHP))
+								{
+									result[xx + yy + 2] = 255;
+									result[xx + yy + 1] = 0;
+									result[xx + yy] = 0;
+									result[xx + yy + 3] = 255;
+								}
+								else
+								{
+									result[xx + yy + 2] = buffer[xx + yy + 2];
+									result[xx + yy + 1] = buffer[xx + yy + 1];
+									result[xx + yy] = buffer[xx + yy];
+									result[xx + yy + 3] = 255;
+								}
+							}
+						}
+					}
+				}
+				stopWatch.Stop();
+				TimeSpan ts = stopWatch.Elapsed;
+
+				PrintCurr(ts, "Харрис");
+				filename = "/Harris.png";
+			}
+			else if (radioButton9.Checked)
+			{
+				Stopwatch stopWatch = new Stopwatch();
+				stopWatch.Start();
+
+				int w = inputPictureBox.Image.Width;
+				int h = inputPictureBox.Image.Height;
+
+				double[,] F = new double[h, w];
+
+				//сглаживание линейным фильтром
+				Parallel.For(0, h, po, y =>
+				{
+					for (int x = 0; x < w; x++)
+					{
+						F[y, x] = 0;
+					}
+				});
+
+				Parallel.For(0, h, po, y =>
+				{
+					for (int x = 0; x < w; x++)
+					{
+						HarrisPoint[] circle = new HarrisPoint[16];
+						circle = getBCircle(x, y, Y);
+						double curPorog = porog + Y[y, x];
+						int count = 0;
+						if (circle[0].val >= 0 && (circle[0].val > curPorog || circle[0].val < curPorog))
+							count++;
+						if (circle[4].val >= 0 && (circle[4].val > curPorog || circle[4].val < curPorog))
+							count++;
+						if (circle[8].val >= 0 && (circle[8].val > curPorog || circle[8].val < curPorog))
+							count++;
+						if (circle[12].val >= 0 && (circle[12].val > curPorog || circle[12].val < curPorog))
+							count++;
+
+						if (count >= 3)
+						{
+							count = 0;
+							for (int k = 0; k < 16; k++)
+							{
+								if (circle[k].val > curPorog)
+									count++;
+							}
+							F[y, x] = count;
+						}
+					}
+				});
+
+				//отсечение по порогу
+				//поиск особых точек для визуализации
+				List<HarrisPoint> points = new List<HarrisPoint>();
+
+				//Parallel.For(0, h, po, y =>
+				for (int y = 0; y < h; y++)
+				{
+					for (int x = 0; x < w; x++)
+					{
+						if (F[y, x] != 0 && F[y, x] > porog)
+						{
+							HarrisPoint curHP = new HarrisPoint();
+							curHP.x = x;
+							curHP.y = y;
+							curHP.val = F[y, x];
+							points.Add(curHP);
+						}
+					}
+				}
+				//);
+
+				//сортировка по убыванию
+				for (int i = 0; i < points.Count - 1; i++)
+				{
+					if (points[i].val < points[i + 1].val)
+					{
+						HarrisPoint tmp = new HarrisPoint();
+						tmp = points[i];
+						points[i] = points[i + 1];
+						points[i + 1] = tmp;
+					}
+				}
+
+				//отсечение по порогу и удаление точек. радиус задаёт пользователь, >=20
+				int s = points.Count;
+				List<HarrisPoint> arr = new List<HarrisPoint>();
+				for (int i = 0; i < points.Count; i++)
+				{
+					arr.Add(points[i]);
+				}
+				points.Clear();
+				int a = 0;
+				bool flag;
+				do
+				{
+					flag = true;
+					if (a > 0)
+					{
+						for (int j = 0; j < points.Count; j++)
+						{
+							if (Math.Sqrt(Math.Pow(arr[a].x - points[j].x, 2) + Math.Pow(arr[a].y -
+							points[j].y, 2)) < rad)
+							{
+								flag = false;
+								break;
+							}
+						}
+					}
+					if (flag)
+					{
+						points.Add(arr[a]);
+					}
+					a++;
+				} while (a < s);
+
+				//визуализация
+				int rh = 1;
+				int rw = 1;
+				Parallel.For(0, h, po, y =>
+				//for (int y = 0; y < pictureBox1.Image.Height; y++)
+				{
+					for (int x = 0; x < w; x++)
+					{
+						for (int dy = -rh; dy <= rh; dy++)
+						{
+							int ky = dy + y;
+							if (ky < 0) ky = 0;
+							if (ky > h - 1) ky = h - 1;
+							for (int dx = -rw; dx <= rw; dx++)
+							{
+								int kx = x + dx;
+								if (kx < 0) kx = 0;
+								if (kx > w - 1) kx = w - 1;
+								HarrisPoint curHP = new HarrisPoint();
+								curHP.x = kx;
+								curHP.y = ky;
+								curHP.val = F[ky, kx];
+								int xx = kx * 4;
+								int yy = ky * sourceData.Stride;
+								if (points.Contains(curHP))
+								{
+									result[xx + yy + 2] = 255;
+									result[xx + yy + 1] = 0;
+									result[xx + yy] = 0;
+									result[xx + yy + 3] = 255;
+								}
+								else
+								{
+									result[xx + yy + 2] = buffer[xx + yy + 2];
+									result[xx + yy + 1] = buffer[xx + yy + 1];
+									result[xx + yy] = buffer[xx + yy];
+									result[xx + yy + 3] = 255;
+								}
+							}
+						}
+					}
+				});
+				stopWatch.Stop();
+				TimeSpan ts = stopWatch.Elapsed;
+
+				PrintCurr(ts, "FAST");
+				filename = "/FAST.png";
+			}
+			else
+			{
+				MessageBox.Show("Вы не выбрали метод!");
+			}
+
+			if (filename != "")
+			{
+				//сохраняем там же, где лежит исходный файл
+				FileInfo fileInfo = new FileInfo(filePath);
+				Bitmap resultBmp = new Bitmap(width, height);
+				FromByteToBmp(resultBmp, result);
+				resultBmp.Save(fileInfo.DirectoryName + filename, ImageFormat.Png);
+				outputPictureBox.Image = resultBmp;
+			}
+		}
+
+        private void button8_Click(object sender, EventArgs e) {	}
+
+		void DrawLavlas()
+		{
+			int count1 = Convert.ToInt32(numericUpDown3.Value);
+			int count2 = Convert.ToInt32(numericUpDown2.Value);
+			outputPictureBox.Image = ShowImg(count1, count2);
+		}
 
         public static double convRad(int x)
         {
@@ -1138,208 +1159,212 @@ namespace Лабораторная_1
         }
         private void button6_Click(object sender, EventArgs e)
         {
-            Bitmap bmp_orig = new Bitmap(inputPictureBox.Image);
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            Bitmap bmp = new Bitmap(inputPictureBox.Image);
-            int col_grad = 181;
-            //Порог
-            int TS = Convert.ToInt32(textBox6.Text);
-            //максимальная длина перпендикуляра (радиус)
-            int r = (int)Math.Sqrt((inputPictureBox.Height * inputPictureBox.Height) + (inputPictureBox.Width * inputPictureBox.Width));
-            //фазовое пространство
-            double[,] FP = new double[col_grad, r];
-            //Картинка в чб
-            Bitmap bmp_grey = new Bitmap(inputPictureBox.Image);
-            int par_col = 2;
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = (int)threads.Value };
-            //Заполняем нулями фазовое пространство
-            Parallel.For(0, col_grad, po, i =>
-            //for (int i = 0; i < col_grad; i++)
-            {
-                for (int j = 0; j < r; j++)
-                {
-                    FP[i, j] = 0;
-                }
-            });
-            //массив градусов
-            int[] grad = new int[col_grad];
-            Parallel.For(0, col_grad, po, i =>
-            //for (int i = 0; i < col_grad; i++)
-            {
-                grad[i] = i;
-            });
+			StartHaf((int)threads.Value);
+		}
+
+        void StartHaf(int threadsCount)
+        {
+			Bitmap bmp_orig = new Bitmap(inputPictureBox.Image);
+			Stopwatch stopWatch = new Stopwatch();
+			stopWatch.Start();
+			Bitmap bmp = new Bitmap(inputPictureBox.Image);
+			int col_grad = 181;
+			//Порог
+			int TS = Convert.ToInt32(textBox6.Text);
+			//максимальная длина перпендикуляра (радиус)
+			int r = (int)Math.Sqrt((inputPictureBox.Height * inputPictureBox.Height) + (inputPictureBox.Width * inputPictureBox.Width));
+			//фазовое пространство
+			double[,] FP = new double[col_grad, r];
+			//Картинка в чб
+			Bitmap bmp_grey = new Bitmap(inputPictureBox.Image);
+			ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = threadsCount };
+			//Заполняем нулями фазовое пространство
+			Parallel.For(0, col_grad, po, i =>
+			//for (int i = 0; i < col_grad; i++)
+			{
+				for (int j = 0; j < r; j++)
+				{
+					FP[i, j] = 0;
+				}
+			});
+			//массив градусов
+			int[] grad = new int[col_grad];
+			Parallel.For(0, col_grad, po, i =>
+			//for (int i = 0; i < col_grad; i++)
+			{
+				grad[i] = i;
+			});
 
 
-            //углы в радианах
-            double[] thetas = new double[grad.Length];
-            Parallel.For(0, thetas.Length, po, i =>
-            //for (int i = 0; i < thetas.Length; i++)
-            {
-                thetas[i] = convRad(grad[i]);
-            });
-            //Высота и ширина новой картинки фазового пространства
-            int height = col_grad;
-            int width = r;
-            //Углы косинусов и синусов
-            double[] cos_t = new double[thetas.Length];
-            double[] sin_t = new double[thetas.Length];
-            int num_thetas = thetas.Length;
-            Parallel.For(0, thetas.Length, po, i =>
-            //for (int i = 0; i < thetas.Length; i++)
-            {
-                cos_t[i] = Math.Cos(thetas[i]);
-                sin_t[i] = Math.Sin(thetas[i]);
-            });
-            //Число белых точек
-            int white_count = 0;
+			//углы в радианах
+			double[] thetas = new double[grad.Length];
+			Parallel.For(0, thetas.Length, po, i =>
+			//for (int i = 0; i < thetas.Length; i++)
+			{
+				thetas[i] = convRad(grad[i]);
+			});
+			//Высота и ширина новой картинки фазового пространства
+			int height = col_grad;
+			int width = r;
+			//Углы косинусов и синусов
+			double[] cos_t = new double[thetas.Length];
+			double[] sin_t = new double[thetas.Length];
+			int num_thetas = thetas.Length;
+			Parallel.For(0, thetas.Length, po, i =>
+			//for (int i = 0; i < thetas.Length; i++)
+			{
+				cos_t[i] = Math.Cos(thetas[i]);
+				sin_t[i] = Math.Sin(thetas[i]);
+			});
+			//Число белых точек
+			int white_count = 0;
 
-            //Заполнение массива фазового пространства
-            //for (int i = 0; i < bmp_grey.Height; i++)
-            int h = bmp_grey.Height;
-            int w = bmp_grey.Width;
-            int len = thetas.Length;
-            Parallel.For(0, h, po, i =>
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    int xx = j * 4;
-                    int yy = (int)i * sourceData.Stride;
-                    double red = (double)buffer[xx + yy + 2];
-                    double g = (double)buffer[xx + yy + 1];
-                    double b = (double)buffer[xx + yy];
-                    if (red > 254 && g > 254 && b > 254)
-                    {
-                        white_count++;
-                        for (int k = 0; k < len; k++)
-                        {
-                            for (int R = 0; R < r; R++)
-                            {
-                                if ((Math.Abs(i * cos_t[k] + j * sin_t[k] - R)) < TS)
-                                {
-                                    FP[k, R]++;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+			//Заполнение массива фазового пространства
+			//for (int i = 0; i < bmp_grey.Height; i++)
+			int h = bmp_grey.Height;
+			int w = bmp_grey.Width;
+			int len = thetas.Length;
+			Parallel.For(0, h, po, i =>
+			{
+				for (int j = 0; j < w; j++)
+				{
+					int xx = j * 4;
+					int yy = (int)i * sourceData.Stride;
+					double red = (double)buffer[xx + yy + 2];
+					double g = (double)buffer[xx + yy + 1];
+					double b = (double)buffer[xx + yy];
+					if (red > 254 && g > 254 && b > 254)
+					{
+						white_count++;
+						for (int k = 0; k < len; k++)
+						{
+							for (int R = 0; R < r; R++)
+							{
+								if ((Math.Abs(i * cos_t[k] + j * sin_t[k] - R)) < TS)
+								{
+									FP[k, R]++;
+								}
+							}
+						}
+					}
+				}
+			});
 
-            //поиск максимума и минимума
-            double min = FP[0, 0];
-            double max = FP[0, 0];
-            Parallel.For(0, col_grad, po, q =>
-            //for (int q = 0; q < col_grad; q++)
-            {
-                for (int R = 0; R < r; R++)
-                {
-                    if (FP[q, R] > max) max = FP[q, R];
-                    if (FP[q, R] < min) min = FP[q, R];
-                }
-            });
+			//поиск максимума и минимума
+			double min = FP[0, 0];
+			double max = FP[0, 0];
+			Parallel.For(0, col_grad, po, q =>
+			//for (int q = 0; q < col_grad; q++)
+			{
+				for (int R = 0; R < r; R++)
+				{
+					if (FP[q, R] > max) max = FP[q, R];
+					if (FP[q, R] < min) min = FP[q, R];
+				}
+			});
 
-            double check3 = max - min;
+			double check3 = max - min;
 
-            //отображение фазового пространства
-            unsafe
-            {
-                Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
-                BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
-                Parallel.For(0, col_grad, po, q =>
-                {
-                    byte* row = (byte*)bitmapData.Scan0 + bitmapData.Stride * q;
-                    for (int R = 0; R < r; R++)
-                    {
+			//отображение фазового пространства
+			unsafe
+			{
+				Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+				BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
+				Parallel.For(0, col_grad, po, q =>
+				{
+					byte* row = (byte*)bitmapData.Scan0 + bitmapData.Stride * q;
+					for (int R = 0; R < r; R++)
+					{
 
-                        double check = FP[q, R];
-                        double check2 = check - min;
-                        double check4 = check2 / check3;
-                        double check5 = check4 * 255;
-                        if (check5 > 255) check5 = 255;
-                        row[(R * 4) + 0] = (byte)check5;
-                        row[R * 4 + 1] = (byte)check5;
-                        row[R * 4 + 2] = (byte)check5;
-                    }
-                });
-                bitmap.UnlockBits(bitmapData);
-                //pictureBox2.Image = bitmap;
-            }
-            
-            List<PointsH> numbers = new List<PointsH>();
-            for (int q = 0; q < col_grad; q++)
-            {
-                for (int R = 0; R < r; R++)
-                {
-                    if (FP[q, R] != 0)
-                        numbers.Add(new PointsH() { R = R, tet = q, count = FP[q, R] });
-                }
-            }
+						double check = FP[q, R];
+						double check2 = check - min;
+						double check4 = check2 / check3;
+						double check5 = check4 * 255;
+						if (check5 > 255) check5 = 255;
+						row[(R * 4) + 0] = (byte)check5;
+						row[R * 4 + 1] = (byte)check5;
+						row[R * 4 + 2] = (byte)check5;
+					}
+				});
+				bitmap.UnlockBits(bitmapData);
+				//pictureBox2.Image = bitmap;
+			}
 
-            var sorted = from u in numbers
-                         orderby u.count descending
-                         select u;
+			List<PointsH> numbers = new List<PointsH>();
+			for (int q = 0; q < col_grad; q++)
+			{
+				for (int R = 0; R < r; R++)
+				{
+					if (FP[q, R] != 0)
+						numbers.Add(new PointsH() { R = R, tet = q, count = FP[q, R] });
+				}
+			}
 
-            int count = sorted.Count();
-            
-            count = 0;
-            //Добавляем в новый (сортированный) список 10 точек
-            List<PointsH> numbers_sort = new List<PointsH>();
-            foreach (PointsH u in sorted)
-            {
-                count++;
-                if (count > 20) break;
-                else
-                {
-                    numbers_sort.Add(u);
-                }
-            }
-            
-            Bitmap bitmap_3 = new Bitmap(inputPictureBox.Image);
-            Bitmap bitmap_4 = new Bitmap(inputPictureBox.Image);
-            byte[] input_im;
-            byte[] buffer_im;
-            input_im = FromBmpToByte(bitmap_4);
-            buffer_im = new byte[input_im.Length];
-            buffer_im = input_im;
+			var sorted = from u in numbers
+						 orderby u.count descending
+						 select u;
+
+			int count = sorted.Count();
+
+			count = 0;
+			//Добавляем в новый (сортированный) список 10 точек
+			List<PointsH> numbers_sort = new List<PointsH>();
+			foreach (PointsH u in sorted)
+			{
+				count++;
+				if (count > 20) break;
+				else
+				{
+					numbers_sort.Add(u);
+				}
+			}
+
+			Bitmap bitmap_3 = new Bitmap(inputPictureBox.Image);
+			Bitmap bitmap_4 = new Bitmap(inputPictureBox.Image);
+			byte[] input_im;
+			byte[] buffer_im;
+			input_im = FromBmpToByte(bitmap_4);
+			buffer_im = new byte[input_im.Length];
+			buffer_im = input_im;
 
 
-            //проверяем элементы сортированного списка
-            h = bitmap_4.Height;
-            w = bitmap_4.Width;
-            int sort_count = numbers_sort.Count;
-            //for (int y = 0; y < bitmap_4.Height; y++)
-            Parallel.For(0, h, po, y =>
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    for (int i = 0; i < sort_count; i++)
-                    {
-                        int xx = x * 4;
-                        int yy = y * sourceData.Stride;
+			//проверяем элементы сортированного списка
+			h = bitmap_4.Height;
+			w = bitmap_4.Width;
+			int sort_count = numbers_sort.Count;
+			//for (int y = 0; y < bitmap_4.Height; y++)
+			Parallel.For(0, h, po, y =>
+			{
+				for (int x = 0; x < w; x++)
+				{
+					for (int i = 0; i < sort_count; i++)
+					{
+						int xx = x * 4;
+						int yy = y * sourceData.Stride;
 
-                        int Teta = numbers_sort[i].tet;
-                        int R = numbers_sort[i].R;
-                        int check = (int)Math.Round(y * cos_t[Teta] + x * sin_t[Teta]);
-                        if (check == R)
-                        {
-                            buffer_im[xx + yy + 2] = 255;
-                            buffer_im[xx + yy + 2] = 255;
-                            buffer_im[xx + yy + 1] = 0;
-                            buffer_im[xx + yy] = 0;
-                        }
-                    }
-                }
-            });
-            Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
-            FromByteToBmp(resultBmp, buffer_im);
-            outputPictureBox.Image = resultBmp;
-            FileInfo fileInfo = new FileInfo(filePath);
-            resultBmp.Save(fileInfo.DirectoryName + "/Haf.png", ImageFormat.Png);
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            
-            PrintCurr(ts, "Хаф");
-        }
+						int Teta = numbers_sort[i].tet;
+						int R = numbers_sort[i].R;
+						int check = (int)Math.Round(y * cos_t[Teta] + x * sin_t[Teta]);
+						if (check == R)
+						{
+							buffer_im[xx + yy + 2] = 255;
+							buffer_im[xx + yy + 2] = 255;
+							buffer_im[xx + yy + 1] = 0;
+							buffer_im[xx + yy] = 0;
+						}
+					}
+				}
+			});
+			Bitmap resultBmp = new Bitmap(inputPictureBox.Image.Width, inputPictureBox.Image.Height);
+			FromByteToBmp(resultBmp, buffer_im);
+			outputPictureBox.Image = resultBmp;
+			FileInfo fileInfo = new FileInfo(filePath);
+			resultBmp.Save(fileInfo.DirectoryName + "/Haf.png", ImageFormat.Png);
+			stopWatch.Stop();
+			TimeSpan ts = stopWatch.Elapsed;
+
+			PrintCurr(ts, "Хаф");
+		}
 
         private void button9_Click(object sender, EventArgs e)
         {
@@ -1400,9 +1425,47 @@ namespace Лабораторная_1
             int threadsCount = (int)threads.Value;
             for(int i = 1; i <= threadsCount; i++)
             {
-                startHistogramStats(i);
-
+				threads.Value = i;
+				startHistogramStats(i);
 			}
+
+			threads.Value = threadsCount;
+		}
+
+		private void button11_Click(object sender, EventArgs e)
+		{
+			int threadsCount = (int)threads.Value;
+			for (int i = 1; i <= 4; i++)
+			{
+				threads.Value = i;
+				StartLUT(i);
+			}
+
+			threads.Value = threadsCount;
+		}
+
+		private void button12_Click(object sender, EventArgs e)
+		{
+			int threadsCount = (int)threads.Value;
+			for (int i = 1; i <= 4; i++)
+			{
+				threads.Value = i;
+				StartSpecialPoints(i);
+			}
+
+			threads.Value = threadsCount;
+		}
+
+		private void button13_Click(object sender, EventArgs e)
+		{
+			int threadsCount = (int)threads.Value;
+			for (int i = 1; i <= 4; i++)
+			{
+				threads.Value = i;
+				StartHaf(i);
+			}
+
+			threads.Value = threadsCount;
 		}
 	}                         
 }                             
