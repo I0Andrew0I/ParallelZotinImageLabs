@@ -312,37 +312,42 @@ namespace Лабораторная_1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            double[,] Y = new double[height, width];
-            Y = GetY();
-            int rh = 2, rw = 2;
-            M2 = new double[height, width];
-            U = new double[height, width];
-            R = new double[height, width];
-            E = new double[height, width];
+            startHistogramStats((int)threads.Value);
+		}
 
-            //for (int y = 0; y < height; y++)
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = 2 };
-            Parallel.For(0, height, po, y =>
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    double[] curHist = new double[256];
-                    for (int i = 0; i < 256; i++)
-                    {
-                        curHist[i] = 0.0;
-                    }
-                    curHist = countHist(x, y, rh, rw, Y);
-                    countTexFeatures(x, y, rh, rw, curHist);
-                }
-            });
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-            MessageBox.Show("Гист стат " + elapsedTime);
-            button7.Visible = true;
-        }
+        void startHistogramStats(int threadsCount)
+        {
+			Stopwatch stopWatch = new Stopwatch();
+			stopWatch.Start();
+			double[,] Y = new double[height, width];
+			Y = GetY();
+			int rh = 2, rw = 2;
+			M2 = new double[height, width];
+			U = new double[height, width];
+			R = new double[height, width];
+			E = new double[height, width];
+
+			//for (int y = 0; y < height; y++)
+			ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = threadsCount };
+			Parallel.For(0, height, po, y =>
+			{
+				for (int x = 0; x < width; x++)
+				{
+					double[] curHist = new double[256];
+					for (int i = 0; i < 256; i++)
+					{
+						curHist[i] = 0.0;
+					}
+					curHist = countHist(x, y, rh, rw, Y);
+					countTexFeatures(x, y, rh, rw, curHist);
+				}
+			});
+			stopWatch.Stop();
+			TimeSpan ts = stopWatch.Elapsed;
+
+			PrintCurr(ts, "Гистограммные статистики");
+			button7.Visible = true;
+		}
 
         void countMinMax(double[,] arr, out double min, out double max)
         {
@@ -358,7 +363,7 @@ namespace Лабораторная_1
         }
 
         //Карты Лавса
-        public static void LUT(Bitmap bmp_orig)
+        public static void LUT(Bitmap bmp_orig, int threadsCound)
         {
             int rh = 2;
             int rw = 2;
@@ -373,8 +378,7 @@ namespace Лабораторная_1
             int[] R5 = new int[5] { 1, -4, 0, 6, -4 };
             int[][] LV = new int[5][] { L5, E5, S5, W5, R5 };
             int[][,] TMPMap = new int[5][,];
-            int par_col = 2;
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = par_col };
+            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = threadsCound };
             Parallel.For(0, 5, po, i =>
             {
                 TMPMap[i] = new int[width, height];
@@ -389,8 +393,6 @@ namespace Лабораторная_1
 
             Parallel.For(0, 5, po, i =>
             {
-                //for (int i = 0; i < 5; i++)
-                //{
                 LAWS_Map[i] = new int[5][,];
                 for (int j = 0; j < 5; j++)
                 {
@@ -489,10 +491,6 @@ namespace Лабораторная_1
                         double check5 = check4 * 255;
                         byte grayShade8bit = (byte)check5;
 
-                        //row[(x * 3) + 0] = grayShade8bit;
-                        //row[x * 3 + 1] = grayShade8bit;
-                        //row[x * 3 + 2] = grayShade8bit;
-                        //row[x * 3 + 3] = 255;
                         int xx = x * 4;
                         int yy = y * sourceData.Stride;
                         result[xx+yy] = grayShade8bit;
@@ -514,12 +512,11 @@ namespace Лабораторная_1
             Bitmap bmp_orig = new Bitmap(inputPictureBox.Image);
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            LUT(bmp_orig);
+            LUT(bmp_orig, (int)threads.Value);
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-            MessageBox.Show("Лавс " + elapsedTime);
-            button8.Visible = true;
+			PrintCurr(ts, "Карты Лавласа");
+			button8.Visible = true;
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -689,7 +686,7 @@ namespace Лабораторная_1
             int rad = int.Parse(textBox4.Text);
             double[,] Y = new double[height, width];
             Y = GetY();
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = (int)threads.Value };
             if (radioButton8.Checked)
             {
                 Stopwatch stopWatch = new Stopwatch();
@@ -785,7 +782,7 @@ namespace Лабораторная_1
                         diffY[y, x] = linF_ValueY;
                     }
                 });
-                //for (int y = 0; y < height; y++)
+
                 Parallel.For(0, height, po, y =>
                 {
                     for (int x = 0; x < width; x++)
@@ -941,8 +938,8 @@ namespace Лабораторная_1
                 }
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                MessageBox.Show("Харрис " + elapsedTime);
+
+                PrintCurr(ts, "Харрис");
                 filename = "/Harris.png";
             }
             else if(radioButton9.Checked)
@@ -957,7 +954,6 @@ namespace Лабораторная_1
 
                 //сглаживание линейным фильтром
                 Parallel.For(0, h, po, y =>
-                //for (int y = 0; y < pictureBox1.Image.Height; y++)
                 {
                     for (int x = 0; x < w; x++)
                     {
@@ -966,7 +962,6 @@ namespace Лабораторная_1
                 });
 
                 Parallel.For(0, h, po, y =>
-                //for (int y = 0; y < pictureBox1.Image.Height; y++)
                 {
                     for (int x = 0; x < w; x++)
                     {
@@ -1065,7 +1060,6 @@ namespace Лабораторная_1
                 int rh = 1;
                 int rw = 1;
                 Parallel.For(0, h, po, y =>
-                //for (int y = 0; y < pictureBox1.Image.Height; y++)
                 {
                     for (int x = 0; x < w; x++)
                     {
@@ -1105,8 +1099,8 @@ namespace Лабораторная_1
                 });
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                MessageBox.Show("Фаст " + elapsedTime);
+                
+                PrintCurr(ts, "FAST");
                 filename = "/FAST.png";
             }
             else
@@ -1158,7 +1152,7 @@ namespace Лабораторная_1
             //Картинка в чб
             Bitmap bmp_grey = new Bitmap(inputPictureBox.Image);
             int par_col = 2;
-            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = par_col };
+            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = (int)threads.Value };
             //Заполняем нулями фазовое пространство
             Parallel.For(0, col_grad, po, i =>
             //for (int i = 0; i < col_grad; i++)
@@ -1252,7 +1246,6 @@ namespace Лабораторная_1
                 Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
                 BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
                 Parallel.For(0, col_grad, po, q =>
-                //for (int q = 0; q < col_grad; q++)
                 {
                     byte* row = (byte*)bitmapData.Scan0 + bitmapData.Stride * q;
                     for (int R = 0; R < r; R++)
@@ -1266,12 +1259,6 @@ namespace Лабораторная_1
                         row[(R * 4) + 0] = (byte)check5;
                         row[R * 4 + 1] = (byte)check5;
                         row[R * 4 + 2] = (byte)check5;
-                        //int xx = x * 4;
-                        //int yy = y * sourceData.Stride;
-                        //result[xx + yy] = grayShade8bit;
-                        //result[xx + yy + 1] = grayShade8bit;
-                        //result[xx + yy + 2] = grayShade8bit;
-                        //result[xx + yy + 3] = 255;
                     }
                 });
                 bitmap.UnlockBits(bitmapData);
@@ -1279,7 +1266,6 @@ namespace Лабораторная_1
             }
             
             List<PointsH> numbers = new List<PointsH>();
-            //Parallel.For(0, col_grad, po, q =>
             for (int q = 0; q < col_grad; q++)
             {
                 for (int R = 0; R < r; R++)
@@ -1351,8 +1337,8 @@ namespace Лабораторная_1
             resultBmp.Save(fileInfo.DirectoryName + "/Haf.png", ImageFormat.Png);
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-            MessageBox.Show("Хаф " + elapsedTime);
+            
+            PrintCurr(ts, "Хаф");
         }
 
         private void button9_Click(object sender, EventArgs e)
@@ -1399,5 +1385,24 @@ namespace Лабораторная_1
         {
 
         }
-    }                         
+
+        void PrintCurr(TimeSpan totalTime, string methodName)
+        {
+            textBox7.AppendText($"======\r\n" +
+                $"Method: {methodName}\r\n" +
+                $"Threads: {(int)threads.Value}\r\n" +
+                $"Size: {width}x{height}\r\n" +
+                $"Time (seconds){totalTime.TotalSeconds}\r\n");
+		}
+
+		private void button10_Click(object sender, EventArgs e)
+		{
+            int threadsCount = (int)threads.Value;
+            for(int i = 1; i <= threadsCount; i++)
+            {
+                startHistogramStats(i);
+
+			}
+		}
+	}                         
 }                             

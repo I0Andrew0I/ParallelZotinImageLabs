@@ -68,6 +68,11 @@ namespace Лабораторная_1
 			this.textBox6 = new System.Windows.Forms.TextBox();
 			this.label8 = new System.Windows.Forms.Label();
 			this.button9 = new System.Windows.Forms.Button();
+			this.groupBox6 = new System.Windows.Forms.GroupBox();
+			this.textBox7 = new System.Windows.Forms.TextBox();
+			this.threads = new System.Windows.Forms.NumericUpDown();
+			this.label1 = new System.Windows.Forms.Label();
+			this.button10 = new System.Windows.Forms.Button();
 			this.groupBox2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
@@ -75,6 +80,8 @@ namespace Лабораторная_1
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			this.groupBox5.SuspendLayout();
+			this.groupBox6.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.threads)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// button4
@@ -228,6 +235,7 @@ namespace Лабораторная_1
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.button10);
 			this.groupBox1.Controls.Add(this.button7);
 			this.groupBox1.Controls.Add(this.radioButton7);
 			this.groupBox1.Controls.Add(this.radioButton6);
@@ -244,11 +252,11 @@ namespace Лабораторная_1
 			// 
 			// button7
 			// 
-			this.button7.Location = new System.Drawing.Point(137, 110);
+			this.button7.Location = new System.Drawing.Point(135, 130);
 			this.button7.Name = "button7";
-			this.button7.Size = new System.Drawing.Size(118, 43);
+			this.button7.Size = new System.Drawing.Size(118, 20);
 			this.button7.TabIndex = 41;
-			this.button7.Text = "Визуализировать";
+			this.button7.Text = "Отобразить";
 			this.button7.UseVisualStyleBackColor = true;
 			this.button7.Visible = false;
 			this.button7.Click += new System.EventHandler(this.button7_Click);
@@ -426,6 +434,7 @@ namespace Лабораторная_1
 			this.textBox5.Name = "textBox5";
 			this.textBox5.Size = new System.Drawing.Size(64, 20);
 			this.textBox5.TabIndex = 36;
+			this.textBox5.Text = "0";
 			// 
 			// textBox3
 			// 
@@ -433,6 +442,7 @@ namespace Лабораторная_1
 			this.textBox3.Name = "textBox3";
 			this.textBox3.Size = new System.Drawing.Size(64, 20);
 			this.textBox3.TabIndex = 35;
+			this.textBox3.Text = "0";
 			// 
 			// groupBox5
 			// 
@@ -473,11 +483,73 @@ namespace Лабораторная_1
 			this.button9.UseVisualStyleBackColor = true;
 			this.button9.Click += new System.EventHandler(this.button9_Click);
 			// 
+			// groupBox6
+			// 
+			this.groupBox6.Controls.Add(this.textBox7);
+			this.groupBox6.Location = new System.Drawing.Point(864, 168);
+			this.groupBox6.Name = "groupBox6";
+			this.groupBox6.Size = new System.Drawing.Size(200, 499);
+			this.groupBox6.TabIndex = 43;
+			this.groupBox6.TabStop = false;
+			this.groupBox6.Text = "Вывод";
+			// 
+			// textBox7
+			// 
+			this.textBox7.Location = new System.Drawing.Point(6, 17);
+			this.textBox7.Multiline = true;
+			this.textBox7.Name = "textBox7";
+			this.textBox7.Size = new System.Drawing.Size(188, 475);
+			this.textBox7.TabIndex = 0;
+			// 
+			// threads
+			// 
+			this.threads.Location = new System.Drawing.Point(993, 67);
+			this.threads.Maximum = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+			this.threads.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.threads.Name = "threads";
+			this.threads.Size = new System.Drawing.Size(65, 20);
+			this.threads.TabIndex = 44;
+			this.threads.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(877, 69);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(110, 13);
+			this.label1.TabIndex = 45;
+			this.label1.Text = "Количество потоков";
+			// 
+			// button10
+			// 
+			this.button10.Location = new System.Drawing.Point(135, 102);
+			this.button10.Name = "button10";
+			this.button10.Size = new System.Drawing.Size(118, 22);
+			this.button10.TabIndex = 46;
+			this.button10.Text = "Bench";
+			this.button10.UseVisualStyleBackColor = true;
+			this.button10.Click += new System.EventHandler(this.button10_Click);
+			// 
 			// Lab4Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1065, 679);
+			this.ClientSize = new System.Drawing.Size(1077, 679);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.threads);
+			this.Controls.Add(this.groupBox6);
 			this.Controls.Add(this.groupBox5);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
@@ -506,6 +578,9 @@ namespace Лабораторная_1
 			this.groupBox4.PerformLayout();
 			this.groupBox5.ResumeLayout(false);
 			this.groupBox5.PerformLayout();
+			this.groupBox6.ResumeLayout(false);
+			this.groupBox6.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.threads)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -552,5 +627,10 @@ namespace Лабораторная_1
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button button9;
-    }
+		private System.Windows.Forms.GroupBox groupBox6;
+		private System.Windows.Forms.TextBox textBox7;
+		private System.Windows.Forms.NumericUpDown threads;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Button button10;
+	}
 }
