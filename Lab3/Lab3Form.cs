@@ -624,7 +624,6 @@ namespace Lab3
             }
 
             TimeSpan time;
-            classicExpansionRadio
             if (toboganningSegmentationRadio.Checked) //разбиение
             {
                 ArraySegment<ARGB> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<ARGB>.Empty);
