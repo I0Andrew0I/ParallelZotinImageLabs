@@ -624,7 +624,7 @@ namespace Lab3
             }
 
             TimeSpan time;
-            if (toboganningSegmentationRadio.Checked) //разбиение
+            if (regionExpansionRadio.Checked) //регионы
             {
                 ArraySegment<ARGB> pixels = UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<ARGB>.Empty);
                 ImageBuffer<ARGB> rgbResult = new(pixels, source.Width, source.Height);
@@ -636,10 +636,10 @@ namespace Lab3
 
                 time = stopWatch.Elapsed;
 
-                SaveImageCopy(pixels, "segmentHist");
-                MessageBox.Show($"Histogram segmentation: {time.Seconds:00}:{time.Milliseconds:000}");
+                SaveImageCopy(pixels, "regionExpansion");
+                MessageBox.Show($"Region Expansion: {time.Seconds:00}:{time.Milliseconds:000}");
             }
-            else if (toboganningSegmentationRadio.Checked) //графы
+            else if (toboganningSegmentationRadio.Checked) //тубугенинг
             {
                 ArraySegment<GrayScale> pixels =
                     UtilityExtensions.Pool(source.Pixels.Count, ArraySegment<GrayScale>.Empty);
@@ -651,12 +651,12 @@ namespace Lab3
 
                 time = stopWatch.Elapsed;
 
-                SaveImageCopy(pixels, "segmentGraph");
-                MessageBox.Show($"Graph segmentation: {time.Seconds:00}:{time.Milliseconds:000}");
+                SaveImageCopy(pixels, "toboganning");
+                MessageBox.Show($"toboganning segmentation: {time.Seconds:00}:{time.Milliseconds:000}");
             }
             else
             {
-                MessageBox.Show("Не выбран способ морфологической обработки!");
+                MessageBox.Show("Не выбран способ сегментации обработки!");
             }
         }
 

@@ -508,7 +508,7 @@ namespace Lab3
 			this.classicExpansionRadio.Size = new System.Drawing.Size(95, 19);
 			this.classicExpansionRadio.TabIndex = 6;
 			this.classicExpansionRadio.TabStop = true;
-			this.classicExpansionRadio.Text = "Toboganning";
+			this.classicExpansionRadio.Text = "Expansion";
 			this.classicExpansionRadio.UseVisualStyleBackColor = true;
 			// 
 			// button5
