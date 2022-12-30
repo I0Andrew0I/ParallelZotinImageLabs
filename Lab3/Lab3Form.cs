@@ -376,35 +376,6 @@ namespace Lab3
             Span<GrayScale> sourcePixels = source.Pixels;
             List<MinPixelCoordinates> sectionPixels = new List<MinPixelCoordinates>();
             Span<GrayScale> resultPixels = result.Pixels;
-            //int mWidth = mask.GetLength(0);
-            //int mHeight = mask.GetLength(1);
-            //int RW = (mWidth - 1) / 2;
-            //int RH = (mHeight - 1) / 2;
-
-            //var maxY = source.Height - RH - 1;
-            //var maxX = source.Width - RW - 1;
-            //
-            //for (int y = RH; y < maxY; y++)
-            //for (int x = RW; x < maxX; x++)
-            //{
-            //    double max = 0;
-            //
-            //    int pid = x + y * source.Width;
-            //    for (int j = -RH; j <= RH; j++)
-            //    {
-            //        int y1 = Math.Clamp(y + j, 0, source.Height - 1);
-            //        for (int i = -RW; i <= RW; i++)
-            //        {
-            //            int x1 = Math.Clamp(x + i, 0, source.Width - 1);
-            //            int fid = x1 + y1 * source.Width;
-            //
-            //            if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
-            //                max = sourcePixels[fid].Value;
-            //        }
-            //    }
-            //
-            //    resultPixels[pid] = new GrayScale(max);
-            //}
 
             for (int y = 0; y < source.Height; y++)
             {
