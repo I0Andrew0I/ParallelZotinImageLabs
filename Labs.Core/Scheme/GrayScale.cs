@@ -7,6 +7,11 @@ namespace Labs.Core.Scheme
     [StructLayout(LayoutKind.Sequential)]
     public readonly record struct GrayScale : IColor<GrayScale, byte>
     {
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
         /// <summary>
         /// (0, 255)
         /// </summary>
@@ -70,5 +75,10 @@ namespace Labs.Core.Scheme
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static double ClampValue(double value) =>
             Math.Clamp(value, 0, 255);
+
+        public bool Equals(GrayScale other)
+        {
+            return Value.Equals(other.Value);
+        }
     }
 }

@@ -530,7 +530,8 @@ namespace Lab3
                 ImageBuffer<ARGB> rgbResult = new(pixels, source.Width, source.Height);
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                HistogramSegmentationMethod(source, rgbResult, _rand);
+                
+                RegionExtensionMethod(source, rgbResult, 10);
                 stopWatch.Stop();
 
                 time = stopWatch.Elapsed;
@@ -558,6 +559,155 @@ namespace Lab3
                 MessageBox.Show("Не выбран способ морфологической обработки!");
             }
         }
+
+        public class Region
+        {
+            public double Sum {get; private set;}
+
+            public int Count {get; private set;}
+
+            public ARGB Color { get; private set; }
+
+            public double AverageSum => Sum / Count;
+
+            public Region(ARGB color)
+            {
+                Color = color;
+            }
+            
+            public void AddPixel(double value)
+            {
+                Sum += value;
+                Count++;
+            }
+
+            public bool IsSame(Region region)
+            {
+                return region.Color.Equals(Color);
+            }
+
+            public void Join(Region region)
+            {
+                region.Color = Color;
+                region.Sum = Sum = region.Sum + Sum;
+                region.Count = Count = region.Count + Count;
+            }
+        }
+
+        private ARGB GenerateDistinctColor(HashSet<ARGB> usedColors)
+        {
+            Span<byte> argb = stackalloc byte[4] {0, 0, 0, 255};
+            Span<byte> rgb = argb.Slice(0, 3);
+            Random.Shared.NextBytes(rgb);      
+            ARGB color = new ARGB(argb);
+            
+            while (usedColors.Contains(color))
+            {
+                Random.Shared.NextBytes(rgb);   
+                color = new ARGB(argb);
+            }
+            return color;
+        }
+        
+        private void RegionExtensionMethod(ImageBuffer<GrayScale> source, ImageBuffer<ARGB> result, double delta)
+        {
+            Span<GrayScale> sourcePixels = source.Pixels;
+            Span<ARGB> resultPixels = result.Pixels;
+            var maxY = source.Height - 1;
+            var maxX = source.Width - 1;
+            
+            List<Region> regions = new();
+            HashSet<ARGB> usedColors = new();
+            int[] regionPixelId = new int[sourcePixels.Length];
+            
+            ARGB regionColor = GenerateDistinctColor(usedColors);
+            Region region = new Region(regionColor);
+            region.AddPixel(sourcePixels[0].Value);
+            regions.Add(region);
+            
+            for (int y = 0; y < maxY; y++)
+            for (int x = 0; x < maxX; x++)
+            {
+                double sumLeft = -1;
+                double sumUp = -1;
+                int pid = x + y * source.Width;
+                double sourceValue = sourcePixels[pid].Value;
+                int leftRID = -1;
+                int upRID = -1;
+
+                if (x - 1 > 0)
+                {
+                    leftRID = regionPixelId[x - 1 + y * source.Width];
+                    sumLeft = regions[leftRID].AverageSum;
+                }
+                if (y - 1 > 0)
+                {
+                    upRID = regionPixelId[x + (y-1) * source.Width];
+                    sumUp = regions[upRID].AverageSum;
+                }
+
+                double deltaUp = Math.Abs(sourceValue - sumUp);
+                double deltaleft = Math.Abs(sourceValue - sumLeft);
+
+                // создание нового региона
+                if (deltaUp >= delta && deltaleft >= delta && leftRID!=-1 && upRID!=-1)
+                {
+                    regionColor = GenerateDistinctColor(usedColors);
+                    region = new Region(regionColor);
+                    region.AddPixel(sourceValue);
+                    
+                    regions.Add(region);
+                    regionPixelId[pid] = regions.Count - 1;
+                    continue;
+                }
+                
+                // объединение соседних регионов
+                if (deltaleft < delta && deltaUp < delta && leftRID != -1 && upRID != -1)
+                {
+                    regions[leftRID].AddPixel(sourceValue);
+                    regionPixelId[pid] = leftRID;
+                    if (regions[leftRID] == regions[upRID])
+                        continue;
+
+                    // перекрасить пиксели другого региона
+                    for (int j = 0; j < pid; j++)
+                    {
+                        int rid = regionPixelId[j];
+                        if (rid == upRID)
+                        {
+                            regions[leftRID].AddPixel(sourcePixels[j].Value);
+                            regionPixelId[j] = leftRID;
+                        }
+                    }
+                    continue;
+                }
+
+                if (deltaUp < delta && upRID != -1)
+                {
+                    regionPixelId[pid] = upRID;
+                    regions[upRID].AddPixel(sourceValue);
+                    continue;
+                }
+                
+                // слияние с левым
+                if (deltaleft < delta && leftRID!=-1)
+                {
+                    regionPixelId[pid] = leftRID;
+                    regions[leftRID].AddPixel(sourceValue);
+                    continue;
+                }
+
+                // слияние с правым
+            }
+            
+            for (int y = 0; y < maxY; y++)
+            for (int x = 0; x < maxX; x++)
+            {
+                int pid = x + y * source.Width;
+                resultPixels[pid] = regions[regionPixelId[pid]].Color;
+            }
+        }
+
 
         private static void HistogramSegmentationMethod(ImageBuffer<GrayScale> source, ImageBuffer<ARGB> result,
             Random random)

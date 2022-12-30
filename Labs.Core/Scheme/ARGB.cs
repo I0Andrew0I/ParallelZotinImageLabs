@@ -7,6 +7,11 @@ namespace Labs.Core.Scheme
     [StructLayout(LayoutKind.Sequential)]
     public record struct ARGB : IColor<ARGB, ARGB.Channel>
     {
+        public readonly override int GetHashCode()
+        {
+            return HashCode.Combine(B, G, R, A);
+        }
+
         [Flags]
         public enum Channel : byte
         {
@@ -20,8 +25,11 @@ namespace Labs.Core.Scheme
         }
 
         public byte B;
+
         public byte G;
+
         public byte R;
+
         public byte A;
 
         public ARGB(Span<byte> memory)
@@ -226,6 +234,11 @@ namespace Labs.Core.Scheme
             overflow.K2 += g - value.G;
             overflow.K3 += b - value.B;
             return value;
+        }
+
+        public readonly bool Equals(ARGB other)
+        {
+            return B == other.B && G == other.G && R == other.R && A == other.A;
         }
     }
 }

@@ -565,7 +565,7 @@ namespace Lab3
 			this.histogramSegmentationRadio.Size = new System.Drawing.Size(79, 19);
 			this.histogramSegmentationRadio.TabIndex = 2;
 			this.histogramSegmentationRadio.TabStop = true;
-			this.histogramSegmentationRadio.Text = "histogram";
+			this.histogramSegmentationRadio.Text = "расширение регионов";
 			this.histogramSegmentationRadio.UseVisualStyleBackColor = true;
 			// 
 			// tableLayoutPanel1
