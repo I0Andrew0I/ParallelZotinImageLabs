@@ -631,7 +631,7 @@ namespace Lab3
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
                 
-                RegionExtensionMethod(source, rgbResult, 10);
+                RegionExtensionMethod(source, rgbResult, (double)numericUpDown1.Value);
                 stopWatch.Stop();
 
                 time = stopWatch.Elapsed;
