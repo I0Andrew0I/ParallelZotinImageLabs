@@ -441,7 +441,7 @@ namespace Lab2
 			this.testsBox.Size = new System.Drawing.Size(64, 23);
 			this.testsBox.TabIndex = 30;
 			this.testsBox.Value = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             0});
