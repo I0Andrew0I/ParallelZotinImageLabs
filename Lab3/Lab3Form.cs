@@ -18,6 +18,36 @@ namespace Lab3
         Laplace
     }
 
+    enum StepDirection
+    {
+        None,
+        Left,
+        Up,
+        Right,
+        Down
+    }
+
+    public struct MinPixelCoordinates
+    {
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public double Value { get; private set; }
+
+        public MinPixelCoordinates(int x, int y, double value)
+        {
+            X = x;
+            Y = y;
+            Value = value;
+        }
+
+        public void Set(int x, int y, double value)
+        {
+            X = x;
+            Y = y;
+            Value = value;
+        }
+    }
+
     public partial class Lab3Form : Form
     {
         private readonly Random _rand = new();
@@ -286,15 +316,15 @@ namespace Lab3
             ImageBuffer<GrayScale> tempResult = new(pixels, source.Width, source.Height);
 
             string filename = "";
-            if (expansionRadio.Checked) //классическое расширение
+            if (toboganningRadio.Checked) //классическое расширение
             {
                 Stopwatch stopWatch = Stopwatch.StartNew();
-                ClassicExpansionFilteringMethod(source, tempResult, mask);
+                ToboganningFilteringMethod(source, tempResult, mask);
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Classic shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
-                filename = "classic_expansion";
+                MessageBox.Show($"Toboganning {ts.Seconds:00}:{ts.Milliseconds:000}");
+                filename = "toboganning";
             }
             else if (fastExpansionRadio.Checked) //ускоренное расширение
             {
@@ -338,39 +368,103 @@ namespace Lab3
 
         #region Morphological filtering
 
-        private void ClassicExpansionFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
+
+        
+        private void ToboganningFilteringMethod(ImageBuffer<GrayScale> source, ImageBuffer<GrayScale> result,
             bool[,] mask)
         {
             Span<GrayScale> sourcePixels = source.Pixels;
+            List<MinPixelCoordinates> sectionPixels = new List<MinPixelCoordinates>();
             Span<GrayScale> resultPixels = result.Pixels;
-            int mWidth = mask.GetLength(0);
-            int mHeight = mask.GetLength(1);
-            int RW = (mWidth - 1) / 2;
-            int RH = (mHeight - 1) / 2;
+            //int mWidth = mask.GetLength(0);
+            //int mHeight = mask.GetLength(1);
+            //int RW = (mWidth - 1) / 2;
+            //int RH = (mHeight - 1) / 2;
 
-            var maxY = source.Height - RH - 1;
-            var maxX = source.Width - RW - 1;
+            //var maxY = source.Height - RH - 1;
+            //var maxX = source.Width - RW - 1;
+            //
+            //for (int y = RH; y < maxY; y++)
+            //for (int x = RW; x < maxX; x++)
+            //{
+            //    double max = 0;
+            //
+            //    int pid = x + y * source.Width;
+            //    for (int j = -RH; j <= RH; j++)
+            //    {
+            //        int y1 = Math.Clamp(y + j, 0, source.Height - 1);
+            //        for (int i = -RW; i <= RW; i++)
+            //        {
+            //            int x1 = Math.Clamp(x + i, 0, source.Width - 1);
+            //            int fid = x1 + y1 * source.Width;
+            //
+            //            if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
+            //                max = sourcePixels[fid].Value;
+            //        }
+            //    }
+            //
+            //    resultPixels[pid] = new GrayScale(max);
+            //}
 
-            for (int y = RH; y < maxY; y++)
-            for (int x = RW; x < maxX; x++)
+            for (int y = 0; y < source.Height; y++)
             {
-                double max = 0;
-
-                int pid = x + y * source.Width;
-                for (int j = -RH; j <= RH; j++)
+                for (int x = 0; x < source.Width; x++)
                 {
-                    int y1 = Math.Clamp(y + j, 0, source.Height - 1);
-                    for (int i = -RW; i <= RW; i++)
-                    {
-                        int x1 = Math.Clamp(x + i, 0, source.Width - 1);
-                        int fid = x1 + y1 * source.Width;
-
-                        if (sourcePixels[fid].Value >= max && mask[i + RW, j + RH])
-                            max = sourcePixels[fid].Value;
-                    }
+                    var resultMinPixel = FindMinPixelFromImage(source, x, y);
+                    resultPixels[x + y * source.Width] = new GrayScale(resultMinPixel.Value);
                 }
+            }
+        }
 
-                resultPixels[pid] = new GrayScale(max);
+        private MinPixelCoordinates FindMinPixelFromImage(ImageBuffer<GrayScale> source, int x, int y)
+        {
+            if (source.Width - 1 < x || source.Height - 1 < y || x < 0 || y < 0)
+                return new MinPixelCoordinates(x, y, 1000);
+
+            double currentValue = source.Pixels[x + y * source.Width].Value;
+            int currentX = x;
+            int currentY = y;
+            double[] localValues = new double[4] { 1000, 1000, 1000, 1000 };
+            List<double> list;
+            double minValue;
+
+            while (true)
+            {
+                localValues = new double[4] { 1000, 1000, 1000, 1000 };
+
+                if (currentX + 1 < source.Width - 1)
+                    localValues[0] = source.Pixels[currentX + 1 + currentY * source.Width].Value;
+
+                if (currentX - 1 > 0)
+                    localValues[1] = source.Pixels[currentX - 1 + currentY * source.Width].Value;
+
+                if (currentY + 1 < source.Height - 1)
+                    localValues[2] = source.Pixels[currentX + (currentY + 1) * source.Width].Value;
+
+                if (currentY - 1 > 0)
+                    localValues[3] = source.Pixels[currentX + (currentY - 1) * source.Width].Value;
+
+                list = localValues.ToList();
+                minValue = list.Min();
+
+                if (currentValue > minValue)
+                {
+                    switch (list.IndexOf(minValue))
+                    {
+                        case 0:
+                            currentX++; break;
+                        case 1:
+                            currentX--; break;
+                        case 2:
+                            currentY++; break;
+                        default:
+                            currentY--; break;
+                    }
+
+                    currentValue = source.Pixels[currentX + currentY * source.Width].Value;
+                }
+                else
+                    return new MinPixelCoordinates(x, y, currentValue);
             }
         }
 
@@ -432,7 +526,7 @@ namespace Lab3
                 bool flag = false;
                 for (int k = -2; k <= 2; k++)
                 {
-                    int y2 = y + k;
+                    int y2 = Math.Clamp(y + k, 0, source.Height - 2);
                     int x2 = Math.Clamp(x + 2, 0, source.Width - 2);
 
                     if (Math.Abs(sourcePixels[x2 + y2 * source.Width].Value - 255.0) < 0.1)
