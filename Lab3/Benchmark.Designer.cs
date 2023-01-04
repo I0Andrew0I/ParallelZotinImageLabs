@@ -281,7 +281,7 @@ namespace Lab3
 			this.laplaceBox.AutoSize = true;
 			this.laplaceBox.Checked = true;
 			this.laplaceBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.laplaceBox.Location = new System.Drawing.Point(4, 66);
+			this.laplaceBox.Location = new System.Drawing.Point(6, 72);
 			this.laplaceBox.Name = "laplaceBox";
 			this.laplaceBox.Size = new System.Drawing.Size(66, 19);
 			this.laplaceBox.TabIndex = 4;
@@ -293,7 +293,7 @@ namespace Lab3
 			this.sobelBox.AutoSize = true;
 			this.sobelBox.Checked = true;
 			this.sobelBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.sobelBox.Location = new System.Drawing.Point(4, 41);
+			this.sobelBox.Location = new System.Drawing.Point(6, 47);
 			this.sobelBox.Name = "sobelBox";
 			this.sobelBox.Size = new System.Drawing.Size(55, 19);
 			this.sobelBox.TabIndex = 3;
@@ -305,7 +305,7 @@ namespace Lab3
 			this.roberstBox.AutoSize = true;
 			this.roberstBox.Checked = true;
 			this.roberstBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.roberstBox.Location = new System.Drawing.Point(3, 19);
+			this.roberstBox.Location = new System.Drawing.Point(6, 22);
 			this.roberstBox.Name = "roberstBox";
 			this.roberstBox.Size = new System.Drawing.Size(66, 19);
 			this.roberstBox.TabIndex = 0;
@@ -407,6 +407,7 @@ namespace Lab3
 			this.multiplierTrack.Name = "multiplierTrack";
 			this.multiplierTrack.Size = new System.Drawing.Size(104, 45);
 			this.multiplierTrack.TabIndex = 38;
+			this.multiplierTrack.Scroll += new System.EventHandler(this.multiplierTrack_Scroll);
 			// 
 			// thresholdTrack
 			// 
@@ -417,6 +418,7 @@ namespace Lab3
 			this.thresholdTrack.Size = new System.Drawing.Size(104, 45);
 			this.thresholdTrack.TabIndex = 39;
 			this.thresholdTrack.Value = 1;
+			this.thresholdTrack.Scroll += new System.EventHandler(this.thresholdTrack_Scroll);
 			// 
 			// label8
 			// 

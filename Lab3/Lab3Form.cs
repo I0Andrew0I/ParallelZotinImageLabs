@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Labs.Core;
 using Labs.Core.Scheme;
@@ -63,6 +64,8 @@ namespace Lab3
         private ImageBuffer<GrayScale>? _grayScaleSource;
         private ArraySegment<GrayScale>? _temporary;
 
+        Benchmark _benchmarkForm;
+
         private FileInfo _imageFile;
 
         public Lab3Form()
@@ -72,11 +75,13 @@ namespace Lab3
             positiveRadio.CheckedChanged += OnKernelSignChanged;
             negativeRadio.CheckedChanged += OnKernelSignChanged;
             inputPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-            outputPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             contourBox.DataSource = Enum.GetValues(typeof(ContourMethod));
             _frameWidth = 3;
             _frameHeight = 3;
-        }
+
+            _benchmarkForm = new Benchmark();
+
+		}
 
         private void buttonSearch_Click(object sender, EventArgs e)
         {
@@ -166,7 +171,7 @@ namespace Lab3
                 case ContourMethod.Roberts:
                 {
                     Stopwatch stopWatch = Stopwatch.StartNew();
-                    ContourMethods.Roberts(source, tempResult, _threshold, _multiplier, threads: 1);
+                    ContourMethods.Roberts(source, tempResult, _threshold, _multiplier, (int)threadsBox.Value);
                     stopWatch.Stop();
                     time = stopWatch.Elapsed;
                     break;
@@ -177,7 +182,7 @@ namespace Lab3
                     var (coefGx, coefGy) = ContourMethods.GetGradient(_positiveConv);
 
                     Stopwatch stopWatch = Stopwatch.StartNew();
-                    ContourMethods.Sobel(source, tempResult, f, _threshold, _multiplier, coefGx, coefGy, threads: 1);
+                    ContourMethods.Sobel(source, tempResult, f, _threshold, _multiplier, coefGx, coefGy, (int)threadsBox.Value);
                     stopWatch.Stop();
                     time = stopWatch.Elapsed;
                     break;
@@ -185,8 +190,9 @@ namespace Lab3
                 case ContourMethod.Laplace:
                 {
                     Stopwatch stopWatch = Stopwatch.StartNew();
+
                     ContourMethods.Laplacian(source, tempResult, new Frame(0, 0, 3, 3),
-                        _threshold, _multiplier, ContourMethods.GetLaplacian(_positiveConv), threads: 1);
+                        _threshold, _multiplier, ContourMethods.GetLaplacian(_positiveConv), (int)threadsBox.Value);
                     stopWatch.Stop();
                     time = stopWatch.Elapsed;
                     break;
@@ -198,7 +204,7 @@ namespace Lab3
 
             SaveImageCopy(pixels, _methodContur.ToString());
 
-            MessageBox.Show($"{_methodContur} {time.Seconds:00}:{time.Milliseconds:000}");
+            MessageBox.Show($"{_methodContur} {time.TotalSeconds}");
         }
 
         private void OnApplyBinarization(object sender, EventArgs e)
@@ -221,7 +227,7 @@ namespace Lab3
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Локальный {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Локальный {ts.TotalSeconds}");
             }
             else
             {
@@ -232,7 +238,7 @@ namespace Lab3
 
                 TimeSpan ts = stopWatch.Elapsed;
                 MessageBox.Show("Рассчитано глобальное пороговое значение: " + threshold.ToString());
-                MessageBox.Show($"Глобальный {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Глобальный {ts.TotalSeconds}");
             }
 
             _temporary = pixels;
@@ -323,7 +329,7 @@ namespace Lab3
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Toboganning {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Классическое расширение {ts.TotalSeconds}");
                 filename = "toboganning";
             }
             else if (fastExpansionRadio.Checked) //ускоренное расширение
@@ -333,7 +339,7 @@ namespace Lab3
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Fast expansion {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Быстрое расширение {ts.TotalSeconds}");
                 filename = "fast_expansion";
             }
             else if (shrinkingRadio.Checked) //классическое сужение
@@ -343,7 +349,7 @@ namespace Lab3
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Classical shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Классическое сужение {ts.TotalSeconds}");
                 filename = "classic_shrinking";
             }
             else if (fastShrinkingRadio.Checked) //ускоренное сужение
@@ -353,7 +359,7 @@ namespace Lab3
                 stopWatch.Stop();
 
                 TimeSpan ts = stopWatch.Elapsed;
-                MessageBox.Show($"Fast shrinking {ts.Seconds:00}:{ts.Milliseconds:000}");
+                MessageBox.Show($"Быстрое сужение {ts.TotalSeconds}");
                 filename = "fast_shrinking";
             }
             else
@@ -631,13 +637,13 @@ namespace Lab3
 
                 Stopwatch stopWatch = Stopwatch.StartNew();
                 
-                RegionExtensionMethod(source, rgbResult, (double)numericUpDown1.Value);
+                RegionExtensionMethod(source, rgbResult, (double)thresholdTrack.Value);
                 stopWatch.Stop();
 
                 time = stopWatch.Elapsed;
 
                 SaveImageCopy(pixels, "regionExpansion");
-                MessageBox.Show($"Region Expansion: {time.Seconds:00}:{time.Milliseconds:000}");
+                MessageBox.Show($"Возрастание регионов: {time.TotalSeconds}");
             }
             else if (toboganningSegmentationRadio.Checked) //тубугенинг
             {
@@ -652,7 +658,7 @@ namespace Lab3
                 time = stopWatch.Elapsed;
 
                 SaveImageCopy(pixels, "toboganning");
-                MessageBox.Show($"toboganning segmentation: {time.Seconds:00}:{time.Milliseconds:000}");
+                MessageBox.Show($"Toboganning сегментация: {time.TotalSeconds}");
             }
             else
             {
@@ -962,5 +968,20 @@ namespace Lab3
 
         private void contourBox_SelectedIndexChanged(object sender, EventArgs e) =>
             _methodContur = (ContourMethod) contourBox.SelectedItem;
-    }
+
+		private void groupBox1_Enter(object sender, EventArgs e)
+		{
+
+		}
+
+		private void button7_Click(object sender, EventArgs e)
+		{
+            _benchmarkForm.Show();
+		}
+
+		private void button7_Click_1(object sender, EventArgs e)
+		{
+			_benchmarkForm.Show();
+		}
+	}
 }

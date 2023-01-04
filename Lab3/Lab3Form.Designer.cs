@@ -31,6 +31,7 @@ namespace Lab3
         /// </summary>
         private void InitializeComponent()
         {
+			this.outputPictureBox = new System.Windows.Forms.PictureBox();
 			this.buttonSearch = new System.Windows.Forms.Button();
 			this.searchBox = new System.Windows.Forms.TextBox();
 			this.label4 = new System.Windows.Forms.Label();
@@ -42,6 +43,7 @@ namespace Lab3
 			this.threadsBox = new System.Windows.Forms.NumericUpDown();
 			this.label3 = new System.Windows.Forms.Label();
 			this.label11 = new System.Windows.Forms.Label();
+			this.button5 = new System.Windows.Forms.Button();
 			this.label7 = new System.Windows.Forms.Label();
 			this.label13 = new System.Windows.Forms.Label();
 			this.label14 = new System.Windows.Forms.Label();
@@ -65,20 +67,15 @@ namespace Lab3
 			this.shrinkingRadio = new System.Windows.Forms.RadioButton();
 			this.fastExpansionRadio = new System.Windows.Forms.RadioButton();
 			this.classicExpansionRadio = new System.Windows.Forms.RadioButton();
-			this.button5 = new System.Windows.Forms.Button();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.toboganningSegmentationRadio = new System.Windows.Forms.RadioButton();
 			this.button6 = new System.Windows.Forms.Button();
 			this.regionExpansionRadio = new System.Windows.Forms.RadioButton();
-			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.inputPictureBox = new System.Windows.Forms.PictureBox();
-			this.outputPictureBox = new System.Windows.Forms.PictureBox();
-			this.label1 = new System.Windows.Forms.Label();
-			this.inputLabel = new System.Windows.Forms.Label();
 			this.contourBox = new System.Windows.Forms.ComboBox();
 			this.groupBox5 = new System.Windows.Forms.GroupBox();
-			this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-			this.label8 = new System.Windows.Forms.Label();
+			this.inputPictureBox = new System.Windows.Forms.PictureBox();
+			this.button7 = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.widthBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.heightBox)).BeginInit();
@@ -88,16 +85,24 @@ namespace Lab3
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
-			this.tableLayoutPanel1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).BeginInit();
 			this.groupBox5.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).BeginInit();
 			this.SuspendLayout();
+			// 
+			// outputPictureBox
+			// 
+			this.outputPictureBox.BackColor = System.Drawing.Color.White;
+			this.outputPictureBox.Location = new System.Drawing.Point(9, 336);
+			this.outputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.outputPictureBox.Name = "outputPictureBox";
+			this.outputPictureBox.Size = new System.Drawing.Size(576, 324);
+			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.outputPictureBox.TabIndex = 12;
+			this.outputPictureBox.TabStop = false;
 			// 
 			// buttonSearch
 			// 
-			this.buttonSearch.Location = new System.Drawing.Point(195, 598);
+			this.buttonSearch.Location = new System.Drawing.Point(778, 24);
 			this.buttonSearch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.Size = new System.Drawing.Size(88, 27);
@@ -108,16 +113,16 @@ namespace Lab3
 			// 
 			// searchBox
 			// 
-			this.searchBox.Location = new System.Drawing.Point(6, 601);
+			this.searchBox.Location = new System.Drawing.Point(589, 27);
 			this.searchBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.searchBox.Name = "searchBox";
 			this.searchBox.Size = new System.Drawing.Size(172, 23);
-			this.searchBox.TabIndex = 12;
+			this.searchBox.TabIndex = 0;
 			// 
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(6, 583);
+			this.label4.Location = new System.Drawing.Point(589, 9);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(96, 15);
@@ -126,10 +131,10 @@ namespace Lab3
 			// 
 			// button1
 			// 
-			this.button1.Location = new System.Drawing.Point(19, 486);
+			this.button1.Location = new System.Drawing.Point(589, 56);
 			this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(88, 27);
+			this.button1.Size = new System.Drawing.Size(172, 27);
 			this.button1.TabIndex = 18;
 			this.button1.Text = "GrayScale";
 			this.button1.UseVisualStyleBackColor = true;
@@ -143,6 +148,7 @@ namespace Lab3
 			this.groupBox1.Controls.Add(this.threadsBox);
 			this.groupBox1.Controls.Add(this.label3);
 			this.groupBox1.Controls.Add(this.label11);
+			this.groupBox1.Controls.Add(this.button5);
 			this.groupBox1.Controls.Add(this.label7);
 			this.groupBox1.Controls.Add(this.label13);
 			this.groupBox1.Controls.Add(this.label14);
@@ -154,19 +160,19 @@ namespace Lab3
 			this.groupBox1.Controls.Add(this.label6);
 			this.groupBox1.Controls.Add(this.positiveRadio);
 			this.groupBox1.Controls.Add(this.negativeRadio);
-			this.groupBox1.Location = new System.Drawing.Point(893, 469);
+			this.groupBox1.Location = new System.Drawing.Point(589, 84);
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox1.Size = new System.Drawing.Size(296, 165);
+			this.groupBox1.Size = new System.Drawing.Size(306, 165);
 			this.groupBox1.TabIndex = 19;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Settings";
+			this.groupBox1.Text = "Настройки";
 			// 
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(238, 99);
+			this.label5.Location = new System.Drawing.Point(229, 29);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(48, 15);
 			this.label5.TabIndex = 55;
@@ -179,7 +185,7 @@ namespace Lab3
             0,
             0,
             0});
-			this.widthBox.Location = new System.Drawing.Point(173, 101);
+			this.widthBox.Location = new System.Drawing.Point(213, 108);
 			this.widthBox.Minimum = new decimal(new int[] {
             3,
             0,
@@ -202,7 +208,7 @@ namespace Lab3
             0,
             0,
             0});
-			this.heightBox.Location = new System.Drawing.Point(173, 126);
+			this.heightBox.Location = new System.Drawing.Point(213, 133);
 			this.heightBox.Minimum = new decimal(new int[] {
             3,
             0,
@@ -220,9 +226,9 @@ namespace Lab3
 			// 
 			// threadsBox
 			// 
-			this.threadsBox.Location = new System.Drawing.Point(238, 120);
+			this.threadsBox.Location = new System.Drawing.Point(229, 50);
 			this.threadsBox.Maximum = new decimal(new int[] {
-            6,
+            16,
             0,
             0,
             0});
@@ -243,7 +249,7 @@ namespace Lab3
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(128, 103);
+			this.label3.Location = new System.Drawing.Point(168, 110);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(39, 15);
 			this.label3.TabIndex = 28;
@@ -258,10 +264,21 @@ namespace Lab3
 			this.label11.TabIndex = 53;
 			this.label11.Text = "255";
 			// 
+			// button5
+			// 
+			this.button5.Location = new System.Drawing.Point(189, -24);
+			this.button5.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.button5.Name = "button5";
+			this.button5.Size = new System.Drawing.Size(147, 23);
+			this.button5.TabIndex = 22;
+			this.button5.Text = "Сделать исходным";
+			this.button5.UseVisualStyleBackColor = true;
+			this.button5.Click += new System.EventHandler(this.OnSaveAsSource);
+			// 
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(128, 128);
+			this.label7.Location = new System.Drawing.Point(168, 135);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(43, 15);
 			this.label7.TabIndex = 29;
@@ -284,6 +301,7 @@ namespace Lab3
 			this.label14.Size = new System.Drawing.Size(59, 15);
 			this.label14.TabIndex = 51;
 			this.label14.Text = "Threshold";
+			this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// label10
 			// 
@@ -372,19 +390,19 @@ namespace Lab3
 			this.groupBox2.Controls.Add(this.globalThresholdRadio);
 			this.groupBox2.Controls.Add(this.localThresholdRadio);
 			this.groupBox2.Controls.Add(this.button3);
-			this.groupBox2.Location = new System.Drawing.Point(749, 471);
+			this.groupBox2.Location = new System.Drawing.Point(745, 385);
 			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(136, 158);
+			this.groupBox2.Size = new System.Drawing.Size(150, 176);
 			this.groupBox2.TabIndex = 20;
 			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Binarization";
+			this.groupBox2.Text = "Бинаризация";
 			// 
 			// label12
 			// 
 			this.label12.AutoSize = true;
-			this.label12.Location = new System.Drawing.Point(7, 26);
+			this.label12.Location = new System.Drawing.Point(32, 41);
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(59, 15);
 			this.label12.TabIndex = 30;
@@ -394,7 +412,7 @@ namespace Lab3
 			// 
 			this.globalThresholdRadio.AutoSize = true;
 			this.globalThresholdRadio.Checked = true;
-			this.globalThresholdRadio.Location = new System.Drawing.Point(7, 44);
+			this.globalThresholdRadio.Location = new System.Drawing.Point(33, 60);
 			this.globalThresholdRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.globalThresholdRadio.Name = "globalThresholdRadio";
 			this.globalThresholdRadio.Size = new System.Drawing.Size(58, 19);
@@ -406,7 +424,7 @@ namespace Lab3
 			// localThresholdRadio
 			// 
 			this.localThresholdRadio.AutoSize = true;
-			this.localThresholdRadio.Location = new System.Drawing.Point(69, 44);
+			this.localThresholdRadio.Location = new System.Drawing.Point(33, 85);
 			this.localThresholdRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.localThresholdRadio.Name = "localThresholdRadio";
 			this.localThresholdRadio.Size = new System.Drawing.Size(50, 19);
@@ -416,23 +434,23 @@ namespace Lab3
 			// 
 			// button3
 			// 
-			this.button3.Location = new System.Drawing.Point(10, 123);
+			this.button3.Location = new System.Drawing.Point(27, 128);
 			this.button3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.button3.Name = "button3";
 			this.button3.Size = new System.Drawing.Size(88, 27);
 			this.button3.TabIndex = 20;
-			this.button3.Text = "Apply";
+			this.button3.Text = "Применить";
 			this.button3.UseVisualStyleBackColor = true;
 			this.button3.Click += new System.EventHandler(this.OnApplyBinarization);
 			// 
 			// button2
 			// 
-			this.button2.Location = new System.Drawing.Point(6, 55);
+			this.button2.Location = new System.Drawing.Point(26, 78);
 			this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.button2.Name = "button2";
 			this.button2.Size = new System.Drawing.Size(88, 27);
 			this.button2.TabIndex = 19;
-			this.button2.Text = "Apply";
+			this.button2.Text = "Применить";
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.OnCalculateContours);
 			// 
@@ -443,98 +461,87 @@ namespace Lab3
 			this.groupBox3.Controls.Add(this.shrinkingRadio);
 			this.groupBox3.Controls.Add(this.fastExpansionRadio);
 			this.groupBox3.Controls.Add(this.classicExpansionRadio);
-			this.groupBox3.Location = new System.Drawing.Point(590, 474);
+			this.groupBox3.Location = new System.Drawing.Point(593, 385);
 			this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox3.Size = new System.Drawing.Size(151, 155);
+			this.groupBox3.Size = new System.Drawing.Size(144, 176);
 			this.groupBox3.TabIndex = 21;
 			this.groupBox3.TabStop = false;
-			this.groupBox3.Text = "Morphological filtering";
+			this.groupBox3.Text = "Морфологическая фильтрация";
 			// 
 			// button4
 			// 
-			this.button4.Location = new System.Drawing.Point(16, 115);
+			this.button4.Location = new System.Drawing.Point(25, 128);
 			this.button4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.button4.Name = "button4";
 			this.button4.Size = new System.Drawing.Size(88, 27);
 			this.button4.TabIndex = 21;
-			this.button4.Text = "Apply";
+			this.button4.Text = "Применить";
 			this.button4.UseVisualStyleBackColor = true;
 			this.button4.Click += new System.EventHandler(this.OnApplyMorphologicalFiltering);
 			// 
 			// fastShrinkingRadio
 			// 
 			this.fastShrinkingRadio.AutoSize = true;
-			this.fastShrinkingRadio.Location = new System.Drawing.Point(16, 87);
+			this.fastShrinkingRadio.Location = new System.Drawing.Point(8, 100);
 			this.fastShrinkingRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.fastShrinkingRadio.Name = "fastShrinkingRadio";
-			this.fastShrinkingRadio.Size = new System.Drawing.Size(105, 19);
+			this.fastShrinkingRadio.Size = new System.Drawing.Size(122, 19);
 			this.fastShrinkingRadio.TabIndex = 9;
 			this.fastShrinkingRadio.TabStop = true;
-			this.fastShrinkingRadio.Text = "Shrinking (fast)";
+			this.fastShrinkingRadio.Text = "Быстрое сужение";
 			this.fastShrinkingRadio.UseVisualStyleBackColor = true;
 			// 
 			// shrinkingRadio
 			// 
 			this.shrinkingRadio.AutoSize = true;
-			this.shrinkingRadio.Location = new System.Drawing.Point(16, 68);
+			this.shrinkingRadio.Location = new System.Drawing.Point(8, 81);
 			this.shrinkingRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.shrinkingRadio.Name = "shrinkingRadio";
-			this.shrinkingRadio.Size = new System.Drawing.Size(75, 19);
+			this.shrinkingRadio.Size = new System.Drawing.Size(74, 19);
 			this.shrinkingRadio.TabIndex = 8;
 			this.shrinkingRadio.TabStop = true;
-			this.shrinkingRadio.Text = "Shrinking";
+			this.shrinkingRadio.Text = "Сужение";
 			this.shrinkingRadio.UseVisualStyleBackColor = true;
 			// 
 			// fastExpansionRadio
 			// 
 			this.fastExpansionRadio.AutoSize = true;
-			this.fastExpansionRadio.Location = new System.Drawing.Point(16, 47);
+			this.fastExpansionRadio.Location = new System.Drawing.Point(8, 60);
 			this.fastExpansionRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.fastExpansionRadio.Name = "fastExpansionRadio";
-			this.fastExpansionRadio.Size = new System.Drawing.Size(109, 19);
+			this.fastExpansionRadio.Size = new System.Drawing.Size(145, 19);
 			this.fastExpansionRadio.TabIndex = 7;
 			this.fastExpansionRadio.TabStop = true;
-			this.fastExpansionRadio.Text = "Expansion (fast)";
+			this.fastExpansionRadio.Text = "Быстрое расширение";
 			this.fastExpansionRadio.UseVisualStyleBackColor = true;
 			// 
 			// classicExpansionRadio
 			// 
 			this.classicExpansionRadio.AutoSize = true;
-			this.classicExpansionRadio.Location = new System.Drawing.Point(16, 28);
+			this.classicExpansionRadio.Location = new System.Drawing.Point(8, 41);
 			this.classicExpansionRadio.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.classicExpansionRadio.Name = "classicExpansionRadio";
 			this.classicExpansionRadio.Size = new System.Drawing.Size(95, 19);
 			this.classicExpansionRadio.TabIndex = 6;
 			this.classicExpansionRadio.TabStop = true;
-			this.classicExpansionRadio.Text = "Expansion";
+			this.classicExpansionRadio.Text = "Расширение";
 			this.classicExpansionRadio.UseVisualStyleBackColor = true;
-			// 
-			// button5
-			// 
-			this.button5.Location = new System.Drawing.Point(115, 485);
-			this.button5.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.button5.Name = "button5";
-			this.button5.Size = new System.Drawing.Size(147, 27);
-			this.button5.TabIndex = 22;
-			this.button5.Text = "Сделать исходным";
-			this.button5.UseVisualStyleBackColor = true;
-			this.button5.Click += new System.EventHandler(this.OnSaveAsSource);
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Controls.Add(this.toboganningSegmentationRadio);
 			this.groupBox4.Controls.Add(this.button6);
 			this.groupBox4.Controls.Add(this.regionExpansionRadio);
-			this.groupBox4.Location = new System.Drawing.Point(438, 474);
+			this.groupBox4.Location = new System.Drawing.Point(745, 255);
 			this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox4.Size = new System.Drawing.Size(144, 114);
+			this.groupBox4.Size = new System.Drawing.Size(150, 114);
 			this.groupBox4.TabIndex = 23;
 			this.groupBox4.TabStop = false;
-			this.groupBox4.Text = "Segmentation";
+			this.groupBox4.Text = "Сегментация";
 			// 
 			// toboganningSegmentationRadio
 			// 
@@ -550,12 +557,12 @@ namespace Lab3
 			// 
 			// button6
 			// 
-			this.button6.Location = new System.Drawing.Point(14, 78);
+			this.button6.Location = new System.Drawing.Point(27, 78);
 			this.button6.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.button6.Name = "button6";
 			this.button6.Size = new System.Drawing.Size(86, 27);
 			this.button6.TabIndex = 0;
-			this.button6.Text = "Apply";
+			this.button6.Text = "Применить";
 			this.button6.UseVisualStyleBackColor = true;
 			this.button6.Click += new System.EventHandler(this.OnApplySegmentation);
 			// 
@@ -571,72 +578,6 @@ namespace Lab3
 			this.regionExpansionRadio.Text = "расширение регионов";
 			this.regionExpansionRadio.UseVisualStyleBackColor = true;
 			// 
-			// tableLayoutPanel1
-			// 
-			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.tableLayoutPanel1.ColumnCount = 2;
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Controls.Add(this.inputPictureBox, 0, 1);
-			this.tableLayoutPanel1.Controls.Add(this.outputPictureBox, 1, 1);
-			this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
-			this.tableLayoutPanel1.Controls.Add(this.inputLabel, 0, 0);
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 6);
-			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(1189, 457);
-			this.tableLayoutPanel1.TabIndex = 30;
-			// 
-			// inputPictureBox
-			// 
-			this.inputPictureBox.BackColor = System.Drawing.Color.White;
-			this.inputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.inputPictureBox.Location = new System.Drawing.Point(6, 25);
-			this.inputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.inputPictureBox.Name = "inputPictureBox";
-			this.inputPictureBox.Size = new System.Drawing.Size(584, 427);
-			this.inputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.inputPictureBox.TabIndex = 11;
-			this.inputPictureBox.TabStop = false;
-			// 
-			// outputPictureBox
-			// 
-			this.outputPictureBox.BackColor = System.Drawing.Color.White;
-			this.outputPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.outputPictureBox.Location = new System.Drawing.Point(598, 25);
-			this.outputPictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.outputPictureBox.Name = "outputPictureBox";
-			this.outputPictureBox.Size = new System.Drawing.Size(585, 427);
-			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.outputPictureBox.TabIndex = 12;
-			this.outputPictureBox.TabStop = false;
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(598, 2);
-			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(63, 15);
-			this.label1.TabIndex = 14;
-			this.label1.Text = "Результат:";
-			// 
-			// inputLabel
-			// 
-			this.inputLabel.AutoSize = true;
-			this.inputLabel.Location = new System.Drawing.Point(6, 2);
-			this.inputLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.inputLabel.Name = "inputLabel";
-			this.inputLabel.Size = new System.Drawing.Size(141, 15);
-			this.inputLabel.TabIndex = 13;
-			this.inputLabel.Text = "Исходное изображение:";
-			// 
 			// contourBox
 			// 
 			this.contourBox.FormattingEnabled = true;
@@ -650,55 +591,43 @@ namespace Lab3
 			// 
 			this.groupBox5.Controls.Add(this.button2);
 			this.groupBox5.Controls.Add(this.contourBox);
-			this.groupBox5.Location = new System.Drawing.Point(286, 474);
+			this.groupBox5.Location = new System.Drawing.Point(592, 255);
 			this.groupBox5.Name = "groupBox5";
-			this.groupBox5.Size = new System.Drawing.Size(145, 95);
+			this.groupBox5.Size = new System.Drawing.Size(145, 114);
 			this.groupBox5.TabIndex = 32;
 			this.groupBox5.TabStop = false;
-			this.groupBox5.Text = "Contour";
+			this.groupBox5.Text = "Контур";
 			// 
-			// numericUpDown1
+			// inputPictureBox
 			// 
-			this.numericUpDown1.Location = new System.Drawing.Point(418, 601);
-			this.numericUpDown1.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-			this.numericUpDown1.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.numericUpDown1.Name = "numericUpDown1";
-			this.numericUpDown1.Size = new System.Drawing.Size(120, 23);
-			this.numericUpDown1.TabIndex = 33;
-			this.numericUpDown1.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+			this.inputPictureBox.BackColor = System.Drawing.Color.White;
+			this.inputPictureBox.Location = new System.Drawing.Point(9, 9);
+			this.inputPictureBox.Margin = new System.Windows.Forms.Padding(0);
+			this.inputPictureBox.Name = "inputPictureBox";
+			this.inputPictureBox.Size = new System.Drawing.Size(576, 324);
+			this.inputPictureBox.TabIndex = 11;
+			this.inputPictureBox.TabStop = false;
 			// 
-			// label8
+			// button7
 			// 
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(357, 604);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(55, 15);
-			this.label8.TabIndex = 34;
-			this.label8.Text = "Theshold";
+			this.button7.Location = new System.Drawing.Point(695, 578);
+			this.button7.Name = "button7";
+			this.button7.Size = new System.Drawing.Size(75, 23);
+			this.button7.TabIndex = 33;
+			this.button7.Text = "button7";
+			this.button7.UseVisualStyleBackColor = true;
+			this.button7.Click += new System.EventHandler(this.button7_Click_1);
 			// 
 			// Lab3Form
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1194, 637);
-			this.Controls.Add(this.label8);
-			this.Controls.Add(this.numericUpDown1);
+			this.ClientSize = new System.Drawing.Size(911, 669);
+			this.Controls.Add(this.button7);
+			this.Controls.Add(this.outputPictureBox);
+			this.Controls.Add(this.inputPictureBox);
 			this.Controls.Add(this.groupBox5);
-			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.groupBox4);
-			this.Controls.Add(this.button5);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
@@ -709,7 +638,9 @@ namespace Lab3
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.MinimizeBox = false;
 			this.Name = "Lab3Form";
-			this.Text = "Лабораторная №3";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "Lab3Form";
+			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.widthBox)).EndInit();
@@ -723,12 +654,8 @@ namespace Lab3
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
-			this.tableLayoutPanel1.ResumeLayout(false);
-			this.tableLayoutPanel1.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
 			this.groupBox5.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.inputPictureBox)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -760,11 +687,6 @@ namespace Lab3
         private System.Windows.Forms.RadioButton globalThresholdRadio;
         private System.Windows.Forms.RadioButton toboganningSegmentationRadio;
         private System.Windows.Forms.RadioButton regionExpansionRadio;
-		private TableLayoutPanel tableLayoutPanel1;
-		private PictureBox inputPictureBox;
-		private PictureBox outputPictureBox;
-		private Label label1;
-		private Label inputLabel;
 		private ComboBox contourBox;
 		private Label label11;
 		private Label label13;
@@ -782,7 +704,8 @@ namespace Lab3
 		private Label label7;
 		private Label label5;
 		private NumericUpDown threadsBox;
-		private NumericUpDown numericUpDown1;
-		private Label label8;
+		private PictureBox inputPictureBox;
+		private PictureBox outputPictureBox;
+		private Button button7;
 	}
 }
